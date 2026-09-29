@@ -98,6 +98,21 @@ struct ExtensionRegistryTests {
         #expect(throws: ExtensionManifest.Invalid.self) { try registry.inspect(impostor) }
     }
 
+    @Test func installingTakesOverFromADevelopmentCopy() throws {
+        let sandbox = try ExtensionSandbox()
+        let registry = sandbox.registry()
+        let source = try sandbox.makeExtension("size-guard")
+        try registry.loadDevelopment(from: source)
+        #expect(registry.installed(named: "size-guard") == nil)
+
+        try registry.install(registry.inspect(source))
+        #expect(registry.named("size-guard")?.source == .installed)
+        #expect(registry.installed(named: "size-guard") != nil)
+        #expect(!registry.isKnownDevelopmentFolder(source))
+        // Reopened, it's still the installed copy.
+        #expect(sandbox.registry().named("size-guard")?.source == .installed)
+    }
+
     @Test func anUpdateShowsWhatItCanNowDo() throws {
         let sandbox = try ExtensionSandbox()
         let registry = sandbox.registry()
@@ -439,5 +454,22 @@ struct ExtensionsTimingTests {
         // Removed downloads' results are forgotten.
         extensions.observe([torrent("c1", state: "stalledUP", progress: 1, completedOn: later)])
         #expect(extensions.checks.records(for: "c2").isEmpty)
+    }
+}
+
+/// Build with AI: what the Develop tab gives people to paste into their coding agent.
+struct AgentPromptTests {
+    @Test func saysWhatToBuildAndEveryStepAnAgentTakes() {
+        let prompt = AgentPrompt.text(for: "  Hold downloads that contain .scr files.\n", isDevelopment: false)
+        #expect(prompt.hasPrefix("Build an OrbTorrent extension for me. What it should do: Hold downloads that contain .scr files.\n"))
+        for command in ["npm create @orbtorrent/extension", "AGENTS.md", "npx orb doctor", "npx orb downloads", "npx orb run", "npx orb install"] {
+            #expect(prompt.contains(command), "missing \(command)")
+        }
+        #expect(!prompt.contains("ORB_APP"))
+        #expect(!prompt.contains("\n\n\n"))
+    }
+
+    @Test func pointsAgentsAtOrbTorrentDevFromIt() {
+        #expect(AgentPrompt.text(for: "Anything", isDevelopment: true).contains("put `ORB_APP=dev` before every `npx orb` command"))
     }
 }

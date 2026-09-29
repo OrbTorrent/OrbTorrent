@@ -1,10 +1,12 @@
 import { relative, resolve } from "node:path";
 import { build } from "./build.js";
 import { createExtension, templates } from "./create.js";
-import { devCommand, runCommand } from "./dev.js";
+import { devCommand, downloadsCommand, runCommand } from "./dev.js";
+import { doctorCommand } from "./doctor.js";
 import { lintCommand } from "./lint.js";
 import { CommandError, printError, printJSON, style } from "./output.js";
-import { packageExtension } from "./package.js";
+import { appName } from "./connection.js";
+import { installExtension, packageExtension } from "./package.js";
 import { sdkVersion } from "./paths.js";
 import { testCommand } from "./test.js";
 
@@ -18,10 +20,13 @@ Commands:
                          --title "<title>"
   build                Check package.json, type-check and bundle into dist/
   test [files…]        Run the tests in tests/, without OrbTorrent
+  lint                 Check the code with ESLint (--fix to fix what it can)
+  doctor               Check Node.js, OrbTorrent and this extension, and say what to fix
   dev                  Load into OrbTorrent, rebuild on every save and show logs
+  downloads            List your downloads in OrbTorrent, to run a hook on
   run [hook]           Run a hook on one of your downloads in OrbTorrent
                          --download "<name or info hash>"
-  lint                 Check the code with ESLint (--fix to fix what it can)
+  install              Package it and ask OrbTorrent to install it, once you confirm
   package              Make <name>.orbext, to install on another Mac
 
 Options:
@@ -82,7 +87,7 @@ async function main(): Promise<number> {
           printJSON({ ok: true, folder: target });
         } else {
           console.log(`${style.green("✓")} Made ${style.bold(shown)}. Next:\n`);
-          console.log(`  cd ${shown}\n  npm install\n  npm test          ${style.dim("# run its tests")}\n  npm run dev       ${style.dim("# load it into OrbTorrent")}`);
+          console.log(`  cd ${shown}\n  npm install\n  npm test          ${style.dim("# run its tests")}\n  npx orb doctor    ${style.dim("# check OrbTorrent is ready for it")}\n  npm run dev       ${style.dim("# load it into OrbTorrent")}`);
           console.log(`\n${style.dim("AGENTS.md in the folder explains the API, the rules and the loop to follow.")}`);
         }
         return 0;
@@ -104,6 +109,26 @@ async function main(): Promise<number> {
         return 0;
       case "run":
         return (await runCommand(folder, rest[0], text("download"), json)) ? 0 : 1;
+      case "doctor":
+        return (await doctorCommand(folder, json)) ? 0 : 1;
+      case "downloads":
+        return (await downloadsCommand(json)) ? 0 : 1;
+      case "install": {
+        const { archive, installed } = await installExtension(folder, () => {
+          if (!json) console.log(style.dim(`Waiting for you to confirm the install in ${appName}…`));
+        });
+        const file = relative(folder, archive);
+        if (json) {
+          printJSON(installed
+            ? { ok: true, installed: true, file: archive, app: appName }
+            : { ok: true, installed: false, file: archive, app: appName, next: `${appName} asks the user to install it. \`orb doctor\` shows when it's installed.` });
+        } else if (installed) {
+          console.log(`${style.green("✓")} Installed it in ${appName}.`);
+        } else {
+          console.log(`${style.green("✓")} Opened ${file} in ${appName}, which asks you to install it.`);
+        }
+        return 0;
+      }
       case "lint":
         return (await lintCommand(folder, { fix: flags.fix === true, json })) ? 0 : 1;
       case "package": {

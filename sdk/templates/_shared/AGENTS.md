@@ -15,15 +15,33 @@ Work in this order, and don't stop at a green build:
 3. `npx orb build --json`: validates `package.json`, type-checks and bundles
    into `dist/`.
 4. `npx orb lint --json`: ESLint with OrbTorrent's rules.
-5. `npx orb run <hook> --download "<name or info hash>" --json`: runs the hook
-   on a real download in OrbTorrent. This needs OrbTorrent open with
-   **Allow development extensions** on: it's on the **Develop** tab of the
-   **Extensions** page, in the sidebar of OrbTorrent's main window. The first time, the user has to
-   allow the folder in OrbTorrent.
+5. `npx orb doctor --json`: checks Node.js, OrbTorrent and this folder. A check
+   with `"ok": false` needs fixing, and its `fix` says how, including when only
+   the user can do it.
+6. `npx orb downloads --json`, then
+   `npx orb run <hook> --download "<name or info hash>" --json`: runs the hook
+   on one of the user's downloads in OrbTorrent. An `afterFinish` hook needs a
+   finished download.
+7. When it does what the user asked, `npx orb install --json`: OrbTorrent shows
+   what the extension does and what it can reach, and waits for the user. The
+   command returns `"installed": true` once they've installed it, or fails if
+   they chose not to. Tell the user to look at OrbTorrent before you run it.
 
 Every command takes `--json`, never prompts, and exits with 1 when something's
 wrong. `npx orb dev` keeps the extension loaded and rebuilds on every save; the
 user runs that one.
+
+### What only the user can do
+
+OrbTorrent keeps three steps for the user, so nothing reaches their torrent app
+without them. Ask for each one when `orb doctor` or a command says so, and never
+try to get around them:
+
+- Turn on **Allow development extensions**: in OrbTorrent, **Extensions** at the
+  bottom of the sidebar, then the **Develop** tab.
+- Allow the folder, when OrbTorrent asks the first time `orb run` or `orb dev`
+  loads it.
+- Confirm the install, after `orb install` opens it in OrbTorrent.
 
 ## Where the code runs
 
@@ -48,6 +66,7 @@ exits afterwards.
 |---|---|
 | `name` | Unique id: lowercase letters, digits and hyphens. |
 | `title`, `description`, `author`, `icon` | Shown on OrbTorrent's Extensions page. `icon` is a 512×512 PNG in `assets/`. |
+| `version` | Such as `1.0.0`, shown on its page. Raise it with each change you install or share. |
 | `hooks` | `[{ "name", "title", "description"?, "event" }]`. `event` is `beforeStart` or `afterFinish`. A hook named `check` is the default export of `src/check.ts`. |
 | `permissions.files` | `"contents"` lets it fingerprint and upload the download's files. Names and sizes are always given. |
 | `permissions.network` | Exact host names, such as `["www.virustotal.com"]`. Only HTTPS on port 443, and never local addresses. |
@@ -185,6 +204,10 @@ A test is a JSON file in `tests/`:
 
 ## Rules for good results
 
+- **Check as early as you can.** A download's names and sizes are known before
+  it starts, so a check on them belongs in `beforeStart`, where it can save the
+  user a download. Use `afterFinish` to read file contents, or to act once a
+  download is done, such as sending a notification.
 - **Write the summary in plain words, and say which file and why.** For example:
   "Contains a program disguised as a video: Film.mp4.exe". Use sentence case,
   with no full stop.
@@ -206,4 +229,4 @@ A test is a JSON file in `tests/`:
 | `"fs" is a Node.js module, and extensions don't run in Node.js…` | Use the API named in the message. |
 | `The hook "x" needs src/x.ts.` | Name the file after the hook, or rename the hook. |
 | `The test has no mock for GET https://…` | Add that URL to the test's `mocks.fetch`. |
-| `OrbTorrent isn't reachable.` | Ask the user to open OrbTorrent and allow development extensions. |
+| `OrbTorrent isn't reachable.` | Run `npx orb doctor --json` and do what its `fix` says. |

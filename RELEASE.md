@@ -156,6 +156,19 @@ OrbTorrent safely onto other people's Macs and keeping it up to date there.
   can publish, by hand with two-factor authentication. If the repo moves to
   the `orbtorrent` organisation, change the trusted publisher on npmjs.com and
   the packages' `repository` to match.
+- [x] **Building extensions with AI,** on 29 September 2026. The Develop tab
+  opens with **Build with AI**: the user says what the extension should do,
+  and it becomes a request to paste into Claude Code, Codex, Cursor, Gemini CLI
+  or another coding agent, with the three steps only the user takes (allowing
+  development extensions, allowing the folder, confirming the install). `orb`
+  gained `doctor` (what's missing, and who must fix it), `downloads`, and
+  `install`, which shows the install sheet and waits for the user's answer.
+  Installing replaces a development copy. `scripts/agent-eval.mjs` tests it:
+  Claude Code built all three test extensions right, and Codex all three
+  working, one checking after the download instead of before, which
+  `AGENTS.md` now covers. Cursor wasn't signed in. Needs `@orbtorrent/api`
+  1.0.1 on npm. Later, once the repo is public: the Agent Skill through `npx
+  skills add`, and the docs on Context7.
 - [ ] **Help menu, later:** the website and the extension docs, once both are
   public, and a GitHub issue as another way to report, once the repo is.
 - [x] **Privacy note,** in the About window and the README; the website

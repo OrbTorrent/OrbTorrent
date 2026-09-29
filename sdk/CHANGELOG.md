@@ -1,5 +1,19 @@
 # @orbtorrent/api Changelog
 
+## 1.0.1
+
+For building extensions with a coding agent. The extension API is unchanged.
+
+- `orb doctor` checks Node.js, OrbTorrent and the extension, and says what to
+  fix, including the steps only the user can take.
+- `orb downloads` lists the downloads in OrbTorrent, to run a hook on.
+- `orb install` packages the extension and asks OrbTorrent to install it.
+  OrbTorrent shows what it does and what it can reach, and `orb install` waits
+  for the user's answer. The installed copy replaces a development copy.
+- `AGENTS.md` in new extensions covers them, and what only the user can do.
+- New extensions start with `"version": "1.0.0"`, which OrbTorrent shows on
+  their page.
+
 ## 1.0.0
 
 The first version on npm. Runs in OrbTorrent with extension API 1.0.

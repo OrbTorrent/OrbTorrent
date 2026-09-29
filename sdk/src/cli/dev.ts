@@ -1,6 +1,6 @@
 import { watch } from "node:fs";
 import { build } from "./build.js";
-import { AppConnection, Message } from "./connection.js";
+import { AppConnection, appName, Message } from "./connection.js";
 import { CommandError, printError, printJSON, style } from "./output.js";
 
 const levels: Record<string, (text: string) => string> = {
@@ -110,6 +110,40 @@ export async function runCommand(folder: string, hookName: string | undefined, d
       console.log(`${style.red("✗")} ${result.message}`);
     }
     return result.outcome === "returned";
+  } finally {
+    connection.close();
+  }
+}
+
+function formatSize(bytes: number): string {
+  const units = ["bytes", "KB", "MB", "GB", "TB"];
+  let size = bytes;
+  let unit = 0;
+  while (size >= 1000 && unit < units.length - 1) {
+    size /= 1000;
+    unit++;
+  }
+  return `${unit === 0 ? size : size.toFixed(1)} ${units[unit]}`;
+}
+
+/** Lists the downloads in OrbTorrent, to choose one for `orb run`. */
+export async function downloadsCommand(json: boolean): Promise<boolean> {
+  const connection = await AppConnection.open();
+  try {
+    const reply = await connection.request({ type: "downloads" }, ["downloads"]);
+    const downloads = (reply.downloads ?? []) as { id: string; name: string; size: number; progress: number; finished: boolean }[];
+    if (json) {
+      printJSON({ ok: true, downloads });
+    } else if (downloads.length === 0) {
+      console.log(`There are no downloads in ${appName} yet. Add one, such as a Linux image, to try a hook on.`);
+    } else {
+      for (const download of downloads) {
+        const state = download.finished ? style.green("finished") : `${Math.floor(download.progress * 100)}%`.padEnd(8);
+        console.log(`${state}  ${formatSize(download.size).padStart(9)}  ${download.name}  ${style.dim(download.id)}`);
+      }
+      console.log(style.dim(`\nRun a hook on one with \`npx orb run <hook> --download "<name or info hash>"\`. An afterFinish hook needs a finished one.`));
+    }
+    return true;
   } finally {
     connection.close();
   }

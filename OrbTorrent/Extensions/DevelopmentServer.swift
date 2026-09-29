@@ -2,9 +2,16 @@ import Darwin
 import Foundation
 import Observation
 
-/// Listens for `orb dev` and `orb run` on a socket only this account can
-/// open, while development extensions are allowed. Messages are JSON
-/// objects, one per line; see sdk/src/cli/connection.ts.
+/// What the user decided on the install sheet `orb install` asked for.
+enum InstallDecision: Sendable {
+    case installed(String)
+    case cancelled
+    case failed(String)
+}
+
+/// Listens for `orb` (`dev`, `run`, `doctor`, `downloads` and `install`) on a socket
+/// only this account can open, while development extensions are allowed.
+/// Messages are JSON objects, one per line; see sdk/src/cli/connection.ts.
 @MainActor
 @Observable
 final class DevelopmentServer {
@@ -13,6 +20,8 @@ final class DevelopmentServer {
     @ObservationIgnored var torrents: () -> [Torrent] = { [] }
     /// Asks the user before loading a folder for the first time.
     @ObservationIgnored var confirmLoading: (InstalledExtension, URL) async -> Bool = { _, _ in false }
+    /// Shows the install sheet, and says what the user decided.
+    @ObservationIgnored var requestInstall: (URL) async -> InstallDecision = { _ in .cancelled }
 
     private var listener: Int32 = -1
     @ObservationIgnored private var acceptSource: DispatchSourceRead?
@@ -119,6 +128,15 @@ final class DevelopmentServer {
             if let name = message["name"]?.string { watch(name, for: connection) }
         case "run":
             Task { await run(message, for: connection) }
+        case "downloads":
+            connection.send(["type": "downloads", "downloads": .array(torrents().map { torrent in
+                ["id": .string(torrent.hash), "name": .string(torrent.name), "size": .number(Double(torrent.size)),
+                 "progress": .number(torrent.progress), "finished": .bool(torrent.isComplete)]
+            })])
+        case "status":
+            status(message, for: connection)
+        case "install":
+            Task { await install(message["path"]?.string, for: connection) }
         default:
             connection.send(["type": "error", "message": "OrbTorrent doesn't know that request. Update OrbTorrent or @orbtorrent/api."])
         }
@@ -208,6 +226,39 @@ final class DevelopmentServer {
         if let details = record.details { result["details"] = .string(details) }
         if let link = record.link { result["link"] = ["title": .string(link.title), "url": .string(link.url.absoluteString)] }
         connection.send(.object(result))
+    }
+
+    /// For `orb install`: the install sheet, where only the user can say yes.
+    private func install(_ path: String?, for connection: Connection) async {
+        guard let path else { return connection.fail("No file was given.") }
+        switch await requestInstall(URL(fileURLWithPath: path)) {
+        case .installed(let name):
+            connection.send(["type": "installed", "name": .string(name)])
+        case .cancelled:
+            connection.fail("The user chose not to install it.")
+        case .failed(let message):
+            connection.fail("OrbTorrent couldn't install it: \(message)")
+        }
+    }
+
+    /// For `orb doctor`: whether a built folder has been allowed, and which
+    /// copy of the extension OrbTorrent runs, if any.
+    private func status(_ message: JSONValue, for connection: Connection) {
+        let registry = extensions.registry
+        let name = message["name"]?.string ?? ""
+        var reply: [String: JSONValue] = ["type": "status", "api": .string(ExtensionAPI.versionString)]
+        if let path = message["path"]?.string {
+            let folder = URL(fileURLWithPath: path, isDirectory: true).standardizedFileURL
+            reply["allowed"] = .bool(registry.isKnownDevelopmentFolder(folder))
+        }
+        if let item = registry.named(name) {
+            reply["active"] = ["source": .string(item.source.rawValue), "version": .string(item.manifest.version ?? ""),
+                               "on": .bool(registry.isEnabled(item))]
+        }
+        if let item = registry.installed(named: name) {
+            reply["installed"] = ["version": .string(item.manifest.version ?? "")]
+        }
+        connection.send(.object(reply))
     }
 
     private static func log(_ entry: ExtensionLogEntry, name: String) -> JSONValue {

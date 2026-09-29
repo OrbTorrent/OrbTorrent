@@ -26,6 +26,7 @@ An extension's `package.json` is npm's, with OrbTorrent's fields added.
 | `description` | yes | One sentence on what it does. |
 | `author` | yes | Your name or handle. |
 | `icon` | no | A 512×512 PNG in `assets/`. |
+| `version` | no | Such as `1.0.0`, shown on its page. Raise it when you share a change. |
 | `hooks` | yes | `{ "name", "title", "description"?, "event" }`. `event` is `beforeStart` or `afterFinish`. The hook named `check` is the default export of `src/check.ts`. |
 | `permissions.files` | no | `"contents"` to fingerprint and upload the download's files. |
 | `permissions.network` | no | Exact host names, such as `"www.virustotal.com"`. |

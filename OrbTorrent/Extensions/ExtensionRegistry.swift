@@ -276,7 +276,17 @@ final class ExtensionRegistry {
             try FileManager.default.moveItem(at: candidate.extension.folder, to: target)
         }
         if enabled[candidate.extension.name] != false { setEnabled(true, for: candidate.extension) }
+        // Installed for good, it takes over from a development copy of itself.
+        developmentFolders.removeAll { path in
+            (try? InstalledExtension.load(from: URL(fileURLWithPath: path), source: .development))?.name == candidate.extension.name
+        }
         reload()
+    }
+
+    /// The installed copy of an extension, even while a development copy stands in for it.
+    func installed(named name: String) -> InstalledExtension? {
+        let folder = installedFolder.appending(path: name, directoryHint: .isDirectory)
+        return try? InstalledExtension.load(from: folder, source: .installed)
     }
 
     func cancel(_ candidate: ExtensionCandidate) {

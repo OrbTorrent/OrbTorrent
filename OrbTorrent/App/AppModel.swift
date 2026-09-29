@@ -43,6 +43,8 @@ final class AppModel {
     @ObservationIgnored private var openMainWindow: (() -> Void)?
     @ObservationIgnored private var wantsMainWindow = false
     @ObservationIgnored private var hasLaunched = false
+    /// `orb install`, waiting for the user to decide on the install sheet.
+    @ObservationIgnored private var installWaiter: CheckedContinuation<InstallDecision, Never>?
 
     func registerWindowOpener(_ opener: @escaping () -> Void) {
         openMainWindow = opener
@@ -82,6 +84,7 @@ final class AppModel {
         store.statusActivity = { [weak self] torrent in self?.checkActivity(of: torrent) }
         developmentServer.torrents = { [weak self] in self?.store.torrents ?? [] }
         developmentServer.confirmLoading = { [weak self] item, folder in self?.confirmDevelopmentLoad(item, from: folder) ?? false }
+        developmentServer.requestInstall = { [weak self] url in await self?.requestInstallAndWait(from: url) ?? .cancelled }
     }
 
     /// What a download's status line says while its checks hold it.
@@ -126,6 +129,43 @@ final class AppModel {
             extensions.installError = error.localizedDescription
         }
         showExtensions()
+    }
+
+    /// For `orb install`: shows the install sheet in front, and waits for the
+    /// user to install the extension or not.
+    func requestInstallAndWait(from url: URL) async -> InstallDecision {
+        finishWaiting(.cancelled)
+        return await withCheckedContinuation { continuation in
+            installWaiter = continuation
+            NSApp.activate()
+            requestInstall(from: url)
+            // Nothing to decide: extensions stayed off, or the file was refused.
+            if extensions.installRequest == nil {
+                finishWaiting(extensions.installError.map(InstallDecision.failed) ?? .cancelled)
+            }
+        }
+    }
+
+    /// What the user chose on the install sheet.
+    func finishInstall(_ candidate: ExtensionCandidate, install: Bool) {
+        extensions.installRequest = nil
+        guard install else {
+            extensions.registry.cancel(candidate)
+            return finishWaiting(.cancelled)
+        }
+        do {
+            try extensions.registry.install(candidate)
+            showExtensions(candidate.extension.name)
+            finishWaiting(.installed(candidate.extension.name))
+        } catch {
+            extensions.installError = error.localizedDescription
+            finishWaiting(.failed(error.localizedDescription))
+        }
+    }
+
+    private func finishWaiting(_ decision: InstallDecision) {
+        installWaiter?.resume(returning: decision)
+        installWaiter = nil
     }
 
     /// Asks for an .orbext file or an extension's folder to install.

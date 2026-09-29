@@ -88,17 +88,7 @@ struct MainWindowView: View {
         }
         .sheet(item: $extensions.installRequest) { candidate in
             ExtensionInstallSheet(candidate: candidate) { install in
-                model.extensions.installRequest = nil
-                if install {
-                    do {
-                        try model.extensions.registry.install(candidate)
-                        model.showExtensions(candidate.extension.name)
-                    } catch {
-                        model.extensions.installError = error.localizedDescription
-                    }
-                } else {
-                    model.extensions.registry.cancel(candidate)
-                }
+                model.finishInstall(candidate, install: install)
             }
         }
         .alert("The Extension Couldn't Be Installed", isPresented: Binding(get: { extensions.installError != nil },

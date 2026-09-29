@@ -42,15 +42,28 @@ size-guard/
 npm test                               # orb test: runs tests/*.json without OrbTorrent
 npm run build                          # orb build: validates, type-checks and bundles into dist/
 npm run lint                           # orb lint: ESLint with OrbTorrent's rules
+npx orb doctor                         # checks Node.js and OrbTorrent, and says what's missing
 npm run dev                            # orb dev: loads it into OrbTorrent, rebuilds on every save
-npx orb run check --download "Name"    # runs a hook on one of your downloads
+npx orb downloads                      # lists your downloads
+npx orb run check --download "Name"    # runs a hook on one of them
+npx orb install                        # asks OrbTorrent to install it, once you confirm
 npx orb package                        # makes size-guard.orbext, to install on any Mac
 ```
 
 `orb dev` and `orb run` need OrbTorrent open with **Allow development
-extensions** on, on the Develop tab of its Extensions page. Every command takes
-`--json` for output a script or coding agent can read, never prompts, and exits
-with 1 when something's wrong.
+extensions** on, on the Develop tab of its Extensions page, and OrbTorrent asks
+before loading a folder the first time. Every command takes `--json` for output
+a script or coding agent can read, never prompts, and exits with 1 when
+something's wrong.
+
+## With a coding agent
+
+Coding agents such as Claude Code, Codex, Cursor and Gemini CLI can build an
+extension for you. On OrbTorrent's Develop tab, **Build with AI** turns what you
+want into a request to paste into your agent. Every new extension has an
+`AGENTS.md` that tells the agent the rest, and `orb doctor` tells it what's
+missing. Three steps stay with you: turning on development extensions, allowing
+the folder, and confirming the install.
 
 ## A hook
 
@@ -102,11 +115,13 @@ extension can do, from its hooks and permissions, before they install it.
 
 ## Versions
 
-OrbTorrent runs extensions built with this package's major version, up to the
-minor version it supports. An extension built with 1.2 needs an OrbTorrent that
-supports 1.2; OrbTorrent says so if it's too old. New things come in minor
-versions, and anything that would break an extension waits for a new major
-version. See the [changelog](CHANGELOG.md).
+This package's major and minor version are the extension API's. OrbTorrent
+runs extensions built with its major version, up to the minor version it
+supports: one built with 1.2 needs an OrbTorrent that supports 1.2, and
+OrbTorrent says so if it's too old. Additions to the API come in minor versions,
+anything that would break an extension waits for a new major version, and patch
+versions improve `orb` and fix bugs without changing the API. See the
+[changelog](CHANGELOG.md).
 
 ## Docs
 

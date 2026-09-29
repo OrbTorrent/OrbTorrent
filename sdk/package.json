@@ -1,6 +1,6 @@
 {
   "name": "@orbtorrent/api",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Build extensions for OrbTorrent, the BitTorrent app for macOS: the API extensions use, and the orb command-line tool.",
   "keywords": [
     "orbtorrent",

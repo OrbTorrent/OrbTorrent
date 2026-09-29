@@ -2,7 +2,8 @@
 
 ## An .orbext file
 
-`orb package` builds the extension and zips `dist/` into `<name>.orbext`. Opening
+`orb package` builds the extension and zips `dist/` into `<name>.orbext`, and
+`orb install` also asks OrbTorrent on this Mac to install it. Opening
 it on a Mac with OrbTorrent, or choosing it with **Install Extension…** on the
 Extensions page, shows the install sheet:
 

@@ -4,23 +4,28 @@ import { join } from "node:path";
 import { CommandError } from "./output.js";
 import { sdkVersion } from "./paths.js";
 
-// OrbTorrent listens for `orb dev` and `orb run` on a socket only your account
-// can open, while "Allow development extensions" is on (Extensions → Develop).
-// Messages are JSON objects, one per line.
+// OrbTorrent listens for `orb` on a socket only your account can open, while
+// "Allow development extensions" is on (Extensions → Develop). Messages are
+// JSON objects, one per line.
 
 export type Message = { type: string; [key: string]: any };
 
 // ORB_APP=dev reaches OrbTorrent Dev instead, the build used while developing
 // OrbTorrent itself.
-const appName = process.env.ORB_APP === "dev" ? "OrbTorrent Dev" : "OrbTorrent";
+const isDev = process.env.ORB_APP === "dev";
+export const appName = isDev ? "OrbTorrent Dev" : "OrbTorrent";
+export const bundleIdentifier = isDev ? "com.orbtorrent.mac.dev" : "com.orbtorrent.mac";
 
 export const socketPath = join(homedir(), "Library", "Application Support", appName, "dev.sock");
 
 const notReachable = new CommandError(`${appName} isn't reachable.`, [
   `Open ${appName}, then on the Develop tab of its Extensions page (in the sidebar) turn on “Allow development extensions”.`,
+  "`orb doctor` says exactly what's missing.",
 ]);
 
 export class AppConnection {
+  /** OrbTorrent's greeting: its version, and the extension API it supports. */
+  app: Message = { type: "hello" };
   private buffer = "";
   private listeners = new Set<(message: Message) => void>();
   private closed = false;
@@ -58,6 +63,7 @@ export class AppConnection {
     const connection = new AppConnection(socket);
     const hello = await connection.request({ type: "hello", client: "orb", version: sdkVersion }, ["hello"]);
     if (hello.type !== "hello") throw notReachable;
+    connection.app = hello;
     return connection;
   }
 

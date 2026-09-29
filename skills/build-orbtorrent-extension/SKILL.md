@@ -28,11 +28,15 @@ permissions.
    - `npx orb lint --json`
 
    Every command takes `--json`, never prompts, and exits with 1 on failure.
-5. **When OrbTorrent is open,** confirm on a real download with
-   `npx orb run <hook> --download "<name>" --json`. The user needs
-   **Allow development extensions** on (on the Develop tab of OrbTorrent's
-   **Extensions** page), and has to
-   allow the folder the first time.
+5. **Check OrbTorrent is ready** with `npx orb doctor --json`. A check with
+   `"ok": false` needs fixing, and its `fix` says how. Some steps only the user
+   can take in OrbTorrent: ask them, and never try to get around them.
+6. **Confirm on a real download:** `npx orb downloads --json` lists them, then
+   `npx orb run <hook> --download "<name>" --json`. The first time, OrbTorrent
+   asks the user to allow the folder.
+7. **Install it** once it does what the user asked: `npx orb install --json`
+   shows the install sheet in OrbTorrent, and returns `"installed": true` once
+   the user has confirmed it.
 
 ## Key facts
 

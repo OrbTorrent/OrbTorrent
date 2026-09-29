@@ -191,16 +191,24 @@ many Macs checked for updates each day, by version.
 `@orbtorrent/api` (`sdk/`) and `@orbtorrent/create-extension`
 (`sdk/create-extension/`) are on npm under the `orbtorrent` organisation.
 
-1. Raise `version` in `sdk/package.json` (a minor version for anything new, a
-   major one for anything that breaks an extension), add it to
-   `sdk/CHANGELOG.md`, and raise `ExtensionAPI.version` in
-   `ExtensionManifest.swift` to match, so OrbTorrent runs what it builds.
+1. Raise `version` in `sdk/package.json` and add it to `sdk/CHANGELOG.md`.
+   The major and minor version are the extension API's: a patch version for
+   changes to `orb` and fixes, a minor one for additions to the API, and a
+   major one for anything that breaks an extension. For a new minor or major
+   version, raise `ExtensionAPI.version` in `ExtensionManifest.swift` to match,
+   so OrbTorrent runs what it builds.
 2. Push a tag such as `sdk-v1.1.0`. CI checks it matches, builds, tests and
    publishes whichever of the two packages has a version that isn't on npm
    yet, through npm's trusted publishing, so no npm token is stored anywhere.
 
 `@orbtorrent/create-extension` depends on `^1` of the API, so it only needs a
 new version when it changes itself, or for a new major version.
+
+`node scripts/agent-eval.mjs` asks the coding agents on this Mac (Claude Code,
+Codex and Cursor) to build three extensions from what the Develop tab's **Build
+with AI** gives them, each in an empty folder with the SDK from npm, and checks
+that they pass their tests, build, lint, run at the right moment and ask for no
+more than they need. Run it after changing the SDK's docs or `AGENTS.md`.
 
 ## Project layout
 
