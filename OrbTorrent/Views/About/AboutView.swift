@@ -93,10 +93,13 @@ struct AcknowledgementsView: View {
                 .listStyle(.sidebar)
                 .frame(width: 210)
                 Divider()
-                ScrollView {
+                // Licences are laid out in lines of up to 80 characters, so
+                // they're shown as they are, never rewrapped.
+                ScrollView([.vertical, .horizontal]) {
                     Text(Acknowledgement.all.first { $0.id == selection }?.text ?? "")
-                        .font(.system(.caption, design: .monospaced))
+                        .font(.system(size: 11, design: .monospaced))
                         .textSelection(.enabled)
+                        .fixedSize()
                         .frame(maxWidth: .infinity, alignment: .leading)
                         .padding(16)
                 }
@@ -113,7 +116,7 @@ struct AcknowledgementsView: View {
             }
             .padding(16)
         }
-        .frame(width: 660, height: 480)
+        .frame(width: 780, height: 500)
     }
 }
 
