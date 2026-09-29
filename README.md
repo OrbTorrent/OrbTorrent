@@ -231,7 +231,7 @@ OrbTorrent/
 ExtensionHost/  orb-extension-host, the sandboxed helper that runs extensions
 extensions/     The official extensions (Fake Download Check, VirusTotal Scan)
 sdk/            @orbtorrent/api: the extension API, the orb CLI and templates
-  create-extension/  @orbtorrent/create-extension, for npm create @orbtorrent/extension
+  create-extension/  @orbtorrent/create-extension, for npm create @orbtorrent/extension@latest
 skills/         The Agent Skill for building extensions
 engine/         Engine build script, pinned versions and patches
 updates/        updates.orbtorrent.com, the update feed (a Cloudflare Worker)

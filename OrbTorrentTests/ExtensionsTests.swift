@@ -462,7 +462,7 @@ struct AgentPromptTests {
     @Test func saysWhatToBuildAndEveryStepAnAgentTakes() {
         let prompt = AgentPrompt.text(for: "  Hold downloads that contain .scr files.\n", isDevelopment: false)
         #expect(prompt.hasPrefix("Build an OrbTorrent extension for me. What it should do: Hold downloads that contain .scr files.\n"))
-        for command in ["npm create @orbtorrent/extension", "AGENTS.md", "npx orb doctor", "npx orb downloads", "npx orb run", "npx orb install"] {
+        for command in ["npm create @orbtorrent/extension@latest", "AGENTS.md", "npx orb doctor", "npx orb downloads", "npx orb run", "npx orb install"] {
             #expect(prompt.contains(command), "missing \(command)")
         }
         #expect(!prompt.contains("ORB_APP"))

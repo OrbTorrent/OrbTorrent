@@ -141,7 +141,7 @@ OrbTorrent safely onto other people's Macs and keeping it up to date there.
   addresses and the user name hidden, then opens the person's mail app
   addressed to `help@orbtorrent.com`. Nothing is sent on its own.
 - [x] **Extension SDK on npm,** so anyone can build extensions with
-  `npm create @orbtorrent/extension <name>`: `@orbtorrent/api` (the API and
+  `npm create @orbtorrent/extension@latest <name>`: `@orbtorrent/api` (the API and
   the `orb` tool) and `@orbtorrent/create-extension`, 1.0.0, published by the
   owner on 29 September 2026. Both are MIT licensed, so extensions can use any
   licence (the app stays GPL). The Develop tab, guides and Agent Skill say
@@ -164,12 +164,13 @@ OrbTorrent safely onto other people's Macs and keeping it up to date there.
   gained `doctor` (what's missing, and who must fix it), `downloads`, and
   `install`, which shows the install sheet and waits for the user's answer.
   Installing replaces a development copy. `scripts/agent-eval.mjs` tests it:
-  Claude Code built all three test extensions right, and Codex all three
-  working, one checking after the download instead of before, which
-  `AGENTS.md` now covers. Cursor wasn't signed in. `@orbtorrent/api` 1.0.1
-  has it, published by GitHub Actions through trusted publishing the same day,
-  the first release from CI. Later, once the repo is public: the Agent Skill through `npx
-  skills add`, and the docs on Context7.
+  Claude Code and Codex each built all three test extensions right, Cursor
+  wasn't signed in. That testing found `npm create` reusing an old cached
+  template, fixed in 1.0.2 and by saying `npm create
+  @orbtorrent/extension@latest` everywhere (1.0.3). `@orbtorrent/api` 1.0.1 to
+  1.0.3 were published by GitHub Actions through trusted publishing the same
+  day, the first releases from CI. Later, once the repo is public: the Agent
+  Skill through `npx skills add`, and the docs on Context7.
 - [ ] **Help menu, later:** the website and the extension docs, once both are
   public, and a GitHub issue as another way to report, once the repo is.
 - [x] **Privacy note,** in the About window and the README; the website

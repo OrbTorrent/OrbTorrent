@@ -380,7 +380,7 @@ private struct GetStarted: View {
     }
 
     private static let steps = [
-        Step(title: "Make an extension", command: "npm create @orbtorrent/extension my-extension",
+        Step(title: "Make an extension", command: "npm create @orbtorrent/extension@latest my-extension",
              detail: "Then `cd my-extension` and `npm install`. Add `-- --template after-finish` for a hook that runs once a download finishes. You need Node.js 22.13 or later."),
         Step(title: "Test it", command: "npm test",
              detail: "Runs the JSON tests in `tests/` without OrbTorrent, on a virtual clock."),

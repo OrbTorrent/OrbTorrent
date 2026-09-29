@@ -15,7 +15,7 @@ permissions.
 ## Steps
 
 1. **Start from a template, unless you're changing an existing extension.**
-   Run `npm create @orbtorrent/extension <name> -- --template before-start|after-finish`,
+   Run `npm create @orbtorrent/extension@latest <name> -- --template before-start|after-finish`,
    then `npm install` in the new folder.
 2. **Read `references/AGENTS.md`.** It covers the API, the manifest, the hooks,
    the test format, the rules for good results, and the errors you'll see with

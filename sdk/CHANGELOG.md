@@ -1,5 +1,11 @@
 # @orbtorrent/api Changelog
 
+## 1.0.3
+
+- The docs, the npm pages and `npm create`'s help say
+  `npm create @orbtorrent/extension@latest`. Without `@latest`, npm keeps
+  running whichever version it cached first.
+
 ## 1.0.2
 
 - `npm create @orbtorrent/extension` always makes the extension from the

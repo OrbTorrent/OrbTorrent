@@ -15,7 +15,7 @@ are extensions built with this package.
 You need Node.js 22.13 or later, and OrbTorrent to load it into.
 
 ```sh
-npm create @orbtorrent/extension size-guard
+npm create @orbtorrent/extension@latest size-guard
 cd size-guard
 npm install
 ```
