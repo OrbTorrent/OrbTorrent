@@ -151,7 +151,10 @@ async function makeRealExtension(home) {
   return folder;
 }
 
-test("orb install waits for the user to confirm it in OrbTorrent", { timeout: 120_000 }, async () => {
+// Packaging an extension uses macOS's ditto, so these run on a Mac only.
+const onMac = { timeout: 120_000, skip: process.platform !== "darwin" && "packaging needs macOS" };
+
+test("orb install waits for the user to confirm it in OrbTorrent", onMac, async () => {
   const app = await fakeApp({ hello, install: { type: "installed", name: "size-guard" } });
   try {
     const folder = await makeRealExtension(app.home);
@@ -166,7 +169,7 @@ test("orb install waits for the user to confirm it in OrbTorrent", { timeout: 12
   }
 });
 
-test("orb install says when the user chose not to install it", { timeout: 120_000 }, async () => {
+test("orb install says when the user chose not to install it", onMac, async () => {
   const app = await fakeApp({ hello, install: { type: "error", message: "The user chose not to install it." } });
   try {
     const folder = await makeRealExtension(app.home);

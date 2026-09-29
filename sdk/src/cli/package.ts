@@ -11,6 +11,7 @@ export async function packageExtension(folder: string): Promise<string> {
   const archive = join(folder, `${built.manifest.name}.orbext`);
   rmSync(archive, { force: true });
   const result = spawnSync("/usr/bin/ditto", ["-c", "-k", "--norsrc", built.dist, archive], { encoding: "utf8" });
+  if (result.error) throw new CommandError("The .orbext file couldn't be made: it needs macOS's ditto.", [result.error.message]);
   if (result.status !== 0) throw new CommandError("The .orbext file couldn't be made.", [result.stderr.trim()]);
   return archive;
 }
@@ -44,7 +45,7 @@ export async function installExtension(folder: string, onWaiting: () => void): P
   }
   const result = spawnSync("/usr/bin/open", ["-b", bundleIdentifier, archive], { encoding: "utf8" });
   if (result.status !== 0) {
-    throw new CommandError(`${appName} couldn't be opened to install it.`, [result.stderr.trim(), "`orb doctor` checks that it's installed."].filter(Boolean));
+    throw new CommandError(`${appName} couldn't be opened to install it.`, [result.stderr?.trim(), "`orb doctor` checks that it's installed."].filter(Boolean) as string[]);
   }
   return { archive, installed: false };
 }
