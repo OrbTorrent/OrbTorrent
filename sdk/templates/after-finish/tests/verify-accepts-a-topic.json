@@ -1,0 +1,6 @@
+{
+  "name": "Verify accepts a plain topic",
+  "verify": true,
+  "preferences": { "topic": "my-downloads" },
+  "expect": { "ok": true }
+}

@@ -1,0 +1,20 @@
+{
+  "name": "Holds a film that includes a program",
+  "download": {
+    "name": "The.Batman.2022.1080p.BluRay.x265",
+    "files": [
+      {
+        "path": "The.Batman.2022.1080p.BluRay.x265/The.Batman.2022.1080p.BluRay.x265.mkv",
+        "size": 3000000000
+      },
+      {
+        "path": "The.Batman.2022.1080p.BluRay.x265/Codec Installer.exe",
+        "size": 1200000
+      }
+    ]
+  },
+  "expect": {
+    "status": "failed",
+    "summaryIncludes": "includes a program: Codec Installer.exe"
+  }
+}

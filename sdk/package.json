@@ -1,0 +1,46 @@
+{
+  "name": "@orbtorrent/api",
+  "version": "1.0.0",
+  "description": "Build extensions for OrbTorrent: the API extensions use, and the orb command-line tool.",
+  "license": "GPL-3.0-or-later",
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    },
+    "./eslint": "./eslint.config.js",
+    "./tsconfig": "./tsconfig.extension.json",
+    "./package.json": "./package.json"
+  },
+  "bin": {
+    "orb": "./bin/orb.js"
+  },
+  "files": [
+    "bin",
+    "dist",
+    "templates",
+    "eslint.config.js",
+    "tsconfig.extension.json",
+    "README.md"
+  ],
+  "engines": {
+    "node": ">=22.13"
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.runtime.json && tsc -p tsconfig.cli.json",
+    "test": "node --test \"test/*.test.js\""
+  },
+  "dependencies": {
+    "@eslint/js": "^10.0.0",
+    "esbuild": "^0.28.2",
+    "eslint": "^10.11.0",
+    "typescript": "~6.0.3",
+    "typescript-eslint": "^8.70.1"
+  },
+  "devDependencies": {
+    "@types/node": "^24.0.0"
+  }
+}

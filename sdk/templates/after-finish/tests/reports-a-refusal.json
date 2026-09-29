@@ -1,0 +1,9 @@
+{
+  "name": "Reports it when ntfy doesn't take the message",
+  "preferences": { "topic": "my-downloads" },
+  "download": { "name": "Film.mkv", "files": [{ "path": "Film.mkv", "size": 1000 }] },
+  "mocks": {
+    "fetch": [{ "method": "POST", "url": "https://ntfy.sh/*", "status": 429, "text": "rate limited" }]
+  },
+  "expect": { "status": "skipped", "summaryIncludes": "429" }
+}

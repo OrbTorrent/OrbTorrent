@@ -1,0 +1,22 @@
+# Xcode
+OrbTorrent.xcodeproj/
+build/
+DerivedData/
+*.xcuserstate
+xcuserdata/
+
+# Engine build (sources are downloaded and verified by engine/build.sh)
+engine/.cache/
+engine/.build/
+engine/dist/
+engine/.build-*.log
+
+# macOS
+.DS_Store
+
+# Extensions (npm workspace: sdk and extensions)
+node_modules/
+sdk/dist/
+extensions/*/dist/
+extensions/*/orb-env.d.ts
+*.orbext

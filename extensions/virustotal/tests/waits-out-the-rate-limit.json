@@ -1,0 +1,54 @@
+{
+  "preferences": {
+    "apiKey": "test-key"
+  },
+  "name": "Waits a minute after a rate limit, then carries on",
+  "download": {
+    "name": "Tool 2.0",
+    "files": [
+      {
+        "path": "Tool 2.0/setup.exe",
+        "size": 5000000,
+        "sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+      },
+      {
+        "path": "Tool 2.0/readme.txt",
+        "size": 900,
+        "sha256": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc"
+      }
+    ]
+  },
+  "mocks": {
+    "fetch": [
+      {
+        "url": "https://www.virustotal.com/api/v3/files/aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "status": 429,
+        "times": 1,
+        "json": {
+          "error": {
+            "code": "QuotaExceededError"
+          }
+        }
+      },
+      {
+        "url": "https://www.virustotal.com/api/v3/files/aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "json": {
+          "data": {
+            "attributes": {
+              "last_analysis_stats": {
+                "malicious": 0,
+                "suspicious": 0,
+                "undetected": 60,
+                "harmless": 10,
+                "type-unsupported": 2
+              }
+            }
+          }
+        }
+      }
+    ]
+  },
+  "expect": {
+    "status": "passed"
+  }
+}

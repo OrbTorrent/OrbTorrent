@@ -1,0 +1,11 @@
+{
+  "manifest": {
+    "name": "x"
+  },
+  "problems": [
+    "“title” is missing.",
+    "“description” is missing.",
+    "“author” is missing.",
+    "“hooks” must list at least one hook."
+  ]
+}

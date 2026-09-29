@@ -1,0 +1,24 @@
+{
+  "name": "Holds a film that includes a Mac app",
+  "download": {
+    "name": "Inside.Out.2.2024.1080p",
+    "files": [
+      {
+        "path": "Inside.Out.2.2024.1080p/Inside.Out.2.2024.1080p.mp4",
+        "size": 2000000000
+      },
+      {
+        "path": "Inside.Out.2.2024.1080p/Play Film.app/Contents/MacOS/Play Film",
+        "size": 4000000
+      },
+      {
+        "path": "Inside.Out.2.2024.1080p/Play Film.app/Contents/Info.plist",
+        "size": 2000
+      }
+    ]
+  },
+  "expect": {
+    "status": "failed",
+    "summaryIncludes": "Play Film.app"
+  }
+}

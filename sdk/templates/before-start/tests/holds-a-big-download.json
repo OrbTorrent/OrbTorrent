@@ -1,0 +1,11 @@
+{
+  "name": "Holds a download bigger than the limit",
+  "download": {
+    "name": "Big.Collection",
+    "files": [
+      { "path": "Big.Collection/part1.mkv", "size": 40000000000 },
+      { "path": "Big.Collection/part2.mkv", "size": 20000000000 }
+    ]
+  },
+  "expect": { "status": "failed", "summaryIncludes": "more than your 50 GB limit" }
+}

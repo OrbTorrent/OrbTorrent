@@ -1,0 +1,30 @@
+{
+  "preferences": {
+    "apiKey": "test-key"
+  },
+  "name": "Verify accepts a key VirusTotal takes",
+  "verify": true,
+  "mocks": {
+    "fetch": [
+      {
+        "url": "https://www.virustotal.com/api/v3/files/275a021bbfb6489e54d471899f7db9d1663fc695ec2fe2a2c4538aabf651fd0f",
+        "json": {
+          "data": {
+            "attributes": {
+              "last_analysis_stats": {
+                "malicious": 60,
+                "suspicious": 0,
+                "undetected": 60,
+                "harmless": 10,
+                "type-unsupported": 2
+              }
+            }
+          }
+        }
+      }
+    ]
+  },
+  "expect": {
+    "ok": true
+  }
+}

@@ -1,0 +1,56 @@
+{
+  "preferences": {
+    "apiKey": "test-key"
+  },
+  "name": "Passes known-clean files and lists unknown ones",
+  "download": {
+    "name": "Pack",
+    "files": [
+      {
+        "path": "Pack/setup.exe",
+        "size": 5000000,
+        "sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+      },
+      {
+        "path": "Pack/extras.zip",
+        "size": 9000000,
+        "sha256": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+      }
+    ]
+  },
+  "mocks": {
+    "fetch": [
+      {
+        "url": "https://www.virustotal.com/api/v3/files/aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "json": {
+          "data": {
+            "attributes": {
+              "last_analysis_stats": {
+                "malicious": 0,
+                "suspicious": 0,
+                "undetected": 60,
+                "harmless": 10,
+                "type-unsupported": 2
+              }
+            }
+          }
+        }
+      },
+      {
+        "url": "https://www.virustotal.com/api/v3/files/bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+        "status": 404,
+        "json": {
+          "error": {
+            "code": "NotFoundError",
+            "message": "File not found"
+          }
+        }
+      }
+    ]
+  },
+  "expect": {
+    "status": "passed",
+    "summaryIncludes": "1 not known to VirusTotal",
+    "detailsIncludes": "extras.zip"
+  }
+}

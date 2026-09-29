@@ -1,0 +1,20 @@
+{
+  "name": "Passes a software download with an installer",
+  "download": {
+    "name": "LibreOffice 26.2 for Windows",
+    "files": [
+      {
+        "path": "LibreOffice 26.2 for Windows/LibreOffice_26.2_Win_x86-64.msi",
+        "size": 350000000
+      },
+      {
+        "path": "LibreOffice 26.2 for Windows/readme.txt",
+        "size": 3000
+      }
+    ]
+  },
+  "expect": {
+    "status": "passed",
+    "summaryIncludes": "No disguised programs"
+  }
+}

@@ -1,0 +1,34 @@
+{
+  "manifest": {
+    "name": "size-guard",
+    "title": "Size Guard",
+    "description": "Holds big downloads.",
+    "author": "you",
+    "hooks": [
+      {
+        "name": "check",
+        "event": "beforeStart"
+      }
+    ],
+    "permissions": {
+      "network": [
+        "API.Example.com"
+      ]
+    },
+    "preferences": [
+      {
+        "name": "limit",
+        "type": "dropdown",
+        "title": "Limit",
+        "default": "50",
+        "data": [
+          {
+            "title": "50 GB",
+            "value": "50"
+          }
+        ]
+      }
+    ]
+  },
+  "problems": []
+}

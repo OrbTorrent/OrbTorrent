@@ -1,0 +1,8 @@
+{
+  "name": "Lets a small download start",
+  "download": {
+    "name": "Small.Film.mkv",
+    "files": [{ "path": "Small.Film.mkv", "size": 2000000000 }]
+  },
+  "expect": { "status": "passed" }
+}

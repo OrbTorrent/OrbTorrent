@@ -1,0 +1,55 @@
+name: Extensions
+
+on:
+  pull_request:
+    paths:
+      - "extensions/**"
+      - "sdk/**"
+      - "docs/extensions/**"
+      - "skills/**"
+      - "package.json"
+      - "package-lock.json"
+
+permissions:
+  contents: read
+  pull-requests: write
+
+jobs:
+  extensions:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install
+        run: npm ci --no-audit --no-fund
+
+      - name: Build and test the SDK
+        run: |
+          npm run build --workspace sdk
+          npm test --workspace sdk
+
+      - name: Test, lint and build each official extension
+        run: |
+          for extension in extensions/*/; do
+            (cd "$extension" && npx orb test && npx orb lint && npx orb build) || exit 1
+          done
+
+      - name: Check the generated docs are up to date
+        run: node scripts/extension-docs.mjs --check
+
+      - name: Comment on changed permissions
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          node scripts/extension-permissions.mjs "origin/${{ github.base_ref }}" > permissions.md
+          if [ -s permissions.md ]; then
+            gh pr comment "${{ github.event.pull_request.number }}" --body-file permissions.md --edit-last \
+              || gh pr comment "${{ github.event.pull_request.number }}" --body-file permissions.md
+          fi

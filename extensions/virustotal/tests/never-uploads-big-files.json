@@ -1,0 +1,39 @@
+{
+  "preferences": {
+    "apiKey": "test-key",
+    "uploadUnknown": true
+  },
+  "name": "Doesn't upload files over 32 MB",
+  "download": {
+    "name": "Tool",
+    "files": [
+      {
+        "path": "Tool/tool.exe",
+        "size": 40000000,
+        "sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+      }
+    ]
+  },
+  "mocks": {
+    "fetch": [
+      {
+        "url": "https://www.virustotal.com/api/v3/files/aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "status": 404,
+        "json": {
+          "error": {
+            "code": "NotFoundError",
+            "message": "File not found"
+          }
+        }
+      }
+    ]
+  },
+  "expect": {
+    "status": "skipped",
+    "not": {
+      "fetched": [
+        "https://www.virustotal.com/api/v3/files"
+      ]
+    }
+  }
+}

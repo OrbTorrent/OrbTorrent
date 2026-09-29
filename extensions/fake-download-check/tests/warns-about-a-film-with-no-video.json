@@ -1,0 +1,20 @@
+{
+  "name": "Warns about a film-like name with no video",
+  "download": {
+    "name": "Moana.2.2024.1080p.WEB-DL",
+    "files": [
+      {
+        "path": "Moana.2.2024.1080p.WEB-DL/Moana.2.2024.1080p.nfo",
+        "size": 3000
+      },
+      {
+        "path": "Moana.2.2024.1080p.WEB-DL/readme.txt",
+        "size": 400
+      }
+    ]
+  },
+  "expect": {
+    "status": "warning",
+    "summaryIncludes": "no video file"
+  }
+}

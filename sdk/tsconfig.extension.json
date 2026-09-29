@@ -1,0 +1,15 @@
+{
+  "$comment": "The TypeScript settings for an OrbTorrent extension. Extensions run in OrbTorrent's JavaScript engine, not Node.js or a browser, so neither's types are included.",
+  "compilerOptions": {
+    "target": "ES2022",
+    "module": "ESNext",
+    "moduleResolution": "Bundler",
+    "lib": ["ES2023"],
+    "types": [],
+    "strict": true,
+    "noEmit": true,
+    "isolatedModules": true,
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true
+  }
+}

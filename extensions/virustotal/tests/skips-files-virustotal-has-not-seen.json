@@ -1,0 +1,39 @@
+{
+  "preferences": {
+    "apiKey": "test-key"
+  },
+  "name": "Says so when VirusTotal hasn't seen the files",
+  "download": {
+    "name": "Tool 2.0",
+    "files": [
+      {
+        "path": "Tool 2.0/setup.exe",
+        "size": 5000000,
+        "sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+      },
+      {
+        "path": "Tool 2.0/readme.txt",
+        "size": 900,
+        "sha256": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc"
+      }
+    ]
+  },
+  "mocks": {
+    "fetch": [
+      {
+        "url": "https://www.virustotal.com/api/v3/files/*",
+        "status": 404,
+        "json": {
+          "error": {
+            "code": "NotFoundError",
+            "message": "File not found"
+          }
+        }
+      }
+    ]
+  },
+  "expect": {
+    "status": "skipped",
+    "summaryIncludes": "hasn't seen this file"
+  }
+}

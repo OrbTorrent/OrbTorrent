@@ -1,0 +1,38 @@
+{
+  "preferences": {
+    "apiKey": "test-key"
+  },
+  "name": "Doesn't upload unless the setting is on",
+  "download": {
+    "name": "Tool",
+    "files": [
+      {
+        "path": "Tool/tool.exe",
+        "size": 1000000,
+        "sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+      }
+    ]
+  },
+  "mocks": {
+    "fetch": [
+      {
+        "url": "https://www.virustotal.com/api/v3/files/aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "status": 404,
+        "json": {
+          "error": {
+            "code": "NotFoundError",
+            "message": "File not found"
+          }
+        }
+      }
+    ]
+  },
+  "expect": {
+    "status": "skipped",
+    "not": {
+      "fetched": [
+        "https://www.virustotal.com/api/v3/files"
+      ]
+    }
+  }
+}

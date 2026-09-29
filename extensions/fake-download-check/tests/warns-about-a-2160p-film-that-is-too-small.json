@@ -1,0 +1,16 @@
+{
+  "name": "Warns about a 2160p film that's far too small",
+  "download": {
+    "name": "Conclave 2024 2160p UHD",
+    "files": [
+      {
+        "path": "Conclave 2024 2160p UHD/Conclave.mkv",
+        "size": 700000000
+      }
+    ]
+  },
+  "expect": {
+    "status": "warning",
+    "summaryIncludes": "2160p"
+  }
+}

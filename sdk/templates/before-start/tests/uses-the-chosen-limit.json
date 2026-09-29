@@ -1,0 +1,9 @@
+{
+  "name": "Uses the limit chosen in settings",
+  "preferences": { "limit": "100" },
+  "download": {
+    "name": "Big.Collection",
+    "files": [{ "path": "Big.Collection/part1.mkv", "size": 60000000000 }]
+  },
+  "expect": { "status": "passed", "summaryIncludes": "within your 100 GB limit" }
+}

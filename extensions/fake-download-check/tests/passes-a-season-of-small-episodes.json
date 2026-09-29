@@ -1,0 +1,55 @@
+{
+  "name": "Passes a season of small 720p episodes",
+  "download": {
+    "name": "Severance.S02.720p.WEB-DL",
+    "files": [
+      {
+        "path": "Severance.S02.720p.WEB-DL/Severance.S02E01.720p.mkv",
+        "size": 350000000
+      },
+      {
+        "path": "Severance.S02.720p.WEB-DL/Severance.S02E02.720p.mkv",
+        "size": 350000000
+      },
+      {
+        "path": "Severance.S02.720p.WEB-DL/Severance.S02E03.720p.mkv",
+        "size": 350000000
+      },
+      {
+        "path": "Severance.S02.720p.WEB-DL/Severance.S02E04.720p.mkv",
+        "size": 350000000
+      },
+      {
+        "path": "Severance.S02.720p.WEB-DL/Severance.S02E05.720p.mkv",
+        "size": 350000000
+      },
+      {
+        "path": "Severance.S02.720p.WEB-DL/Severance.S02E06.720p.mkv",
+        "size": 350000000
+      },
+      {
+        "path": "Severance.S02.720p.WEB-DL/Severance.S02E07.720p.mkv",
+        "size": 350000000
+      },
+      {
+        "path": "Severance.S02.720p.WEB-DL/Severance.S02E08.720p.mkv",
+        "size": 350000000
+      },
+      {
+        "path": "Severance.S02.720p.WEB-DL/Severance.S02E09.720p.mkv",
+        "size": 350000000
+      },
+      {
+        "path": "Severance.S02.720p.WEB-DL/Severance.S02E10.720p.mkv",
+        "size": 350000000
+      },
+      {
+        "path": "Severance.S02.720p.WEB-DL/Severance.S02E01.720p.srt",
+        "size": 60000
+      }
+    ]
+  },
+  "expect": {
+    "status": "passed"
+  }
+}

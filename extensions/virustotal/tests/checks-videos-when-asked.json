@@ -1,0 +1,49 @@
+{
+  "preferences": {
+    "apiKey": "test-key",
+    "scope": "all"
+  },
+  "name": "Checks a film when set to check all files",
+  "download": {
+    "name": "Film.2024.1080p",
+    "files": [
+      {
+        "path": "Film.2024.1080p/Film.mkv",
+        "size": 2000000000,
+        "sha256": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+      },
+      {
+        "path": "Film.2024.1080p/Film.nfo",
+        "size": 2000,
+        "sha256": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc"
+      }
+    ]
+  },
+  "mocks": {
+    "fetch": [
+      {
+        "url": "https://www.virustotal.com/api/v3/files/*",
+        "json": {
+          "data": {
+            "attributes": {
+              "last_analysis_stats": {
+                "malicious": 0,
+                "suspicious": 0,
+                "undetected": 60,
+                "harmless": 10,
+                "type-unsupported": 2
+              }
+            }
+          }
+        }
+      }
+    ]
+  },
+  "expect": {
+    "status": "passed",
+    "fetched": [
+      "https://www.virustotal.com/api/v3/files/bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+      "https://www.virustotal.com/api/v3/files/cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc"
+    ]
+  }
+}

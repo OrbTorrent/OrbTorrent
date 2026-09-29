@@ -1,0 +1,4 @@
+{
+  "extends": "@orbtorrent/api/tsconfig",
+  "include": ["src", "orb-env.d.ts"]
+}

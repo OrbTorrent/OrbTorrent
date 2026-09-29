@@ -1,0 +1,11 @@
+{
+  "preferences": {
+    "apiKey": "  "
+  },
+  "name": "Verify asks for a key when it's empty",
+  "verify": true,
+  "expect": {
+    "ok": false,
+    "messageIncludes": "Enter your API key"
+  }
+}

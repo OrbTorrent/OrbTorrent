@@ -1,0 +1,13 @@
+{
+  "name": "orbtorrent-workspace",
+  "private": true,
+  "description": "The OrbTorrent extension SDK and the official extensions.",
+  "workspaces": [
+    "sdk",
+    "extensions/*"
+  ],
+  "scripts": {
+    "build": "npm run build --workspace sdk && npm run build --workspaces --if-present --include-workspace-root=false",
+    "test": "npm test --workspaces --if-present"
+  }
+}

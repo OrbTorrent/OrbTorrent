@@ -1,0 +1,36 @@
+{
+  "name": "Passes a real film release with its extras",
+  "download": {
+    "name": "The.Wild.Robot.2024.1080p.WEB-DL.x264",
+    "files": [
+      {
+        "path": "The.Wild.Robot.2024.1080p.WEB-DL.x264/The.Wild.Robot.2024.1080p.WEB-DL.x264.mkv",
+        "size": 2400000000
+      },
+      {
+        "path": "The.Wild.Robot.2024.1080p.WEB-DL.x264/The.Wild.Robot.2024.1080p.WEB-DL.x264.nfo",
+        "size": 4000
+      },
+      {
+        "path": "The.Wild.Robot.2024.1080p.WEB-DL.x264/Subs/English.srt",
+        "size": 90000
+      },
+      {
+        "path": "The.Wild.Robot.2024.1080p.WEB-DL.x264/Sample/sample.mkv",
+        "size": 50000000
+      },
+      {
+        "path": "The.Wild.Robot.2024.1080p.WEB-DL.x264/RARBG.txt",
+        "size": 30
+      },
+      {
+        "path": "The.Wild.Robot.2024.1080p.WEB-DL.x264/www.YTS.MX.jpg",
+        "size": 55000
+      }
+    ]
+  },
+  "expect": {
+    "status": "passed",
+    "summaryIncludes": "No signs of a fake"
+  }
+}

@@ -1,0 +1,6 @@
+{
+  "name": "Verify refuses a topic with spaces",
+  "verify": true,
+  "preferences": { "topic": "my downloads" },
+  "expect": { "ok": false, "messageIncludes": "letters, digits" }
+}

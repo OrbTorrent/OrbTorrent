@@ -1,0 +1,12 @@
+{
+  "name": "Sends the download's name to the topic",
+  "preferences": { "topic": "my-downloads" },
+  "download": {
+    "name": "Ubuntu 26.04 Desktop",
+    "files": [{ "path": "ubuntu-26.04-desktop-amd64.iso", "size": 6000000000 }]
+  },
+  "mocks": {
+    "fetch": [{ "method": "POST", "url": "https://ntfy.sh/my-downloads", "status": 200, "json": { "id": "abc" } }]
+  },
+  "expect": { "status": "passed", "fetched": ["https://ntfy.sh/my-downloads"] }
+}

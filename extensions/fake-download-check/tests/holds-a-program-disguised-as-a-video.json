@@ -1,0 +1,20 @@
+{
+  "name": "Holds a program disguised as a video",
+  "download": {
+    "name": "Dune.Part.Two.2024.1080p.WEB-DL.x264",
+    "files": [
+      {
+        "path": "Dune.Part.Two.2024.1080p.WEB-DL.x264/Dune.Part.Two.2024.1080p.mp4.exe",
+        "size": 2400000
+      },
+      {
+        "path": "Dune.Part.Two.2024.1080p.WEB-DL.x264/README.txt",
+        "size": 900
+      }
+    ]
+  },
+  "expect": {
+    "status": "failed",
+    "summaryIncludes": "program disguised as a video: Dune.Part.Two.2024.1080p.mp4.exe"
+  }
+}

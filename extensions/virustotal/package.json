@@ -1,0 +1,64 @@
+{
+  "name": "virustotal",
+  "title": "VirusTotal Scan",
+  "description": "Checks finished downloads against about 70 antivirus engines, by each file's fingerprint.",
+  "author": "orbtorrent",
+  "icon": "icon.png",
+  "license": "GPL-3.0-or-later",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "hooks": [
+    {
+      "name": "scan",
+      "title": "Scan with VirusTotal",
+      "description": "Looks up each file's fingerprint on VirusTotal, riskiest files first.",
+      "event": "afterFinish"
+    }
+  ],
+  "permissions": {
+    "files": "contents",
+    "network": ["www.virustotal.com"]
+  },
+  "preferences": [
+    {
+      "name": "apiKey",
+      "type": "password",
+      "title": "API key",
+      "description": "Your free VirusTotal API key.",
+      "placeholder": "64 letters and digits",
+      "required": true
+    },
+    {
+      "name": "scope",
+      "type": "dropdown",
+      "title": "Files to check",
+      "description": "Films and music rarely carry malware, and each lookup counts towards your daily limit.",
+      "required": false,
+      "default": "risky",
+      "data": [
+        { "title": "Programs, archives and documents", "value": "risky" },
+        { "title": "All files", "value": "all" }
+      ]
+    },
+    {
+      "name": "uploadUnknown",
+      "type": "checkbox",
+      "title": "Files VirusTotal hasn't seen",
+      "label": "Upload them to be scanned (up to 32 MB each)",
+      "description": "Uploaded files are shared with VirusTotal's paying customers. Leave this off for anything private.",
+      "required": false,
+      "default": false
+    }
+  ],
+  "verify": "verify",
+  "scripts": {
+    "build": "orb build",
+    "dev": "orb dev",
+    "test": "orb test",
+    "lint": "orb lint"
+  },
+  "dependencies": {
+    "@orbtorrent/api": "^1.0.0"
+  }
+}

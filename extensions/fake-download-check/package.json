@@ -1,0 +1,30 @@
+{
+  "name": "fake-download-check",
+  "title": "Fake Download Check",
+  "description": "Holds downloads that look fake, such as a film that contains a program, until you decide.",
+  "author": "orbtorrent",
+  "icon": "icon.png",
+  "license": "GPL-3.0-or-later",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "hooks": [
+    {
+      "name": "check",
+      "title": "Check for signs of a fake",
+      "description": "Looks at the names and sizes of a download's files before any of it downloads.",
+      "event": "beforeStart"
+    }
+  ],
+  "permissions": {},
+  "preferences": [],
+  "scripts": {
+    "build": "orb build",
+    "dev": "orb dev",
+    "test": "orb test",
+    "lint": "orb lint"
+  },
+  "dependencies": {
+    "@orbtorrent/api": "^1.0.0"
+  }
+}

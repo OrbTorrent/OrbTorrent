@@ -1,0 +1,19 @@
+{
+  "name": "Passes a link that only says where it came from",
+  "download": {
+    "name": "Heretic.2024.1080p.WEBRip",
+    "files": [
+      {
+        "path": "Heretic.2024.1080p.WEBRip/Heretic.2024.1080p.mp4",
+        "size": 1900000000
+      },
+      {
+        "path": "Heretic.2024.1080p.WEBRip/Downloaded From YTS.url",
+        "size": 110
+      }
+    ]
+  },
+  "expect": {
+    "status": "passed"
+  }
+}

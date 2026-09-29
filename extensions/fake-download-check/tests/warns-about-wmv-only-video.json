@@ -1,0 +1,16 @@
+{
+  "name": "Warns about a film whose only video is .wmv",
+  "download": {
+    "name": "Flow.2024.1080p.WEB-DL",
+    "files": [
+      {
+        "path": "Flow.2024.1080p.WEB-DL/Flow.2024.1080p.wmv",
+        "size": 1500000000
+      }
+    ]
+  },
+  "expect": {
+    "status": "warning",
+    "summaryIncludes": "codec required"
+  }
+}

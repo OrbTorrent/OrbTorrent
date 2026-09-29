@@ -1,0 +1,20 @@
+{
+  "name": "Holds a name that hides its extension with a right-to-left character",
+  "download": {
+    "name": "Holiday photos",
+    "files": [
+      {
+        "path": "Holiday photos/Beach‮gpj.exe",
+        "size": 800000
+      },
+      {
+        "path": "Holiday photos/Pier.jpg",
+        "size": 2000000
+      }
+    ]
+  },
+  "expect": {
+    "status": "failed",
+    "summaryIncludes": "invisible character"
+  }
+}

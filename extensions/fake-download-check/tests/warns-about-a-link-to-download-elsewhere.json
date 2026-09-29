@@ -1,0 +1,20 @@
+{
+  "name": "Warns about a link to download it elsewhere",
+  "download": {
+    "name": "Nosferatu.2024.720p.WEBRip",
+    "files": [
+      {
+        "path": "Nosferatu.2024.720p.WEBRip/Nosferatu.2024.720p.mp4",
+        "size": 900000000
+      },
+      {
+        "path": "Nosferatu.2024.720p.WEBRip/CLICK HERE TO WATCH FULL MOVIE.url",
+        "size": 120
+      }
+    ]
+  },
+  "expect": {
+    "status": "warning",
+    "summaryIncludes": "elsewhere"
+  }
+}

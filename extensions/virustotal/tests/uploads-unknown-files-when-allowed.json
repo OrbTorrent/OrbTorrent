@@ -1,0 +1,74 @@
+{
+  "preferences": {
+    "apiKey": "test-key",
+    "uploadUnknown": true
+  },
+  "name": "Uploads a file VirusTotal hasn't seen, when allowed",
+  "download": {
+    "name": "Tool",
+    "files": [
+      {
+        "path": "Tool/tool.exe",
+        "size": 1000000,
+        "sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+      }
+    ]
+  },
+  "mocks": {
+    "fetch": [
+      {
+        "url": "https://www.virustotal.com/api/v3/files/aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "status": 404,
+        "json": {
+          "error": {
+            "code": "NotFoundError",
+            "message": "File not found"
+          }
+        }
+      },
+      {
+        "method": "POST",
+        "url": "https://www.virustotal.com/api/v3/files",
+        "json": {
+          "data": {
+            "type": "analysis",
+            "id": "an-1"
+          }
+        }
+      },
+      {
+        "url": "https://www.virustotal.com/api/v3/analyses/an-1",
+        "times": 1,
+        "json": {
+          "data": {
+            "attributes": {
+              "status": "queued"
+            }
+          }
+        }
+      },
+      {
+        "url": "https://www.virustotal.com/api/v3/analyses/an-1",
+        "json": {
+          "data": {
+            "attributes": {
+              "status": "completed",
+              "stats": {
+                "malicious": 0,
+                "suspicious": 0,
+                "undetected": 65,
+                "harmless": 5
+              }
+            }
+          }
+        }
+      }
+    ]
+  },
+  "expect": {
+    "status": "passed",
+    "fetched": [
+      "https://www.virustotal.com/api/v3/files"
+    ]
+  }
+}

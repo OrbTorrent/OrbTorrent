@@ -1,0 +1,45 @@
+{
+  "manifest": {
+    "name": "x",
+    "title": "T",
+    "description": "D",
+    "author": "A",
+    "hooks": [
+      {
+        "name": "check",
+        "event": "afterFinish"
+      }
+    ],
+    "preferences": [
+      {
+        "name": "key",
+        "type": "password",
+        "default": "secret"
+      },
+      {
+        "name": "mode",
+        "type": "dropdown"
+      },
+      {
+        "name": "on",
+        "type": "checkbox",
+        "default": "yes"
+      },
+      {
+        "name": "1st",
+        "type": "textfield"
+      },
+      {
+        "name": "size",
+        "type": "slider"
+      }
+    ]
+  },
+  "problems": [
+    "The password “key” can't have a default.",
+    "The dropdown “mode” needs “data”: a list of { title, value }.",
+    "The checkbox “on” needs true or false as its default.",
+    "preferences[3] needs a “name” made of letters, digits and underscores, starting with a letter.",
+    "preferences[4] (“size”) needs a “type”: textfield, password, checkbox or dropdown."
+  ]
+}

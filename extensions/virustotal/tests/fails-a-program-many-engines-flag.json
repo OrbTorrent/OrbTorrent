@@ -1,0 +1,46 @@
+{
+  "preferences": {
+    "apiKey": "test-key"
+  },
+  "name": "Fails a program that 12 engines flag",
+  "download": {
+    "name": "Tool 2.0",
+    "files": [
+      {
+        "path": "Tool 2.0/setup.exe",
+        "size": 5000000,
+        "sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+      },
+      {
+        "path": "Tool 2.0/readme.txt",
+        "size": 900,
+        "sha256": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc"
+      }
+    ]
+  },
+  "mocks": {
+    "fetch": [
+      {
+        "url": "https://www.virustotal.com/api/v3/files/aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "json": {
+          "data": {
+            "attributes": {
+              "last_analysis_stats": {
+                "malicious": 12,
+                "suspicious": 0,
+                "undetected": 48,
+                "harmless": 10,
+                "type-unsupported": 2
+              }
+            }
+          }
+        }
+      }
+    ]
+  },
+  "expect": {
+    "status": "failed",
+    "summaryIncludes": "12 of 70 engines flag setup.exe",
+    "detailsIncludes": "https://www.virustotal.com/gui/file/aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+  }
+}

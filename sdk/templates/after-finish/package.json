@@ -1,0 +1,42 @@
+{
+  "name": "{{name}}",
+  "title": "{{title}}",
+  "description": "Sends a notification to your phone through ntfy when a download finishes.",
+  "author": "you",
+  "icon": "icon.png",
+  "license": "MIT",
+  "private": true,
+  "type": "module",
+  "hooks": [
+    {
+      "name": "notify",
+      "title": "Send a notification",
+      "description": "Sends the download's name to your ntfy topic.",
+      "event": "afterFinish"
+    }
+  ],
+  "permissions": {
+    "network": ["ntfy.sh"]
+  },
+  "preferences": [
+    {
+      "name": "topic",
+      "type": "textfield",
+      "title": "ntfy topic",
+      "description": "The topic you subscribed to in the ntfy app.",
+      "placeholder": "orbtorrent-downloads-4821",
+      "required": true
+    }
+  ],
+  "verify": "verify",
+  "scripts": {
+    "build": "orb build",
+    "dev": "orb dev",
+    "test": "orb test",
+    "lint": "orb lint",
+    "package": "orb package"
+  },
+  "dependencies": {
+    "@orbtorrent/api": "{{api}}"
+  }
+}

@@ -1,0 +1,16 @@
+{
+  "name": "Holds a disguise padded with spaces",
+  "download": {
+    "name": "Oppenheimer 2023 720p",
+    "files": [
+      {
+        "path": "Oppenheimer 2023 720p/Oppenheimer.avi                          .exe",
+        "size": 3100000
+      }
+    ]
+  },
+  "expect": {
+    "status": "failed",
+    "summaryIncludes": "disguised as a video"
+  }
+}

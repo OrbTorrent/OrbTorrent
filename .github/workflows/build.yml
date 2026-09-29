@@ -1,0 +1,71 @@
+name: Build
+
+# While the repo is private, macOS runners use up GitHub's free Actions
+# minutes ten times as fast, so this runs only for version tags and when
+# started by hand. Once the repo is public, add back:
+#   push: { branches: [main] }
+#   pull_request:
+on:
+  push:
+    tags: ["v*"]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: macos-26
+    timeout-minutes: 120
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Select Xcode
+        uses: maxim-lobanov/setup-xcode@v1
+        with:
+          xcode-version: latest-stable
+
+      - name: Install build tools
+        run: brew install cmake ninja xcodegen
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Test the extension SDK and official extensions
+        run: make test-extensions
+
+      - name: Restore engine build
+        id: engine-cache
+        uses: actions/cache@v4
+        with:
+          path: |
+            engine/dist
+            engine/.cache
+          key: engine-universal-${{ hashFiles('engine/versions.env', 'engine/build.sh', 'engine/patches/**') }}
+
+      - name: Build engine (universal)
+        if: steps.engine-cache.outputs.cache-hit != 'true'
+        run: make engine ARCHS="arm64 x86_64"
+
+      - name: Run tests
+        run: make test
+
+      - name: Build app and disk image
+        run: make dmg ARCHS="arm64 x86_64"
+
+      - name: Upload disk image
+        uses: actions/upload-artifact@v4
+        with:
+          name: OrbTorrent-dmg
+          path: build/*.dmg
+
+      - name: Publish release
+        if: startsWith(github.ref, 'refs/tags/v')
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release create "$GITHUB_REF_NAME" build/*.dmg engine/.cache/*.tar.* \
+            --title "OrbTorrent ${GITHUB_REF_NAME#v}" --generate-notes --draft

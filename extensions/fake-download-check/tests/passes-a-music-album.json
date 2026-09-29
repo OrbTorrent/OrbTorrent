@@ -1,0 +1,55 @@
+{
+  "name": "Passes a music album",
+  "download": {
+    "name": "Artist - Album (2024) [FLAC]",
+    "files": [
+      {
+        "path": "Artist - Album (2024) [FLAC]/01 - Track.flac",
+        "size": 30000000
+      },
+      {
+        "path": "Artist - Album (2024) [FLAC]/02 - Track.flac",
+        "size": 30000000
+      },
+      {
+        "path": "Artist - Album (2024) [FLAC]/03 - Track.flac",
+        "size": 30000000
+      },
+      {
+        "path": "Artist - Album (2024) [FLAC]/04 - Track.flac",
+        "size": 30000000
+      },
+      {
+        "path": "Artist - Album (2024) [FLAC]/05 - Track.flac",
+        "size": 30000000
+      },
+      {
+        "path": "Artist - Album (2024) [FLAC]/06 - Track.flac",
+        "size": 30000000
+      },
+      {
+        "path": "Artist - Album (2024) [FLAC]/07 - Track.flac",
+        "size": 30000000
+      },
+      {
+        "path": "Artist - Album (2024) [FLAC]/08 - Track.flac",
+        "size": 30000000
+      },
+      {
+        "path": "Artist - Album (2024) [FLAC]/09 - Track.flac",
+        "size": 30000000
+      },
+      {
+        "path": "Artist - Album (2024) [FLAC]/10 - Track.flac",
+        "size": 30000000
+      },
+      {
+        "path": "Artist - Album (2024) [FLAC]/cover.jpg",
+        "size": 900000
+      }
+    ]
+  },
+  "expect": {
+    "status": "passed"
+  }
+}

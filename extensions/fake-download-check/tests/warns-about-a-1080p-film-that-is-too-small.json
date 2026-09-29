@@ -1,0 +1,16 @@
+{
+  "name": "Warns about a 1080p film that's far too small",
+  "download": {
+    "name": "Anora.2024.1080p.WEB-DL",
+    "files": [
+      {
+        "path": "Anora.2024.1080p.WEB-DL/Anora.2024.1080p.mkv",
+        "size": 150000000
+      }
+    ]
+  },
+  "expect": {
+    "status": "warning",
+    "summaryIncludes": "too small for a 1080p film"
+  }
+}

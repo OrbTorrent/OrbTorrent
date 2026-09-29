@@ -1,0 +1,23 @@
+{
+  "manifest": {
+    "name": "x",
+    "title": "T",
+    "description": "D",
+    "author": "A",
+    "hooks": [
+      {
+        "name": "check",
+        "event": "afterFinish"
+      },
+      {
+        "name": "check",
+        "event": "beforeStart"
+      }
+    ],
+    "verify": "Verify Me"
+  },
+  "problems": [
+    "“verify” must name a file in src, such as “verify”.",
+    "Two hooks are named “check”."
+  ]
+}

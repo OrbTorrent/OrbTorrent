@@ -1,0 +1,24 @@
+{
+  "manifest": {
+    "name": "x",
+    "title": "T",
+    "description": "D",
+    "author": "A",
+    "hooks": [
+      {
+        "name": "check",
+        "event": "afterFinish"
+      }
+    ],
+    "permissions": {
+      "files": "everything",
+      "network": [
+        "https://example.com/api"
+      ]
+    }
+  },
+  "problems": [
+    "“permissions.files” can only be “contents”.",
+    "“permissions.network” lists host names only, such as “www.virustotal.com”, without https:// or a path."
+  ]
+}

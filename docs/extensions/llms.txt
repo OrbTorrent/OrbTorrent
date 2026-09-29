@@ -1,0 +1,19 @@
+# OrbTorrent Extensions
+
+> Extensions hook into moments in a download's life in OrbTorrent, a BitTorrent app for macOS: before it starts (and can hold it) or after it finishes. They're TypeScript, run in a sandboxed JavaScriptCore host, and reach the network, files and storage only through @orbtorrent/api.
+
+## Docs
+
+- [OrbTorrent Extensions](https://github.com/sanjevirau/OrbTorrent/blob/main/docs/extensions/README.md): What extensions are, and the official ones.
+- [Getting started](https://github.com/sanjevirau/OrbTorrent/blob/main/docs/extensions/getting-started.md): Make an extension from a template, and the loop: orb test, build, lint, dev and run.
+- [Hooks](https://github.com/sanjevirau/OrbTorrent/blob/main/docs/extensions/hooks.md): When beforeStart and afterFinish hooks run, what they receive and return, and their limits.
+- [API](https://github.com/sanjevirau/OrbTorrent/blob/main/docs/extensions/api.md): fetch, files, progress, storage, getPreferenceValues, environment and sleep, and the web APIs available.
+- [Manifest](https://github.com/sanjevirau/OrbTorrent/blob/main/docs/extensions/manifest.md): Every field of package.json: hooks, permissions and preferences.
+- [Testing](https://github.com/sanjevirau/OrbTorrent/blob/main/docs/extensions/testing.md): JSON tests that run without OrbTorrent: mocks, expectations and the virtual clock.
+- [Sharing](https://github.com/sanjevirau/OrbTorrent/blob/main/docs/extensions/sharing.md): .orbext files, and changing the official extensions.
+- [Security](https://github.com/sanjevirau/OrbTorrent/blob/main/docs/extensions/security.md): The sandboxed extension host, network rules, secrets, and the development socket.
+
+## For coding agents
+
+- [AGENTS.md](https://github.com/sanjevirau/OrbTorrent/blob/main/sdk/templates/_shared/AGENTS.md): the whole API, the rules and the loop, in one file. Every extension made with `orb create` has it.
+- [Agent Skill](https://github.com/sanjevirau/OrbTorrent/tree/main/skills/build-orbtorrent-extension): for Claude Code, Codex, Cursor and other agents that use the Agent Skills format.

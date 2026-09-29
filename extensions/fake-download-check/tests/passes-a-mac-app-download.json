@@ -1,0 +1,15 @@
+{
+  "name": "Passes a Mac app download",
+  "download": {
+    "name": "HandBrake 1.9 for Mac",
+    "files": [
+      {
+        "path": "HandBrake 1.9 for Mac/HandBrake-1.9.dmg",
+        "size": 60000000
+      }
+    ]
+  },
+  "expect": {
+    "status": "passed"
+  }
+}

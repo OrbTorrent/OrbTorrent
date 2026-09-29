@@ -1,0 +1,45 @@
+{
+  "preferences": {
+    "apiKey": "test-key"
+  },
+  "name": "Warns when only one engine flags a file",
+  "download": {
+    "name": "Tool 2.0",
+    "files": [
+      {
+        "path": "Tool 2.0/setup.exe",
+        "size": 5000000,
+        "sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+      },
+      {
+        "path": "Tool 2.0/readme.txt",
+        "size": 900,
+        "sha256": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc"
+      }
+    ]
+  },
+  "mocks": {
+    "fetch": [
+      {
+        "url": "https://www.virustotal.com/api/v3/files/aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "json": {
+          "data": {
+            "attributes": {
+              "last_analysis_stats": {
+                "malicious": 1,
+                "suspicious": 0,
+                "undetected": 59,
+                "harmless": 10,
+                "type-unsupported": 2
+              }
+            }
+          }
+        }
+      }
+    ]
+  },
+  "expect": {
+    "status": "warning",
+    "summaryIncludes": "1 engine flags setup.exe"
+  }
+}

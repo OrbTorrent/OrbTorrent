@@ -1,0 +1,265 @@
+import AppKit
+import SwiftUI
+
+/// The menu bar panel's grid. Everything starts at the panel's own margin.
+/// Boxes that hold rows (the checks card, a download's highlight, the held
+/// strip) pad their contents and reach out by the same amount, so what's
+/// inside them lines up with everything outside.
+enum PanelGrid {
+    static let boxPadding: CGFloat = 10
+    /// Boxes that stay within the margins (the checks card, a download's file
+    /// rows) pad their contents by this much.
+    static let cardPadding: CGFloat = 12
+    /// Text after a large icon (the orb, a download's icon) starts here.
+    static let largeText: CGFloat = 32 + 10
+    /// Checkboxes, the folder, the disk and the check ring share one size,
+    /// so the text after them starts in one column.
+    static let glyph: CGFloat = 16
+    static let glyphGap: CGFloat = 8
+    static let smallText: CGFloat = glyph + glyphGap
+}
+
+extension View {
+    /// Reaches out by a box's padding, so the box's contents line up with
+    /// the rows outside it.
+    func reachesOut(by padding: CGFloat = PanelGrid.boxPadding) -> some View {
+        self.padding(.horizontal, -padding)
+    }
+}
+
+/// The panel shown from the menu bar icon.
+///
+/// It lists up to six downloads, busiest first; clicking one shows its files
+/// right in the panel, where they can be opened, skipped or prioritised.
+struct MenuBarPanel: View {
+    /// False when shown in the panel OrbTorrent drops down itself, rather
+    /// than in SwiftUI's `MenuBarExtra`.
+    var isMenuBarExtra = true
+    @Environment(AppModel.self) private var model
+    @Environment(\.openWindow) private var openWindow
+    @Environment(\.openSettings) private var openSettings
+    @State private var clipboardMagnet: MagnetLink?
+    /// The download whose files are shown, if any.
+    @State private var focusedHash: String?
+    /// The download whose row is asking to delete it, if any.
+    @State private var deletingHash: String?
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            MenuBarHeader()
+            Divider()
+
+            if let asking = model.adder.menuBarQueue.first {
+                AddConfirmation(
+                    pending: model.adder.binding(for: asking),
+                    waiting: model.adder.menuBarQueue.count,
+                    onCancel: { model.adder.decline($0) },
+                    onDownload: { confirmed in Task { await model.adder.confirm(confirmed) } },
+                    // Choosing may have closed the menu bar panel; keep asking.
+                    afterChoosingFolder: { model.adder.showMenuBarConfirmation?() }
+                )
+                .id(asking.id)
+            } else if let focusedHash, let torrent = model.store.torrent(focusedHash) {
+                MenuBarTorrentDetail(torrent: torrent, store: model.store) {
+                    self.focusedHash = nil
+                }
+                .id(torrent.hash)
+            } else {
+                content
+                clipboardButton
+                footer
+            }
+        }
+        .padding(14)
+        .frame(width: 380)
+        .background(WindowReader { if isMenuBarExtra { MenuBarIcon.panel = $0 } })
+        .background(WindowCloseObserver {
+            // Reopen on the list, with a fresh look at the clipboard.
+            focusedHash = nil
+            deletingHash = nil
+            clipboardMagnet = model.adder.clipboardMagnet()
+        })
+        .onAppear {
+            clipboardMagnet = model.adder.clipboardMagnet()
+            model.registerWindowOpener { openWindow(id: "main") }
+        }
+    }
+
+    // MARK: Downloads
+
+    @ViewBuilder
+    private var content: some View {
+        let torrents = model.store.menuBarTorrents
+        if case .failed = model.engine.status {
+            HStack {
+                Label("Download engine stopped", systemImage: "exclamationmark.triangle.fill")
+                    .foregroundStyle(.orange)
+                Spacer()
+                Button("Restart") { Task { await model.restartEngine() } }
+                    .buttonStyle(.glass)
+            }
+            .font(.callout)
+        } else if torrents.isEmpty {
+            VStack(spacing: 6) {
+                Image(systemName: "arrow.down.circle.dotted")
+                    .font(.title2)
+                    .foregroundStyle(.tertiary)
+                Text("No downloads")
+                    .font(.callout.weight(.medium))
+                Text("Click a magnet link in your browser to start.")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+            }
+            .frame(maxWidth: .infinity)
+            .padding(.vertical, 18)
+        } else {
+            heldStrip
+            VStack(spacing: 2) {
+                ForEach(torrents) { torrent in
+                    MenuBarTorrentRow(torrent: torrent, isConfirmingDelete: Binding(
+                        get: { deletingHash == torrent.hash },
+                        set: { deletingHash = $0 ? torrent.hash : nil }
+                    )) {
+                        focusedHash = torrent.hash
+                    }
+                    .reachesOut()
+                }
+                showAllButton(hiding: model.store.torrents.count - torrents.count)
+            }
+        }
+    }
+
+    /// Downloads a check is holding, so they aren't missed in a long list.
+    @ViewBuilder
+    private var heldStrip: some View {
+        let held = model.extensions.isOn ? model.store.torrents.filter { model.extensions.checks.gate(for: $0.hash) == .held } : []
+        if let first = held.first {
+            Button {
+                focusedHash = first.hash
+            } label: {
+                HStack(spacing: 8) {
+                    Image(systemName: "hand.raised.fill")
+                        .foregroundStyle(.orange)
+                    Text(held.count == 1 ? "“\(first.name)” is held by a check" : "\(held.count) downloads are held by checks")
+                        .lineLimit(1)
+                        .truncationMode(.middle)
+                    Spacer(minLength: 6)
+                    Text("Review")
+                        .foregroundStyle(.tint)
+                    Image(systemName: "chevron.right")
+                        .font(.caption2.weight(.semibold))
+                        .foregroundStyle(.tertiary)
+                }
+                .font(.callout)
+                .padding(.horizontal, 10)
+                .padding(.vertical, 8)
+                .background(.orange.opacity(0.12), in: .rect(cornerRadius: 12))
+                .overlay(RoundedRectangle(cornerRadius: 12).strokeBorder(.orange.opacity(0.3)))
+                .contentShape(.rect)
+            }
+            .buttonStyle(.plain)
+            .reachesOut()
+        }
+    }
+
+    /// Says when the panel leaves some downloads out; the window has them all.
+    @ViewBuilder
+    private func showAllButton(hiding hidden: Int) -> some View {
+        if hidden > 0 {
+            Button {
+                model.store.filter = .all
+                model.store.searchText = ""
+                model.showMainWindow()
+            } label: {
+                HStack(spacing: 3) {
+                    Text("Show all \(model.store.torrents.count) downloads")
+                    Image(systemName: "chevron.right")
+                        .font(.caption2.weight(.semibold))
+                }
+                .font(.caption.weight(.medium))
+                .foregroundStyle(.secondary)
+                .frame(maxWidth: .infinity)
+                .padding(.vertical, 6)
+                .contentShape(.rect)
+            }
+            .buttonStyle(.plain)
+            .help("\(hidden) more in the OrbTorrent window")
+        }
+    }
+
+    @ViewBuilder
+    private var clipboardButton: some View {
+        if let clipboardMagnet {
+            Button {
+                model.adder.add(text: clipboardMagnet.uri, askingIn: .menuBar)
+                self.clipboardMagnet = nil
+            } label: {
+                Label("Add \(clipboardMagnet.displayName.map { "“\($0)”" } ?? "Magnet Link") from Clipboard",
+                      systemImage: "doc.on.clipboard")
+                    .lineLimit(1)
+                    .truncationMode(.middle)
+                    .frame(maxWidth: .infinity)
+            }
+            .buttonStyle(.glassProminent)
+            .controlSize(.large)
+        }
+    }
+
+    // MARK: Footer
+
+    private var footer: some View {
+        let paused = model.store.allStopped
+        // Short titles, so the three capsules share the row evenly without truncating.
+        return HStack(spacing: 6) {
+            Group {
+                Button("Open App", systemImage: "macwindow") {
+                    model.showMainWindow()
+                }
+                .help("Open the OrbTorrent window")
+
+                Button(paused ? "Resume All" : "Pause All", systemImage: paused ? "play.fill" : "pause.fill") {
+                    Task { paused ? await model.store.resumeAll() : await model.store.pauseAll() }
+                }
+                .disabled(model.store.torrents.isEmpty)
+                .help(paused ? "Resume every download" : "Pause every download")
+
+                Button("Add Link", systemImage: "plus") {
+                    model.adder.presentMagnetSheet()
+                }
+                .help("Add a magnet link…")
+            }
+            .buttonStyle(.glassCapsule)
+
+            Button("More", systemImage: "ellipsis") {
+                showMoreMenu()
+            }
+            .buttonStyle(.glassIcon(diameter: 28))
+            .help("Settings and more")
+        }
+    }
+
+    private func showMoreMenu() {
+        let openSettings = openSettings
+        let openWindow = openWindow
+        let adder = model.adder
+        PopUpMenu.show([
+            .init(title: "About \(AppIdentity.name)", systemImage: "info.circle") {
+                MenuBarIcon.closePanel()
+                NSApp.activate()
+                openWindow(id: "about")
+            },
+            .init(title: "Settings…", systemImage: "gearshape", keyEquivalent: ",") {
+                MenuBarIcon.closePanel()
+                NSApp.activate()
+                openSettings()
+            },
+            .init(title: "Open Torrent File…", systemImage: "doc.badge.plus") {
+                adder.presentOpenPanel(askingIn: .menuBar)
+            },
+            .divider,
+            .init(title: "Quit \(AppIdentity.name)", systemImage: "power", keyEquivalent: "q") {
+                NSApp.terminate(nil)
+            },
+        ])
+    }
+}

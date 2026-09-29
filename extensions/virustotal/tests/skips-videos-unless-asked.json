@@ -1,0 +1,25 @@
+{
+  "preferences": {
+    "apiKey": "test-key"
+  },
+  "name": "Checks nothing in a film unless asked to check all files",
+  "download": {
+    "name": "Film.2024.1080p",
+    "files": [
+      {
+        "path": "Film.2024.1080p/Film.mkv",
+        "size": 2000000000,
+        "sha256": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+      },
+      {
+        "path": "Film.2024.1080p/Film.nfo",
+        "size": 2000,
+        "sha256": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc"
+      }
+    ]
+  },
+  "expect": {
+    "status": "skipped",
+    "summaryIncludes": "Nothing to check"
+  }
+}

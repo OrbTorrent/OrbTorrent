@@ -1,0 +1,44 @@
+{
+  "name": "{{name}}",
+  "title": "{{title}}",
+  "description": "Holds downloads bigger than a size you choose, until you decide to start them.",
+  "author": "you",
+  "icon": "icon.png",
+  "license": "MIT",
+  "private": true,
+  "type": "module",
+  "hooks": [
+    {
+      "name": "check",
+      "title": "Check the size",
+      "description": "Holds a download bigger than the limit until you decide.",
+      "event": "beforeStart"
+    }
+  ],
+  "permissions": {},
+  "preferences": [
+    {
+      "name": "limit",
+      "type": "dropdown",
+      "title": "Hold downloads bigger than",
+      "description": "Bigger downloads wait until you choose to start them.",
+      "required": false,
+      "default": "50",
+      "data": [
+        { "title": "10 GB", "value": "10" },
+        { "title": "50 GB", "value": "50" },
+        { "title": "100 GB", "value": "100" }
+      ]
+    }
+  ],
+  "scripts": {
+    "build": "orb build",
+    "dev": "orb dev",
+    "test": "orb test",
+    "lint": "orb lint",
+    "package": "orb package"
+  },
+  "dependencies": {
+    "@orbtorrent/api": "{{api}}"
+  }
+}
