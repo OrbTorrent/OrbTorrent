@@ -140,20 +140,26 @@ struct Acknowledgement: Identifiable {
                         note: "Parts of Qt come from other projects, each with its own notice. They're all in the licence files."),
         Acknowledgement(name: "OpenSSL", licence: "Apache 2.0", file: "OpenSSL-LICENSE.txt", listedAs: "OpenSSL"),
         Acknowledgement(name: "Boost", licence: "Boost Software License 1.0", file: "Boost-LICENSE_1_0.txt", listedAs: "Boost"),
+        Acknowledgement(name: "Sparkle", licence: "MIT", file: "Sparkle-LICENSE.txt", listedAs: "Sparkle",
+                        note: "Sparkle keeps OrbTorrent up to date. Parts of it come from other projects, each with its notice below."),
     ]
 
     static var folder: URL? { Bundle.main.resourceURL?.appending(path: "Licenses", directoryHint: .isDirectory) }
 
     /// The engine's components and versions, one per line, such as "Qt 6.10.3 (qtbase, static)".
-    private static let engineVersions: [String] = folder
+    static let engineVersions: [String] = folder
         .flatMap { try? String(contentsOf: $0.appending(path: "ENGINE-VERSIONS.txt"), encoding: .utf8) }?
         .components(separatedBy: .newlines) ?? []
 
+    /// OrbTorrent's own, the engine's list, or a framework's bundle.
     var version: String? {
         guard let listedAs else { return AboutView.version }
         return Self.engineVersions.first { $0.hasPrefix(listedAs + " ") }?
             .dropFirst(listedAs.count + 1)
             .split(separator: " ").first.map(String.init)
+            ?? Bundle.main.privateFrameworksURL
+            .flatMap { Bundle(url: $0.appending(path: "\(listedAs).framework")) }?
+            .object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String
     }
 
     /// Such as "6.10.3 · LGPL 3.0".
@@ -194,7 +200,14 @@ struct PrivacyView: View {
                       "to fetch the .torrent file.")
                 point("puzzlepiece.extension", "The sites an extension lists",
                       "while it's on. Each extension's page shows them, and it can't reach any others.")
+                point("arrow.triangle.2.circlepath", "updates.orbtorrent.com",
+                      "once a day, to check for a new version, while “Check for updates automatically” is on. It sends OrbTorrent's version and build number, which is how we count the Macs on each version. The address a check comes from isn't kept.")
+                point("arrow.down.app", "github.com",
+                      "to download an update you install.")
             }
+            Text("Report a Problem only opens your own mail app with the report filled in. Nothing is sent until you send it.")
+                .foregroundStyle(.secondary)
+                .fixedSize(horizontal: false, vertical: true)
             HStack {
                 Spacer()
                 Button("Done") { dismiss() }

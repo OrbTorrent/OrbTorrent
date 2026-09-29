@@ -1,7 +1,7 @@
 ---
 name: build-orbtorrent-extension
 description: Build, test and debug extensions for OrbTorrent, the macOS BitTorrent app. Extensions are TypeScript hooks that check a download before it starts (and can hold it) or act on it after it finishes. Use when creating or changing an OrbTorrent extension, writing its tests, or using the orb command-line tool.
-license: GPL-3.0-or-later
+license: MIT
 ---
 
 # Build an OrbTorrent extension
@@ -15,8 +15,8 @@ permissions.
 ## Steps
 
 1. **Start from a template, unless you're changing an existing extension.**
-   Run `npx orb create <name> --template before-start|after-finish`, then
-   `npm install` in the new folder.
+   Run `npm create @orbtorrent/extension <name> -- --template before-start|after-finish`,
+   then `npm install` in the new folder.
 2. **Read `references/AGENTS.md`.** It covers the API, the manifest, the hooks,
    the test format, the rules for good results, and the errors you'll see with
    their fixes. An extension made with `orb create` has the same file.

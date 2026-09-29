@@ -47,22 +47,24 @@ You need Node.js 22.13 or later and OrbTorrent.
 
 ## Make an extension
 
-`orb` comes with `@orbtorrent/api`. Until it's on npm, run it from this
-repository:
-
 ```sh
-npm install                       # in the repository, once
-node sdk/bin/orb.js create size-guard
+npm create @orbtorrent/extension size-guard
 cd size-guard
 npm install
 ```
 
 There are two templates:
 
-- `--template before-start` (the default) holds downloads bigger than a limit
-  you choose.
-- `--template after-finish` sends a notification to your phone through ntfy
-  when a download finishes.
+- `before-start` (the default) holds downloads bigger than a limit you choose.
+- `after-finish` sends a notification to your phone through ntfy when a
+  download finishes. Choose it with
+  `npm create @orbtorrent/extension notify-me -- --template after-finish`.
+
+The extension depends on [`@orbtorrent/api`](https://www.npmjs.com/package/@orbtorrent/api),
+which has the API and `orb`, the command-line tool its scripts use. It's MIT
+licensed, so your extension can use any licence. In a clone of this repository,
+`node sdk/bin/orb.js create size-guard` makes one that uses the SDK in the
+clone instead.
 
 The new folder has:
 

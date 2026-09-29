@@ -1,6 +1,8 @@
 #!/usr/bin/env bash
 #
-# Packages OrbTorrent.app into a compressed, drag-to-install disk image.
+# Packages OrbTorrent.app (or OrbTorrent Dev.app, to try updates) into a
+# compressed, drag-to-install disk image, which is also what updates install
+# from.
 #
 # Usage: scripts/make-dmg.sh <path/to/OrbTorrent.app> [output-dir]
 #
@@ -14,19 +16,20 @@ APP="${1:?usage: make-dmg.sh <OrbTorrent.app> [output-dir]}"
 OUT="${2:-build}"
 APP="$(cd "$(dirname "$APP")" && pwd)/$(basename "$APP")"
 
+NAME="$(basename "$APP" .app)"
 VERSION="$(/usr/libexec/PlistBuddy -c 'Print :CFBundleShortVersionString' "$APP/Contents/Info.plist")"
 ARCH_LABEL="$(lipo -archs "$APP/Contents/MacOS/qbittorrent-nox" | tr ' ' '\n' | sort | paste -sd- -)"
 [[ "$ARCH_LABEL" == "arm64-x86_64" ]] && ARCH_LABEL="universal"
-DMG="$OUT/OrbTorrent-$VERSION-$ARCH_LABEL.dmg"
+DMG="$OUT/${NAME// /-}-$VERSION-$ARCH_LABEL.dmg"
 
 STAGE="$(mktemp -d)"
 trap 'rm -rf "$STAGE"' EXIT
-cp -R "$APP" "$STAGE/OrbTorrent.app"
+cp -R "$APP" "$STAGE/$NAME.app"
 ln -s /Applications "$STAGE/Applications"
 
 mkdir -p "$OUT"
 rm -f "$DMG"
-hdiutil create -quiet -volname "OrbTorrent" -srcfolder "$STAGE" -ov -format UDZO "$DMG"
+hdiutil create -quiet -volname "$NAME" -srcfolder "$STAGE" -ov -format UDZO "$DMG"
 
 if [[ -n "${SIGN_IDENTITY:-}" && "${SIGN_IDENTITY}" != "-" ]]; then
   codesign --sign "$SIGN_IDENTITY" --timestamp "$DMG"

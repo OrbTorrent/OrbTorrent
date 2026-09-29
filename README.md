@@ -40,6 +40,9 @@ peer discovery, web seeds and encryption.
   Transmission's downloads have their files checked before they go on.
 - **Settings** for save folder, speed limits, seeding ratio, port, UPnP/NAT-PMP,
   protocols, encryption, connection limits and launch at login.
+- **Keeps itself up to date,** and shows what's new after each update.
+- **Report a Problem** in the Help menu fills in the versions that help, and
+  goes from your own mail app.
 
 ## Requirements
 
@@ -66,8 +69,14 @@ your Mac. It connects only to:
 - **Web addresses you add torrents from**, to fetch the `.torrent` file.
 - **The sites an extension lists**, while it's on. Each extension's page shows
   them, and it can't reach any others.
+- **updates.orbtorrent.com**, once a day, to check for a new version, while
+  "Check for updates automatically" is on. It sends OrbTorrent's version and
+  build number, which is how we count the Macs on each version. The address a
+  check comes from isn't kept.
+- **github.com**, to download an update you install.
 
-The engine's lookup of peers' countries is off, so it never downloads a
+Report a Problem only opens your own mail app with the report filled in, and
+nothing is sent until you send it. The engine's lookup of peers' countries is off, so it never downloads a
 country database. The same note is in the app, under **About OrbTorrent →
 Privacy**.
 
@@ -78,6 +87,7 @@ OrbTorrent.app
 ├── Contents/MacOS/OrbTorrent              SwiftUI app (menu bar, window, settings)
 ├── Contents/MacOS/qbittorrent-nox   qBittorrent's headless engine
 ├── Contents/MacOS/orb-extension-host  runs extensions, sandboxed
+├── Contents/Frameworks/Sparkle.framework  updates
 └── Contents/Resources/Extensions/   the official extensions
 ```
 
@@ -113,6 +123,7 @@ Then:
 
 ```sh
 make engine   # build qbittorrent-nox for this Mac (about 15 minutes the first time)
+make sparkle  # download Sparkle, the updater (the other targets do it too)
 make dev      # build OrbTorrent Dev, quit the running copy and open the new one
 make run      # build OrbTorrent.app and open it
 make test     # run the unit tests
@@ -122,8 +133,10 @@ make release  # universal engine, app and DMG
 ```
 
 `make project` generates `OrbTorrent.xcodeproj` from `project.yml` if you'd rather
-work in Xcode. The build embeds `engine/dist/qbittorrent-nox` and the official
-extensions, which `make extensions` builds.
+work in Xcode. The build embeds `engine/dist/qbittorrent-nox`, the official
+extensions, which `make extensions` builds, and
+[Sparkle](https://sparkle-project.org), which `scripts/fetch-sparkle.sh`
+downloads into `build/sparkle` and checks against its known checksum.
 
 ### OrbTorrent Dev
 
@@ -133,7 +146,9 @@ work on it. It has its own library and engine in
 `~/Library/Application Support/OrbTorrent Dev`, its own settings and Keychain
 items, and an amber icon in the Dock and menu bar. It never opens magnet links
 or `.torrent` files and doesn't start at login, leaving both to OrbTorrent.
-Unit tests run inside it too. Point `orb dev` at it with `ORB_APP=dev`.
+Unit tests run inside it too. Point `orb dev` at it with `ORB_APP=dev`. It
+doesn't update itself, unless pointed at a test feed made by
+`scripts/publish-update.sh --test`.
 
 Builds are signed with a certificate from your Keychain when there is one
 ("Developer ID Application" or "Apple Development"), so macOS keeps the app's
@@ -157,6 +172,36 @@ These versions mirror qBittorrent's own macOS release. Pins live in
 `engine/versions.env`, and any fixes needed for newer toolchains live in
 `engine/patches/<component>/`. Set `ARCHS="arm64 x86_64"` for a universal binary.
 
+### Publishing an update
+
+1. Raise `CURRENT_PROJECT_VERSION` in `project.yml`, and push a tag such as
+   `v1.0-beta.2`. CI builds the disk image and makes a draft release.
+2. On GitHub, write the release's notes in Markdown, with sections such as
+   `## New`, `## Improved` and `## Fixed` and a bold first phrase for each
+   item, and publish it. What's New in the app shows them the same way.
+3. Run `scripts/publish-update.sh v1.0-beta.2`. It signs the disk image and
+   the feed with the key in your Keychain and puts the feed on
+   `updates.orbtorrent.com`, where every copy finds it within a day.
+
+`updates/` is the feed's Cloudflare Worker, and `updates/stats.sh` shows how
+many Macs checked for updates each day, by version.
+
+### Publishing the extension SDK
+
+`@orbtorrent/api` (`sdk/`) and `@orbtorrent/create-extension`
+(`sdk/create-extension/`) are on npm under the `orbtorrent` organisation.
+
+1. Raise `version` in `sdk/package.json` (a minor version for anything new, a
+   major one for anything that breaks an extension), add it to
+   `sdk/CHANGELOG.md`, and raise `ExtensionAPI.version` in
+   `ExtensionManifest.swift` to match, so OrbTorrent runs what it builds.
+2. Push a tag such as `sdk-v1.1.0`. CI checks it matches, builds, tests and
+   publishes whichever of the two packages has a version that isn't on npm
+   yet, through npm's trusted publishing, so no npm token is stored anywhere.
+
+`@orbtorrent/create-extension` depends on `^1` of the API, so it only needs a
+new version when it changes itself, or for a new major version.
+
 ## Project layout
 
 ```
@@ -169,14 +214,18 @@ OrbTorrent/
   System/       Default app and login item integration
   Parsing/      Bencode, .torrent metadata and magnet links
   Extensions/   Running extensions: registry, runner, checks, settings, dev socket
+  Updates/      Automatic updates with Sparkle, and release notes for What's New
+  Support/      Report a Problem
   Views/        SwiftUI views (main window, inspector, menu bar, settings, onboarding)
   Resources/    AppIcon.icon and OrbTorrent Dev's AppIconDev.icon (Icon Composer)
 ExtensionHost/  orb-extension-host, the sandboxed helper that runs extensions
 extensions/     The official extensions (Fake Download Check, VirusTotal Scan)
 sdk/            @orbtorrent/api: the extension API, the orb CLI and templates
+  create-extension/  @orbtorrent/create-extension, for npm create @orbtorrent/extension
 skills/         The Agent Skill for building extensions
 engine/         Engine build script, pinned versions and patches
-scripts/        DMG packaging, extension docs and permission checks
+updates/        updates.orbtorrent.com, the update feed (a Cloudflare Worker)
+scripts/        DMG packaging, publishing updates, extension docs and permission checks
 ```
 
 ## License
@@ -193,6 +242,13 @@ Acknowledgements**:
 - Qt: LGPL-3.0 / GPL
 - OpenSSL: Apache-2.0
 - Boost: BSL-1.0
+
+It also includes [Sparkle](https://sparkle-project.org) (MIT), which keeps it
+up to date.
+
+The extension SDK in `sdk/`, published on npm as `@orbtorrent/api` and
+`@orbtorrent/create-extension`, is MIT licensed ([sdk/LICENSE](sdk/LICENSE)),
+so extensions can use any licence.
 
 The exact source code of every bundled component comes from the URLs pinned in
 `engine/versions.env`, and each release also attaches those source archives.

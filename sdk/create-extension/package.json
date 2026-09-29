@@ -1,0 +1,42 @@
+{
+  "name": "@orbtorrent/create-extension",
+  "version": "1.0.0",
+  "description": "Make a new extension for OrbTorrent, the BitTorrent app for macOS: npm create @orbtorrent/extension <name>",
+  "keywords": [
+    "orbtorrent",
+    "extension",
+    "create",
+    "template",
+    "bittorrent",
+    "macos"
+  ],
+  "homepage": "https://github.com/sanjevirau/OrbTorrent/tree/main/docs/extensions#readme",
+  "bugs": {
+    "url": "https://github.com/sanjevirau/OrbTorrent/issues",
+    "email": "help@orbtorrent.com"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/sanjevirau/OrbTorrent.git",
+    "directory": "sdk/create-extension"
+  },
+  "license": "MIT",
+  "author": "Sanjevi Rau",
+  "type": "module",
+  "bin": {
+    "create-extension": "index.js"
+  },
+  "files": [
+    "index.js",
+    "README.md"
+  ],
+  "engines": {
+    "node": ">=22.13"
+  },
+  "dependencies": {
+    "@orbtorrent/api": "^1.0.0"
+  },
+  "publishConfig": {
+    "access": "public"
+  }
+}

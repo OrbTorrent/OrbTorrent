@@ -17,6 +17,7 @@ final class AppModel {
     let adder: AddTorrentCoordinator
     let vpn: VPNBinding
     let extensions = Extensions()
+    let updates = Updates()
     @ObservationIgnored let notifier = CompletionNotifier()
     @ObservationIgnored let developmentServer: DevelopmentServer
 
@@ -65,6 +66,8 @@ final class AppModel {
         adder.defaultSavePath = { [weak self] in self?.preferences?.savePath }
         adder.installExtension = { [weak self] url in self?.requestInstall(from: url) }
         notifier.onAction = { [weak self] action, hash in self?.handleNotification(action, hash: hash) }
+        notifier.onUpdate = { [weak self] in self?.updates.checkForUpdates() }
+        updates.onWaitingChange = { [weak self] name in self?.notifier.postUpdateAvailable(name) }
         connectExtensions()
     }
 
@@ -236,7 +239,10 @@ final class AppModel {
         if !settings.hasCompletedOnboarding {
             isWelcomePresented = true
             showMainWindow()
+        } else {
+            updates.prepareWhatsNew()
         }
+        updates.start()
         await startEngine()
     }
 

@@ -1,0 +1,58 @@
+name: Publish the extension SDK
+
+# Publishes @orbtorrent/api and @orbtorrent/create-extension to npm when a tag
+# such as sdk-v1.1.0 is pushed. npm trusts this workflow (trusted publishing,
+# set up on each package's Settings page on npmjs.com), so no npm token is
+# stored anywhere. See "Publishing the extension SDK" in the README.
+
+on:
+  push:
+    tags:
+      - "sdk-v*"
+
+permissions:
+  contents: read
+  id-token: write
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          # Trusted publishing needs npm 11.5.1 or later, which comes with Node 24.
+          node-version: 24
+          registry-url: https://registry.npmjs.org
+
+      - name: Install
+        run: npm ci --no-audit --no-fund
+
+      - name: Check the tag matches the version
+        run: |
+          version="$(node -p 'require("./sdk/package.json").version')"
+          if [ "sdk-v$version" != "$GITHUB_REF_NAME" ]; then
+            echo "::error::The tag is $GITHUB_REF_NAME, but sdk/package.json says $version."
+            exit 1
+          fi
+
+      - name: Build and test
+        run: |
+          npm run build --workspace sdk
+          npm test --workspace sdk
+
+      - name: Publish what's new
+        env:
+          # npm records where a package was built from only for public repos.
+          NPM_CONFIG_PROVENANCE: ${{ !github.event.repository.private }}
+        run: |
+          for package in sdk sdk/create-extension; do
+            name="$(node -p "require('./$package/package.json').name")"
+            version="$(node -p "require('./$package/package.json').version")"
+            if npm view "$name@$version" version >/dev/null 2>&1; then
+              echo "$name $version is already on npm."
+            else
+              npm publish "./$package"
+            fi
+          done

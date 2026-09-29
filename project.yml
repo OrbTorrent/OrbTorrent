@@ -37,6 +37,9 @@ targets:
     dependencies:
       - target: ExtensionHost
         embed: false
+      # Automatic updates, downloaded by scripts/fetch-sparkle.sh (make sparkle).
+      - framework: build/sparkle/Sparkle.framework
+        embed: true
     scheme:
       testTargets:
         - OrbTorrentTests
@@ -69,6 +72,15 @@ targets:
         LSUIElement: true
         NSHumanReadableCopyright: "Copyright © 2026 Sanjevi Rau. OrbTorrent is free software, licensed under the GNU GPL v3 or later."
         NSUserNotificationAlertStyle: banner
+        # Updates: checked daily from a feed on a domain we own, which must
+        # never change. The feed and each update are signed with the key
+        # whose public half is here (see scripts/publish-update.sh).
+        SUFeedURL: https://updates.orbtorrent.com/appcast.xml
+        SUPublicEDKey: h+ekujzHWLavqy/lYuMphIWEj9grNNCiAb41q8PTYj4=
+        SURequireSignedFeed: true
+        SUVerifyUpdateBeforeExtraction: true
+        SUEnableAutomaticChecks: true
+        SUScheduledCheckInterval: 86400
         CFBundleURLTypes:
           - CFBundleURLName: Magnet Link
             CFBundleTypeRole: Viewer
@@ -110,11 +122,13 @@ targets:
         script: |
           set -euo pipefail
           # OrbTorrent Dev never opens magnet links or .torrent files, so it
-          # can't take them over from the OrbTorrent in use.
+          # can't take them over from the OrbTorrent in use. It doesn't update
+          # itself either, unless pointed at a test feed (see Updates.swift).
           if [ "${ORB_DEVELOPMENT:-NO}" = YES ]; then
             PLIST="${TARGET_BUILD_DIR}/${INFOPLIST_PATH}"
             /usr/libexec/PlistBuddy -c "Delete :CFBundleURLTypes" "$PLIST" 2>/dev/null || true
             /usr/libexec/PlistBuddy -c "Delete :CFBundleDocumentTypes" "$PLIST" 2>/dev/null || true
+            /usr/libexec/PlistBuddy -c "Delete :SUFeedURL" "$PLIST" 2>/dev/null || true
           fi
       - name: Embed qBittorrent engine
         basedOnDependencyAnalysis: false
@@ -134,6 +148,7 @@ targets:
           cp -R "${SRCROOT}/engine/dist/licenses/." "$LICENSES/" 2>/dev/null || true
           cp -f "${SRCROOT}/engine/dist/VERSIONS.txt" "$LICENSES/ENGINE-VERSIONS.txt" 2>/dev/null || true
           cp -f "${SRCROOT}/LICENSE" "$LICENSES/OrbTorrent-LICENSE.txt"
+          cp -f "${SRCROOT}/build/sparkle/LICENSE" "$LICENSES/Sparkle-LICENSE.txt"
       - name: Embed extension host and official extensions
         basedOnDependencyAnalysis: false
         script: |
@@ -157,6 +172,20 @@ targets:
             fi
             cp -R "$source/dist" "$EXTENSIONS/$name"
           done
+
+      - name: Sign Sparkle's helpers
+        basedOnDependencyAnalysis: false
+        script: |
+          set -euo pipefail
+          # Sparkle's helpers come signed ad hoc. Notarization needs every
+          # program inside the app signed with its certificate and the
+          # hardened runtime. The XPC services are only for sandboxed apps.
+          SPARKLE="${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/Sparkle.framework"
+          FLAGS=(--force --options runtime --timestamp=none --sign "${EXPANDED_CODE_SIGN_IDENTITY:--}")
+          rm -rf "$SPARKLE/Versions/B/XPCServices" "$SPARKLE/XPCServices"
+          codesign "${FLAGS[@]}" "$SPARKLE/Versions/B/Autoupdate"
+          codesign "${FLAGS[@]}" "$SPARKLE/Versions/B/Updater.app"
+          codesign "${FLAGS[@]}" "$SPARKLE"
 
   ExtensionHost:
     type: tool
@@ -193,6 +222,8 @@ targets:
         GENERATE_INFOPLIST_FILE: YES
         TEST_HOST: $(BUILT_PRODUCTS_DIR)/OrbTorrent.app/Contents/MacOS/OrbTorrent
         BUNDLE_LOADER: $(TEST_HOST)
+        # The app imports Sparkle, so its module must be found here too.
+        FRAMEWORK_SEARCH_PATHS: $(PROJECT_DIR)/build/sparkle
       configs:
         Debug: &devTests
           TEST_HOST: $(BUILT_PRODUCTS_DIR)/OrbTorrent Dev.app/Contents/MacOS/OrbTorrent Dev

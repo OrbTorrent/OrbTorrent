@@ -1,0 +1,134 @@
+#!/usr/bin/env bash
+#
+# Publishes an update: adds a release's disk image, signed, with its name and
+# notes, to the update feed at updates.orbtorrent.com. Every installed
+# OrbTorrent finds it within a day, and shows the notes in What's New once
+# it's installed.
+#
+#   scripts/publish-update.sh v1.0-beta.2
+#       From the published GitHub release with that tag: its disk image, its
+#       name (such as "OrbTorrent 1.0 beta 2") and its notes, as written on
+#       GitHub in Markdown.
+#
+#   scripts/publish-update.sh --dry-run v1.0-beta.2
+#       Makes and checks the feed in build/update-feed without uploading it.
+#
+#   scripts/publish-update.sh --test <app.dmg> <notes.md> [name]
+#       Adds a version to a test feed on this Mac, in build/update-test, for
+#       trying an update in OrbTorrent Dev (rm -rf it to start again). Serve
+#       it, and point OrbTorrent Dev at it, with:
+#         python3 -m http.server 8123 --bind 127.0.0.1 --directory build/update-test
+#         defaults write com.orbtorrent.mac.dev UpdateFeedURL http://127.0.0.1:8123/appcast.xml
+#
+# The feed and each update are signed with the key in the login Keychain
+# (account "orbtorrent"), or SPARKLE_PRIVATE_KEY on CI. Uploading uses `cf`,
+# signed in or with CLOUDFLARE_API_TOKEN.
+
+set -euo pipefail
+
+REPO=sanjevirau/OrbTorrent
+FEED=https://updates.orbtorrent.com/appcast.xml
+NAMESPACE=0cefcfed2afa4401925f69c2e74ced24
+ROOT="$(cd "$(dirname "$0")/.." && pwd)"
+cd "$ROOT"
+SPARKLE="$(scripts/fetch-sparkle.sh)/bin"
+
+dry_run=false
+test=false
+case "${1:-}" in
+  --dry-run) dry_run=true; shift ;;
+  --test) test=true; shift ;;
+esac
+[[ $# -ge 1 ]] || { sed -n '3,24p' "$0" | sed 's/^# \{0,1\}//'; exit 64; }
+
+KEY="$(mktemp -d)"
+trap 'rm -rf "$KEY"' EXIT
+chmod 700 "$KEY"
+if [[ -n "${SPARKLE_PRIVATE_KEY:-}" ]]; then
+  printf '%s' "$SPARKLE_PRIVATE_KEY" > "$KEY/key"
+else
+  "$SPARKLE/generate_keys" --account orbtorrent -x "$KEY/key" >/dev/null
+fi
+
+if $test; then
+  WORK=build/update-test
+  DMG="${1:?the disk image}"; NOTES="${2:?the notes, in Markdown}"; NAME="${3:-}"
+  PREFIX=http://127.0.0.1:8123/
+  LINK="https://github.com/$REPO/releases"
+  # Like a release, only the new disk image is there beside the feed.
+  mkdir -p "$WORK"
+  find "$WORK" -mindepth 1 -maxdepth 1 ! -name appcast.xml -exec rm -rf {} +
+  cp "$DMG" "$WORK/"
+  ARCHIVE="$WORK/$(basename "$DMG")"
+  cp "$NOTES" "${ARCHIVE%.dmg}.md"
+else
+  WORK=build/update-feed
+  TAG="$1"
+  if [[ "$(gh release view "$TAG" -R "$REPO" --json isDraft --jq .isDraft)" == true ]]; then
+    echo "error: $TAG is still a draft. Write its notes and publish it on GitHub first." >&2
+    exit 1
+  fi
+  NAME="$(gh release view "$TAG" -R "$REPO" --json name --jq .name)"
+  LINK="$(gh release view "$TAG" -R "$REPO" --json url --jq .url)"
+  PREFIX="https://github.com/$REPO/releases/download/$TAG/"
+  rm -rf "$WORK" && mkdir -p "$WORK"
+  gh release download "$TAG" -R "$REPO" -p '*.dmg' -D "$WORK"
+  ARCHIVES=("$WORK"/*.dmg)
+  [[ ${#ARCHIVES[@]} -eq 1 ]] || { echo "error: $TAG needs exactly one disk image." >&2; exit 1; }
+  ARCHIVE="${ARCHIVES[0]}"
+  gh release view "$TAG" -R "$REPO" --json body --jq .body > "${ARCHIVE%.dmg}.md"
+  # Start from the feed as it is, so earlier versions stay in it.
+  status="$(curl -sS -o "$WORK/appcast.xml" -w '%{http_code}' "$FEED")"
+  case "$status" in
+    200) ;;
+    404) rm -f "$WORK/appcast.xml" ;;
+    *) echo "error: couldn't read $FEED ($status)." >&2; exit 1 ;;
+  esac
+fi
+
+# The notes as people read them in the app, without what GitHub adds for
+# itself: comments, first-time contributors and the "Full Changelog" link.
+python3 - "${ARCHIVE%.dmg}.md" <<'PY'
+import re, sys
+path = sys.argv[1]
+notes = open(path, encoding="utf-8").read().replace("\r\n", "\n")
+notes = re.sub(r"<!--.*?-->", "", notes, flags=re.S)
+notes = re.sub(r"^#+ New Contributors\n(?:(?!#).*\n?)*", "", notes, flags=re.M)
+notes = re.sub(r"^\s*\*\*Full Changelog\*\*.*$", "", notes, flags=re.M)
+notes = re.sub(r" by @[\w-]+ in https://github\.com/\S+$", "", notes, flags=re.M)
+open(path, "w", encoding="utf-8").write(re.sub(r"\n{3,}", "\n\n", notes).strip() + "\n")
+PY
+
+"$SPARKLE/generate_appcast" --ed-key-file "$KEY/key" \
+  --embed-release-notes --maximum-versions 0 \
+  --download-url-prefix "$PREFIX" \
+  ${LINK:+--link "$LINK"} \
+  --full-release-notes-url "https://github.com/$REPO/releases" \
+  "$WORK"
+
+# Name the new version as its release does, such as "1.0 beta 2", for
+# Sparkle's window and What's New, then sign the feed again.
+python3 - "$WORK/appcast.xml" "$PREFIX$(basename "$ARCHIVE")" "${NAME#OrbTorrent }" <<'PY'
+import re, sys
+path, url, name = sys.argv[1:4]
+feed = open(path, encoding="utf-8").read()
+for item in re.findall(r"<item>.*?</item>", feed, re.S):
+    if f'url="{url}"' in item and name:
+        feed = feed.replace(item, re.sub(r"<title>.*?</title>", f"<title>{name}</title>", item, count=1))
+open(path, "w", encoding="utf-8").write(feed)
+PY
+"$SPARKLE/sign_update" --ed-key-file "$KEY/key" "$WORK/appcast.xml" >/dev/null
+"$SPARKLE/sign_update" --verify --ed-key-file "$KEY/key" "$WORK/appcast.xml"
+
+if $test || $dry_run; then
+  echo "Made $WORK/appcast.xml"
+  exit 0
+fi
+
+(cd updates && npx --no-install cf kv keys put appcast.xml --namespace-id "$NAMESPACE" \
+  --file "$ROOT/$WORK/appcast.xml" >/dev/null)
+if curl -fsS "$FEED" | cmp -s - "$WORK/appcast.xml"; then
+  echo "Published ${NAME:-$TAG} to $FEED"
+else
+  echo "Uploaded; $FEED may take a minute to show it."
+fi

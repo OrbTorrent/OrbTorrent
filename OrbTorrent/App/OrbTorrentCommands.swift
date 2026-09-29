@@ -12,6 +12,23 @@ struct OrbTorrentCommands: Commands {
                 NSApp.activate()
                 openWindow(id: "about")
             }
+            if model.updates.isEnabled {
+                Button("Check for Updates…") { model.updates.checkForUpdates() }
+                    .disabled(!model.updates.canCheck)
+            }
+        }
+
+        CommandGroup(replacing: .help) {
+            Button("What's New in \(AppIdentity.name)") {
+                model.updates.showWhatsNew()
+                model.showMainWindow()
+            }
+            .disabled(model.updates.currentRelease == nil)
+            Divider()
+            Button("Report a Problem…") {
+                NSApp.activate()
+                openWindow(id: "report")
+            }
         }
 
         CommandGroup(replacing: .newItem) {

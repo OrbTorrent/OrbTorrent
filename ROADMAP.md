@@ -178,16 +178,9 @@ Mac client.
 
 Cheap, mostly settings the engine already supports.
 
-- [ ] **Report a Problem**, in the Help menu and the menu bar's ⋯ menu. A
-  short form fills in what helps: the OrbTorrent, macOS and engine versions,
-  the Mac model, and optionally the last lines of the engine's log. The
-  person sees all of it before anything leaves the Mac, and nothing is sent
-  on its own. Then it opens their mail app with the report filled in, or a
-  new GitHub issue with the same text for people with an account, once the
-  repo is public. Both addresses sit behind links on a domain we own, so
-  where reports go can change without an update. Waiting on an email address
-  for reports (not `[removed]`, which signs in to the Apple
-  developer account) and that domain.
+- [x] **Report a Problem**, in the Help menu and the menu bar's ⋯ menu,
+  on 29 September 2026 (see [RELEASE.md](RELEASE.md)). A GitHub issue as
+  another way to report comes once the repo is public.
 - [ ] **Show speeds in megabits**, the unit internet plans use
   ([#12971](https://github.com/qbittorrent/qBittorrent/issues/12971), 69 👍).
   Display only.
@@ -222,7 +215,8 @@ Cheap, mostly settings the engine already supports.
 - [ ] Create `.torrent` files. Engine: `torrentcreator/*`.
 - [ ] Unpack archives when a download finishes. Engine: `autorun_enabled`,
   `autorun_program`, or do it in OrbTorrent.
-- [ ] Automatic app updates (Sparkle), once OrbTorrent is shared with others.
+- [x] Automatic app updates (Sparkle), with What's New. See
+  [RELEASE.md](RELEASE.md).
 
 ## Official extensions
 

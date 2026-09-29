@@ -1,8 +1,27 @@
 {
   "name": "@orbtorrent/api",
   "version": "1.0.0",
-  "description": "Build extensions for OrbTorrent: the API extensions use, and the orb command-line tool.",
-  "license": "GPL-3.0-or-later",
+  "description": "Build extensions for OrbTorrent, the BitTorrent app for macOS: the API extensions use, and the orb command-line tool.",
+  "keywords": [
+    "orbtorrent",
+    "extension",
+    "sdk",
+    "bittorrent",
+    "torrent",
+    "macos"
+  ],
+  "homepage": "https://github.com/sanjevirau/OrbTorrent/tree/main/docs/extensions#readme",
+  "bugs": {
+    "url": "https://github.com/sanjevirau/OrbTorrent/issues",
+    "email": "help@orbtorrent.com"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/sanjevirau/OrbTorrent.git",
+    "directory": "sdk"
+  },
+  "license": "MIT",
+  "author": "Sanjevi Rau",
   "type": "module",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
@@ -16,7 +35,7 @@
     "./package.json": "./package.json"
   },
   "bin": {
-    "orb": "./bin/orb.js"
+    "orb": "bin/orb.js"
   },
   "files": [
     "bin",
@@ -24,14 +43,16 @@
     "templates",
     "eslint.config.js",
     "tsconfig.extension.json",
-    "README.md"
+    "README.md",
+    "CHANGELOG.md"
   ],
   "engines": {
     "node": ">=22.13"
   },
   "scripts": {
     "build": "tsc -p tsconfig.runtime.json && tsc -p tsconfig.cli.json",
-    "test": "node --test \"test/*.test.js\""
+    "test": "node --test \"test/*.test.js\"",
+    "prepublishOnly": "npm run build && npm test"
   },
   "dependencies": {
     "@eslint/js": "^10.0.0",
@@ -42,5 +63,8 @@
   },
   "devDependencies": {
     "@types/node": "^24.0.0"
+  },
+  "publishConfig": {
+    "access": "public"
   }
 }

@@ -31,6 +31,14 @@ struct OrbTorrentApp: App {
         .defaultLaunchBehavior(.suppressed)
         .restorationBehavior(.disabled)
 
+        Window("Report a Problem", id: "report") {
+            ReportProblemView()
+        }
+        .windowResizability(.contentSize)
+        .windowStyle(.hiddenTitleBar)
+        .defaultLaunchBehavior(.suppressed)
+        .restorationBehavior(.disabled)
+
         Settings {
             SettingsView()
                 .environment(appDelegate.model)

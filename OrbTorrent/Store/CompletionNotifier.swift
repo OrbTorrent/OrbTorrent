@@ -16,12 +16,15 @@ final class CompletionNotifier: NSObject, UNUserNotificationCenterDelegate {
 
     /// Called with the torrent hash when someone interacts with a notification.
     var onAction: ((Action, String) -> Void)?
+    /// Called when someone clicks the notice of a new version.
+    var onUpdate: (() -> Void)?
 
     private var knownCompletion: [String: Bool]?
     private let center = UNUserNotificationCenter.current()
     private static let category = "orbtorrent.download-finished"
     private nonisolated static let heldCategory = "orbtorrent.download-held"
     private nonisolated static let checkCategory = "orbtorrent.check-found"
+    private nonisolated static let updateIdentifier = "update-available"
 
     override init() {
         super.init()
@@ -109,6 +112,20 @@ final class CompletionNotifier: NSObject, UNUserNotificationCenterDelegate {
         center.add(UNNotificationRequest(identifier: "disk-almost-full", content: content, trigger: nil))
     }
 
+    /// Says a new version found in the background is ready to install, or
+    /// takes the notice back once it's been looked at.
+    func postUpdateAvailable(_ name: String?) {
+        guard let name else {
+            center.removeDeliveredNotifications(withIdentifiers: [Self.updateIdentifier])
+            return
+        }
+        let content = UNMutableNotificationContent()
+        content.title = "\(AppIdentity.name) \(name) Is Available"
+        content.body = "Click to see what's new and install it."
+        content.userInfo = ["update": true]
+        center.add(UNNotificationRequest(identifier: Self.updateIdentifier, content: content, trigger: nil))
+    }
+
     nonisolated func userNotificationCenter(_ center: UNUserNotificationCenter,
                                             willPresent notification: UNNotification) async -> UNNotificationPresentationOptions {
         [.banner, .sound]
@@ -117,6 +134,10 @@ final class CompletionNotifier: NSObject, UNUserNotificationCenterDelegate {
     nonisolated func userNotificationCenter(_ center: UNUserNotificationCenter,
                                             didReceive response: UNNotificationResponse) async {
         let content = response.notification.request.content
+        if content.userInfo["update"] != nil {
+            await MainActor.run { onUpdate?() }
+            return
+        }
         guard let hash = content.userInfo["hash"] as? String else { return }
         let opensChecks = [Self.heldCategory, Self.checkCategory].contains(content.categoryIdentifier)
         let action = Action(rawValue: response.actionIdentifier) ?? (opensChecks ? .showChecks : .show)

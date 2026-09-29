@@ -2,11 +2,12 @@
 #
 #   make engine         Build qbittorrent-nox for this Mac's architecture
 #   make extensions     Build the extension SDK and the official extensions (needs Node.js 22+)
+#   make sparkle        Download Sparkle, the updater, and its tools into build/sparkle
 #   make test-extensions  Run the SDK's and the official extensions' tests
 #   make dev            Build OrbTorrent Dev, quit the running copy and open the new one
 #   make run            Build OrbTorrent.app and open it
 #   make install        Build OrbTorrent.app, and replace and reopen the one in /Applications
-#   make test           Run the unit tests
+#   make test           Run the unit tests (TESTS="-only-testing:OrbTorrentTests/UpdatesTests" for some)
 #   make dmg            Build OrbTorrent.app and package build/OrbTorrent-<version>.dmg
 #   make release        Universal (Apple silicon + Intel) engine, app and DMG
 #
@@ -32,7 +33,7 @@ APP := $(BUILD_DIR)/OrbTorrent.app
 DEV_APP := $(BUILD_DIR)/OrbTorrent Dev.app
 LSREGISTER := /System/Library/Frameworks/CoreServices.framework/Frameworks/LaunchServices.framework/Support/lsregister
 
-.PHONY: engine extensions test-extensions project app dev test run dmg install release clean
+.PHONY: engine extensions sparkle test-extensions project app dev test run dmg install release clean
 
 engine:
 	ARCHS="$(ARCHS)" ./engine/build.sh
@@ -46,7 +47,10 @@ test-extensions: extensions
 	npm test --workspace sdk
 	for extension in extensions/*/; do (cd "$$extension" && npx orb test && npx orb lint) || exit 1; done
 
-project:
+sparkle:
+	@./scripts/fetch-sparkle.sh >/dev/null
+
+project: sparkle
 	xcodegen generate --quiet
 
 app: project extensions
@@ -75,9 +79,13 @@ dev: project extensions
 	open "$(DEV_APP)"
 	@echo "Opened $(DEV_APP), signed by $(DEV_SIGN_IDENTITY)"
 
+# Signed like OrbTorrent Dev, so the Desktop access the tests need to read the
+# repo's fixtures is asked for once, not after every build.
 test: project extensions
 	xcodebuild -project OrbTorrent.xcodeproj -scheme OrbTorrent -configuration Debug \
-		-derivedDataPath $(DERIVED) -quiet test
+		-derivedDataPath $(DERIVED) -quiet \
+		CODE_SIGN_IDENTITY="$(DEV_SIGN_IDENTITY)" \
+		test $(TESTS)
 
 run: app
 	open $(APP)

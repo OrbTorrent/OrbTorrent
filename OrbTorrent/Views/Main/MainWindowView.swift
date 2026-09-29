@@ -12,6 +12,7 @@ struct MainWindowView: View {
         @Bindable var store = model.store
         @Bindable var adder = model.adder
         @Bindable var extensions = model.extensions
+        @Bindable var updates = model.updates
         let showsLibrary = model.section == .library
 
         NavigationSplitView {
@@ -33,7 +34,13 @@ struct MainWindowView: View {
         }
         .searchable(text: showsLibrary ? $store.searchText : $model.extensionSearch, placement: .toolbar,
                     prompt: searchPrompt)
-        .overlay(alignment: .top) { DefaultAppBanner() }
+        .overlay(alignment: .top) {
+            VStack(spacing: 0) {
+                UpdateBanner()
+                DefaultAppBanner()
+            }
+            .animation(.smooth, value: model.updates.waiting)
+        }
         .overlay(alignment: .bottom) { toast }
         .dropDestination(for: URL.self) { urls, _ in
             model.adder.open(urls)
@@ -50,6 +57,9 @@ struct MainWindowView: View {
         }
         .sheet(isPresented: $model.isWelcomePresented) {
             WelcomeView()
+        }
+        .sheet(isPresented: $updates.isWhatsNewPresented, onDismiss: { model.updates.didDismissWhatsNew() }) {
+            WhatsNewView(releases: model.updates.whatsNew)
         }
         .confirmationDialog(removalTitle, isPresented: $model.isRemovalConfirmationPresented, titleVisibility: .visible) {
             Button("Remove from OrbTorrent") { model.confirmRemoval(deletingFiles: false) }

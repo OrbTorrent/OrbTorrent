@@ -65,6 +65,7 @@ struct MenuBarPanel: View {
                 }
                 .id(torrent.hash)
             } else {
+                updateStrip
                 content
                 clipboardButton
                 footer
@@ -126,6 +127,38 @@ struct MenuBarPanel: View {
                 }
                 showAllButton(hiding: model.store.torrents.count - torrents.count)
             }
+        }
+    }
+
+    /// A new version found while OrbTorrent was in the background.
+    @ViewBuilder
+    private var updateStrip: some View {
+        if let name = model.updates.waiting {
+            Button {
+                MenuBarIcon.closePanel()
+                model.updates.checkForUpdates()
+            } label: {
+                HStack(spacing: 8) {
+                    Image(systemName: "sparkles")
+                        .foregroundStyle(.tint)
+                    Text("\(AppIdentity.name) \(name) is available")
+                        .lineLimit(1)
+                    Spacer(minLength: 6)
+                    Text("Update")
+                        .foregroundStyle(.tint)
+                    Image(systemName: "chevron.right")
+                        .font(.caption2.weight(.semibold))
+                        .foregroundStyle(.tertiary)
+                }
+                .font(.callout)
+                .padding(.horizontal, 10)
+                .padding(.vertical, 8)
+                .background(.tint.opacity(0.12), in: .rect(cornerRadius: 12))
+                .overlay(RoundedRectangle(cornerRadius: 12).strokeBorder(.tint.opacity(0.3)))
+                .contentShape(.rect)
+            }
+            .buttonStyle(.plain)
+            .reachesOut()
         }
     }
 
@@ -242,12 +275,22 @@ struct MenuBarPanel: View {
         let openSettings = openSettings
         let openWindow = openWindow
         let adder = model.adder
-        PopUpMenu.show([
-            .init(title: "About \(AppIdentity.name)", systemImage: "info.circle") {
+        let updates = model.updates
+        let show = { (id: String) in
+            MenuBarIcon.closePanel()
+            NSApp.activate()
+            openWindow(id: id)
+        }
+        var items: [PopUpMenu.Item] = [
+            .init(title: "About \(AppIdentity.name)", systemImage: "info.circle") { show("about") },
+        ]
+        if updates.isEnabled {
+            items.append(.init(title: "Check for Updates…", systemImage: "arrow.triangle.2.circlepath") {
                 MenuBarIcon.closePanel()
-                NSApp.activate()
-                openWindow(id: "about")
-            },
+                updates.checkForUpdates()
+            })
+        }
+        items += [
             .init(title: "Settings…", systemImage: "gearshape", keyEquivalent: ",") {
                 MenuBarIcon.closePanel()
                 NSApp.activate()
@@ -257,9 +300,12 @@ struct MenuBarPanel: View {
                 adder.presentOpenPanel(askingIn: .menuBar)
             },
             .divider,
+            .init(title: "Report a Problem…", systemImage: "exclamationmark.bubble") { show("report") },
+            .divider,
             .init(title: "Quit \(AppIdentity.name)", systemImage: "power", keyEquivalent: "q") {
                 NSApp.terminate(nil)
             },
-        ])
+        ]
+        PopUpMenu.show(items)
     }
 }

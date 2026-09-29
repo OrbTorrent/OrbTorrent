@@ -16,6 +16,10 @@ struct GeneralSettingsView: View {
                 appSection
             }
 
+            if model.updates.isEnabled {
+                updatesSection
+            }
+
             Section("Adding Torrents") {
                 Picker(selection: $settings.addBehavior) {
                     ForEach(AppSettings.AddBehavior.allCases) { Text($0.title).tag($0) }
@@ -67,6 +71,30 @@ struct GeneralSettingsView: View {
         } message: {
             Text(loginItemError ?? "")
         }
+    }
+
+    private var updatesSection: some View {
+        @Bindable var updates = model.updates
+        return Section("Updates") {
+            LabeledContent {
+                Button("Check Now") { updates.checkForUpdates() }
+                    .disabled(!updates.canCheck)
+            } label: {
+                Text("\(AppIdentity.name) \(updates.currentRelease?.name ?? AboutView.version)")
+                Text(lastCheck(updates.lastCheck))
+            }
+            Toggle("Check for updates automatically", isOn: $updates.checksAutomatically)
+            Toggle(isOn: $updates.downloadsAutomatically) {
+                Text("Download and install updates automatically")
+                Text("They install the next time \(AppIdentity.name) quits.")
+            }
+            .disabled(!updates.checksAutomatically)
+        }
+    }
+
+    private func lastCheck(_ date: Date?) -> String {
+        guard let date else { return "Not checked for updates yet" }
+        return "Last checked \(date.formatted(.relative(presentation: .named)))"
     }
 
     /// The default app for torrents, and starting at login.
