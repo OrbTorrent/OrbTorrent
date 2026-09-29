@@ -199,3 +199,10 @@ The exact source code of every bundled component comes from the URLs pinned in
 
 OrbTorrent isn't affiliated with or endorsed by the qBittorrent project. Download and
 share only content you have the right to.
+
+### Name and icon
+
+The name OrbTorrent and the orb icon belong to Sanjevi Rau and aren't licensed
+under the GPL (its section 7(e) allows this). You're welcome to fork OrbTorrent
+under the GPL, but please give your version its own name and icon, so people
+can tell it apart from the official app.

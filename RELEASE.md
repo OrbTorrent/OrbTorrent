@@ -22,6 +22,12 @@ OrbTorrent safely onto other people's Macs and keeping it up to date there.
   goes on a domain we control, not a GitHub address.
 - [x] **Copyright owner:** Sanjevi Rau, personally. "Copyright © 2026 Sanjevi
   Rau" is in the About window, the app's Info.plist and the README.
+- [ ] **Domain: `orbtorrent.com`,** unregistered on 29 September 2026 and
+  about to be bought. The website goes at `orbtorrent.com`, the update feed at
+  `updates.orbtorrent.com`, both on GitHub Pages, and reports go to
+  `help@orbtorrent.com`, forwarded for free (for example with Cloudflare
+  Email Routing). Turn on auto-renew and the registrar lock: whoever holds the
+  domain controls where every installed copy looks for updates. (You)
 - [ ] **Check the name "OrbTorrent":** the domain, the GitHub name, the
   `@orbtorrent` npm scope (the SDK is `@orbtorrent/api`), and a trademark
   search. (You, with help)
@@ -170,6 +176,10 @@ automatically.
     minutes ten times as fast.
   - Take the owner's account details out of this file first: the Apple
     Account, the enrollment ID and the certificate names.
+  - The licence is GPL-3.0-or-later. The README says the OrbTorrent name and
+    the orb icon aren't covered by it (GPL section 7(e)), so forks must use
+    their own. Registering "OrbTorrent" as a trademark with MyIPO would back
+    that up; the domain alone doesn't protect the name. (You, optional)
   - Contribution rules. If paid "Pro" parts might ever come, require a
     contributor licence agreement, so the code can still be relicensed later.
   - Issue templates, and optionally GitHub Sponsors.
