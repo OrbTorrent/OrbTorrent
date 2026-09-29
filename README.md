@@ -197,12 +197,14 @@ many Macs checked for updates each day, by version.
    major one for anything that breaks an extension. For a new minor or major
    version, raise `ExtensionAPI.version` in `ExtensionManifest.swift` to match,
    so OrbTorrent runs what it builds.
-2. Push a tag such as `sdk-v1.1.0`. CI checks it matches, builds, tests and
-   publishes whichever of the two packages has a version that isn't on npm
-   yet, through npm's trusted publishing, so no npm token is stored anywhere.
+2. Push a tag such as `sdk-v1.1.0`. CI checks both packages have that
+   version, builds, tests and publishes them, through npm's trusted
+   publishing, so no npm token is stored anywhere.
 
-`@orbtorrent/create-extension` depends on `^1` of the API, so it only needs a
-new version when it changes itself, or for a new major version.
+The two packages share a version and are released together: raise
+`sdk/create-extension/package.json` to match. `npm create` always fetches the
+newest `@orbtorrent/api` to make an extension from, so its template and
+`AGENTS.md` are never older than what's on npm.
 
 `node scripts/agent-eval.mjs` asks the coding agents on this Mac (Claude Code,
 Codex and Cursor) to build three extensions from what the Develop tab's **Build

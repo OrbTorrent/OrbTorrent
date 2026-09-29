@@ -1,10 +1,9 @@
 #!/usr/bin/env node
 // `npm create @orbtorrent/extension <name>` runs this. It makes the extension
-// with `orb create` from the newest @orbtorrent/api, which the new extension
-// then depends on.
+// with `orb create` from the newest @orbtorrent/api on npm, which the new
+// extension then depends on. It asks npm for it each time, because npm reuses
+// this package once it has it, with whatever @orbtorrent/api came with it.
 import { spawnSync } from "node:child_process";
-import { dirname, join } from "node:path";
-import { fileURLToPath } from "node:url";
 
 const args = process.argv.slice(2);
 if (args.length === 0 || args.includes("--help") || args.includes("-h")) {
@@ -18,6 +17,6 @@ after-finish acts on them once they finish. Add -- --title "<title>" to name it.
   process.exit(args.length === 0 ? 1 : 0);
 }
 
-const api = dirname(fileURLToPath(import.meta.resolve("@orbtorrent/api/package.json")));
-const { status } = spawnSync(process.execPath, [join(api, "bin", "orb.js"), "create", ...args], { stdio: "inherit" });
+const { status, error } = spawnSync("npx", ["--yes", "@orbtorrent/api@latest", "create", ...args], { stdio: "inherit" });
+if (error) console.error(`npx couldn't run: ${error.message}. It comes with Node.js 22.13 or later.`);
 process.exit(status ?? 1);

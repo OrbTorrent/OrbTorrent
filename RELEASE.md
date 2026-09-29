@@ -166,8 +166,9 @@ OrbTorrent safely onto other people's Macs and keeping it up to date there.
   Installing replaces a development copy. `scripts/agent-eval.mjs` tests it:
   Claude Code built all three test extensions right, and Codex all three
   working, one checking after the download instead of before, which
-  `AGENTS.md` now covers. Cursor wasn't signed in. Needs `@orbtorrent/api`
-  1.0.1 on npm. Later, once the repo is public: the Agent Skill through `npx
+  `AGENTS.md` now covers. Cursor wasn't signed in. `@orbtorrent/api` 1.0.1
+  has it, published by GitHub Actions through trusted publishing the same day,
+  the first release from CI. Later, once the repo is public: the Agent Skill through `npx
   skills add`, and the docs on Context7.
 - [ ] **Help menu, later:** the website and the extension docs, once both are
   public, and a GitHub issue as another way to report, once the repo is.

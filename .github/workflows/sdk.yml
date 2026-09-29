@@ -29,13 +29,15 @@ jobs:
       - name: Install
         run: npm ci --no-audit --no-fund
 
-      - name: Check the tag matches the version
+      - name: Check the tag matches both packages' version
         run: |
-          version="$(node -p 'require("./sdk/package.json").version')"
-          if [ "sdk-v$version" != "$GITHUB_REF_NAME" ]; then
-            echo "::error::The tag is $GITHUB_REF_NAME, but sdk/package.json says $version."
-            exit 1
-          fi
+          for package in sdk sdk/create-extension; do
+            version="$(node -p "require('./$package/package.json').version")"
+            if [ "sdk-v$version" != "$GITHUB_REF_NAME" ]; then
+              echo "::error::The tag is $GITHUB_REF_NAME, but $package/package.json says $version."
+              exit 1
+            fi
+          done
 
       - name: Build and test
         run: |

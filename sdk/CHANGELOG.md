@@ -1,5 +1,13 @@
 # @orbtorrent/api Changelog
 
+## 1.0.2
+
+- `npm create @orbtorrent/extension` always makes the extension from the
+  newest `@orbtorrent/api`. Before, npm could reuse an older one it had
+  kept from an earlier run, with that version's template and `AGENTS.md`.
+- `@orbtorrent/create-extension` now shares this package's version, and both
+  are released together.
+
 ## 1.0.1
 
 For building extensions with a coding agent. The extension API is unchanged.

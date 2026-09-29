@@ -1,6 +1,6 @@
 {
   "name": "@orbtorrent/create-extension",
-  "version": "1.0.0",
+  "version": "1.0.2",
   "description": "Make a new extension for OrbTorrent, the BitTorrent app for macOS: npm create @orbtorrent/extension <name>",
   "keywords": [
     "orbtorrent",
@@ -32,9 +32,6 @@
   ],
   "engines": {
     "node": ">=22.13"
-  },
-  "dependencies": {
-    "@orbtorrent/api": "^1.0.0"
   },
   "publishConfig": {
     "access": "public"
