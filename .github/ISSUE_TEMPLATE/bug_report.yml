@@ -1,0 +1,61 @@
+name: Report a problem
+description: Something in OrbTorrent doesn't work as it should.
+labels: [bug]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for reporting. Security problems go privately to help@orbtorrent.com instead (see SECURITY.md).
+        Please don't paste magnet links or tracker addresses with passkeys in them.
+  - type: textarea
+    id: problem
+    attributes:
+      label: What happened
+      description: What you did, what you expected, and what happened instead.
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: How to make it happen again
+      placeholder: |
+        1. Open a magnet link for …
+        2. Click …
+        3. …
+  - type: dropdown
+    id: area
+    attributes:
+      label: Where
+      options:
+        - Downloading or seeding
+        - Adding downloads (magnet links, .torrent files, web addresses)
+        - The window
+        - The menu bar
+        - Settings
+        - VPN and port forwarding
+        - Importing from Transmission or qBittorrent
+        - Extensions
+        - Updates
+        - Something else
+    validations:
+      required: true
+  - type: input
+    id: version
+    attributes:
+      label: OrbTorrent version
+      description: From About OrbTorrent, such as "1.0 (12)".
+    validations:
+      required: true
+  - type: input
+    id: macos
+    attributes:
+      label: macOS version and Mac
+      placeholder: macOS 26.1, MacBook Air with Apple M2
+    validations:
+      required: true
+  - type: textarea
+    id: details
+    attributes:
+      label: Anything else
+      description: |
+        Screenshots, or the engine log. Help → Report a Problem can show the log's last lines with IP addresses and your user name hidden.

@@ -240,6 +240,12 @@ updates/        updates.orbtorrent.com, the update feed (a Cloudflare Worker)
 scripts/        DMG packaging, publishing updates, extension docs and permission checks
 ```
 
+## Contributing
+
+Bug reports, fixes and extensions are welcome. See
+[CONTRIBUTING.md](CONTRIBUTING.md), and report security problems privately as
+[SECURITY.md](SECURITY.md) says.
+
 ## License
 
 Copyright © 2026 Sanjevi Rau. OrbTorrent is free software, released under the

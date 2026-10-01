@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Report a security problem
+    url: https://github.com/sanjevirau/OrbTorrent/blob/main/SECURITY.md
+    about: Privately, by email, not in a public issue.
+  - name: Build an extension
+    url: https://github.com/sanjevirau/OrbTorrent/blob/main/docs/extensions/README.md
+    about: Guides and the API for building your own OrbTorrent extension.

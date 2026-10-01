@@ -1,13 +1,10 @@
 name: Build
 
-# While the repo is private, macOS runners use up GitHub's free Actions
-# minutes ten times as fast, so this runs only for version tags and when
-# started by hand. Once the repo is public, add back:
-#   push: { branches: [main] }
-#   pull_request:
 on:
   push:
+    branches: [main]
     tags: ["v*"]
+  pull_request:
   workflow_dispatch:
 
 permissions:
@@ -15,6 +12,11 @@ permissions:
 
 jobs:
   build:
+    # macOS runners use up a private repo's free Actions minutes ten times as
+    # fast, so while it's private, pushes and pull requests skip the build and
+    # only version tags and runs started by hand build. Once it's public, every
+    # push and pull request builds, with nothing to change here.
+    if: ${{ !github.event.repository.private || startsWith(github.ref, 'refs/tags/') || github.event_name == 'workflow_dispatch' }}
     runs-on: macos-26
     timeout-minutes: 120
     steps:

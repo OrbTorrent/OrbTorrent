@@ -1,0 +1,27 @@
+name: Suggest a feature
+description: An idea for OrbTorrent, or for an official extension.
+labels: [enhancement]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Please check [ROADMAP.md](https://github.com/sanjevirau/OrbTorrent/blob/main/ROADMAP.md) first: it lists what's planned, and what's been put off and why.
+  - type: textarea
+    id: need
+    attributes:
+      label: What you'd like to do
+      description: The problem it solves for you, rather than how it should work.
+    validations:
+      required: true
+  - type: textarea
+    id: idea
+    attributes:
+      label: How it might work
+      description: Optional. Another app that does it well is a great example.
+  - type: checkboxes
+    id: extension
+    attributes:
+      label: Could it be an extension?
+      description: Many ideas fit better as an extension anyone can build. See docs/extensions.
+      options:
+        - label: It could work as an extension
