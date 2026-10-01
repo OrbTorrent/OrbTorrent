@@ -1,0 +1,24 @@
+{
+  "name": "Passes a RARBG release with its harmless placeholder .exe",
+  "download": {
+    "name": "Interstellar.2014.1080p.BluRay.x265-RARBG",
+    "files": [
+      {
+        "path": "Interstellar.2014.1080p.BluRay.x265-RARBG/Interstellar.2014.1080p.BluRay.x265-RARBG.mp4",
+        "size": 2500000000
+      },
+      {
+        "path": "Interstellar.2014.1080p.BluRay.x265-RARBG/RARBG.txt",
+        "size": 30
+      },
+      {
+        "path": "Interstellar.2014.1080p.BluRay.x265-RARBG/RARBG_DO_NOT_MIRROR.exe",
+        "size": 99
+      }
+    ]
+  },
+  "expect": {
+    "status": "passed",
+    "summaryIncludes": "No signs of a fake"
+  }
+}

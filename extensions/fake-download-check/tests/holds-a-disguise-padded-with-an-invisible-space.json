@@ -1,0 +1,20 @@
+{
+  "name": "Holds a disguise padded with a zero-width space",
+  "download": {
+    "name": "Holiday 2025",
+    "files": [
+      {
+        "path": "Holiday 2025/Beach.jpg\u200b.exe",
+        "size": 800000
+      },
+      {
+        "path": "Holiday 2025/Pier.jpg",
+        "size": 2000000
+      }
+    ]
+  },
+  "expect": {
+    "status": "failed",
+    "summaryIncludes": "disguised as a picture"
+  }
+}

@@ -261,6 +261,27 @@ struct ExtensionsCoordinatorTests {
         #expect(records.map(\.status) == [.passed])
     }
 
+    /// Each of the Fake Download Check's own tests comes out the same in
+    /// OrbTorrent's host, JavaScriptCore, as in `orb test`, which uses Node.js.
+    @Test(arguments: try! FileManager.default.contentsOfDirectory(atPath: repository.appending(path: "extensions/fake-download-check/tests").path)
+        .filter { $0.hasSuffix(".json") }.sorted())
+    func theFakeDownloadCheckAgreesWithItsTests(test: String) async throws {
+        let json = try JSONValue(data: Data(contentsOf: repository.appending(path: "extensions/fake-download-check/tests/\(test)")))
+        let download = try #require(json["download"])
+        let files = (download["files"]?.array ?? []).enumerated().map { index, file in
+            TorrentMetadata.File(id: index, path: file["path"]?.string ?? "", size: Int64(file["size"]?.double ?? 0))
+        }
+        let metadata = TorrentMetadata(infoHash: String(repeating: "a", count: 40), name: download["name"]?.string ?? "",
+                                       files: files, isPrivate: download["isPrivate"]?.bool ?? false)
+        let sandbox = try ExtensionSandbox(officialExtensions: ["fake-download-check"])
+        let records = await coordinator(sandbox).runBeforeStart(on: ExtensionDownload(metadata: metadata, skipped: []))
+        let record = try #require(records.first)
+        #expect(record.status.rawValue == json["expect"]?["status"]?.string, "\(record.summary)")
+        if let text = json["expect"]?["summaryIncludes"]?.string {
+            #expect(record.summary.localizedCaseInsensitiveContains(text), "\(record.summary)")
+        }
+    }
+
     @Test func anExtensionThatNeedsSetupIsSkipped() async throws {
         let sandbox = try ExtensionSandbox(officialExtensions: ["virustotal"])
         let extensions = coordinator(sandbox)

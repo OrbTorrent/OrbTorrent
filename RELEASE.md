@@ -174,6 +174,16 @@ OrbTorrent safely onto other people's Macs and keeping it up to date there.
   1.0.3 were published by GitHub Actions through trusted publishing the same
   day, the first releases from CI. Later, once the repo is public: the Agent
   Skill through `npx skills add`, and the docs on Context7.
+- [x] **Fake Download Check, sharpened,** on 1 October 2026. Of 25 tricky
+  downloads it got 2 right: it held Mac apps with "4K", "HDR" or "Blu-ray" in
+  their names, RARBG releases, scene releases of *Passengers* and *Key Largo*,
+  and coding courses, and missed fakes named without a quality, programs in
+  albums and books, Mac scripts and screensavers, and zero-width padding. It
+  now works out what a download is from its files and then its name, and gets
+  all 25 right, with 61 tests that the app's tests also run in its own
+  extension host. Still beyond names and sizes: a fake with believable ones,
+  which needs reading files after they arrive (a new extension API) or release
+  dates from a film database (see ROADMAP.md).
 - [ ] **Help menu, later:** the website and the extension docs, once both are
   public, and a GitHub issue as another way to report, once the repo is.
 - [x] **Privacy note,** in the About window and the README; the website

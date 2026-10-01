@@ -1,0 +1,15 @@
+{
+  "name": "Passes DivX's installer",
+  "download": {
+    "name": "DivX Pro 10.10.2 for Mac",
+    "files": [
+      {
+        "path": "DivX Pro 10.10.2 for Mac/DivXInstaller.pkg",
+        "size": 150000000
+      }
+    ]
+  },
+  "expect": {
+    "status": "passed"
+  }
+}

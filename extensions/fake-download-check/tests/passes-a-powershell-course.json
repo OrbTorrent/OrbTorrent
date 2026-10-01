@@ -1,0 +1,131 @@
+{
+  "name": "Passes a PowerShell course with its scripts",
+  "download": {
+    "name": "Pluralsight - PowerShell Scripting Fundamentals [1080p]",
+    "files": [
+      {
+        "path": "Pluralsight - PowerShell Scripting Fundamentals [1080p]/01 Module.mp4",
+        "size": 60000000
+      },
+      {
+        "path": "Pluralsight - PowerShell Scripting Fundamentals [1080p]/02 Module.mp4",
+        "size": 60000000
+      },
+      {
+        "path": "Pluralsight - PowerShell Scripting Fundamentals [1080p]/03 Module.mp4",
+        "size": 60000000
+      },
+      {
+        "path": "Pluralsight - PowerShell Scripting Fundamentals [1080p]/04 Module.mp4",
+        "size": 60000000
+      },
+      {
+        "path": "Pluralsight - PowerShell Scripting Fundamentals [1080p]/05 Module.mp4",
+        "size": 60000000
+      },
+      {
+        "path": "Pluralsight - PowerShell Scripting Fundamentals [1080p]/06 Module.mp4",
+        "size": 60000000
+      },
+      {
+        "path": "Pluralsight - PowerShell Scripting Fundamentals [1080p]/07 Module.mp4",
+        "size": 60000000
+      },
+      {
+        "path": "Pluralsight - PowerShell Scripting Fundamentals [1080p]/08 Module.mp4",
+        "size": 60000000
+      },
+      {
+        "path": "Pluralsight - PowerShell Scripting Fundamentals [1080p]/09 Module.mp4",
+        "size": 60000000
+      },
+      {
+        "path": "Pluralsight - PowerShell Scripting Fundamentals [1080p]/10 Module.mp4",
+        "size": 60000000
+      },
+      {
+        "path": "Pluralsight - PowerShell Scripting Fundamentals [1080p]/11 Module.mp4",
+        "size": 60000000
+      },
+      {
+        "path": "Pluralsight - PowerShell Scripting Fundamentals [1080p]/12 Module.mp4",
+        "size": 60000000
+      },
+      {
+        "path": "Pluralsight - PowerShell Scripting Fundamentals [1080p]/13 Module.mp4",
+        "size": 60000000
+      },
+      {
+        "path": "Pluralsight - PowerShell Scripting Fundamentals [1080p]/14 Module.mp4",
+        "size": 60000000
+      },
+      {
+        "path": "Pluralsight - PowerShell Scripting Fundamentals [1080p]/15 Module.mp4",
+        "size": 60000000
+      },
+      {
+        "path": "Pluralsight - PowerShell Scripting Fundamentals [1080p]/16 Module.mp4",
+        "size": 60000000
+      },
+      {
+        "path": "Pluralsight - PowerShell Scripting Fundamentals [1080p]/17 Module.mp4",
+        "size": 60000000
+      },
+      {
+        "path": "Pluralsight - PowerShell Scripting Fundamentals [1080p]/18 Module.mp4",
+        "size": 60000000
+      },
+      {
+        "path": "Pluralsight - PowerShell Scripting Fundamentals [1080p]/19 Module.mp4",
+        "size": 60000000
+      },
+      {
+        "path": "Pluralsight - PowerShell Scripting Fundamentals [1080p]/20 Module.mp4",
+        "size": 60000000
+      },
+      {
+        "path": "Pluralsight - PowerShell Scripting Fundamentals [1080p]/21 Module.mp4",
+        "size": 60000000
+      },
+      {
+        "path": "Pluralsight - PowerShell Scripting Fundamentals [1080p]/22 Module.mp4",
+        "size": 60000000
+      },
+      {
+        "path": "Pluralsight - PowerShell Scripting Fundamentals [1080p]/23 Module.mp4",
+        "size": 60000000
+      },
+      {
+        "path": "Pluralsight - PowerShell Scripting Fundamentals [1080p]/24 Module.mp4",
+        "size": 60000000
+      },
+      {
+        "path": "Pluralsight - PowerShell Scripting Fundamentals [1080p]/25 Module.mp4",
+        "size": 60000000
+      },
+      {
+        "path": "Pluralsight - PowerShell Scripting Fundamentals [1080p]/26 Module.mp4",
+        "size": 60000000
+      },
+      {
+        "path": "Pluralsight - PowerShell Scripting Fundamentals [1080p]/27 Module.mp4",
+        "size": 60000000
+      },
+      {
+        "path": "Pluralsight - PowerShell Scripting Fundamentals [1080p]/28 Module.mp4",
+        "size": 60000000
+      },
+      {
+        "path": "Pluralsight - PowerShell Scripting Fundamentals [1080p]/29 Module.mp4",
+        "size": 60000000
+      },
+      {
+        "path": "Pluralsight - PowerShell Scripting Fundamentals [1080p]/demos/backup.ps1",
+        "size": 3000
+      }
+    ]
+  },
+  "expect": {
+    "status": "passed"
+  }
+}

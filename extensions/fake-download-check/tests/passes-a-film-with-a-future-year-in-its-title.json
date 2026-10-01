@@ -1,0 +1,15 @@
+{
+  "name": "Passes a film whose title has a year that's still to come",
+  "download": {
+    "name": "Blade Runner 2049 1080p BluRay",
+    "files": [
+      {
+        "path": "Blade Runner 2049 1080p BluRay/Blade Runner 2049 1080p BluRay.mkv",
+        "size": 3000000000
+      }
+    ]
+  },
+  "expect": {
+    "status": "passed"
+  }
+}

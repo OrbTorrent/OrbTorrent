@@ -1,0 +1,56 @@
+{
+  "name": "Holds an album that includes a program",
+  "download": {
+    "name": "Artist - Album (2025) [MP3 320]",
+    "files": [
+      {
+        "path": "Artist - Album (2025) [MP3 320]/01 - Track.mp3",
+        "size": 9000000
+      },
+      {
+        "path": "Artist - Album (2025) [MP3 320]/02 - Track.mp3",
+        "size": 9000000
+      },
+      {
+        "path": "Artist - Album (2025) [MP3 320]/03 - Track.mp3",
+        "size": 9000000
+      },
+      {
+        "path": "Artist - Album (2025) [MP3 320]/04 - Track.mp3",
+        "size": 9000000
+      },
+      {
+        "path": "Artist - Album (2025) [MP3 320]/05 - Track.mp3",
+        "size": 9000000
+      },
+      {
+        "path": "Artist - Album (2025) [MP3 320]/06 - Track.mp3",
+        "size": 9000000
+      },
+      {
+        "path": "Artist - Album (2025) [MP3 320]/07 - Track.mp3",
+        "size": 9000000
+      },
+      {
+        "path": "Artist - Album (2025) [MP3 320]/08 - Track.mp3",
+        "size": 9000000
+      },
+      {
+        "path": "Artist - Album (2025) [MP3 320]/09 - Track.mp3",
+        "size": 9000000
+      },
+      {
+        "path": "Artist - Album (2025) [MP3 320]/10 - Track.mp3",
+        "size": 9000000
+      },
+      {
+        "path": "Artist - Album (2025) [MP3 320]/Album Player.exe",
+        "size": 3000000
+      }
+    ]
+  },
+  "expect": {
+    "status": "failed",
+    "summaryIncludes": "includes a program: Album Player.exe"
+  }
+}

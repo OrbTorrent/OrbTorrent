@@ -1,0 +1,27 @@
+{
+  "name": "Passes a programming book with its code",
+  "download": {
+    "name": "Eloquent JavaScript 4th Edition + Code",
+    "files": [
+      {
+        "path": "Eloquent JavaScript 4th Edition + Code/Eloquent JavaScript.pdf",
+        "size": 9000000
+      },
+      {
+        "path": "Eloquent JavaScript 4th Edition + Code/code/chapter1.js",
+        "size": 3000
+      },
+      {
+        "path": "Eloquent JavaScript 4th Edition + Code/code/chapter2.js",
+        "size": 3000
+      },
+      {
+        "path": "Eloquent JavaScript 4th Edition + Code/code/styles.css",
+        "size": 1000
+      }
+    ]
+  },
+  "expect": {
+    "status": "passed"
+  }
+}

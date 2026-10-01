@@ -1,0 +1,19 @@
+{
+  "name": "Passes a Mac app",
+  "download": {
+    "name": "Rectangle 0.85",
+    "files": [
+      {
+        "path": "Rectangle 0.85/Rectangle.app/Contents/MacOS/Rectangle",
+        "size": 4000000
+      },
+      {
+        "path": "Rectangle 0.85/Rectangle.app/Contents/Info.plist",
+        "size": 2000
+      }
+    ]
+  },
+  "expect": {
+    "status": "passed"
+  }
+}

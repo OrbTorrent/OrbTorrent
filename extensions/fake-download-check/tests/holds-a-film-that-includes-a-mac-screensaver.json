@@ -1,0 +1,20 @@
+{
+  "name": "Holds a film that includes a Mac screensaver",
+  "download": {
+    "name": "Sinners.2025.1080p.WEB-DL.x264",
+    "files": [
+      {
+        "path": "Sinners.2025.1080p.WEB-DL.x264/Sinners.2025.1080p.WEB-DL.x264.mkv",
+        "size": 2000000000
+      },
+      {
+        "path": "Sinners.2025.1080p.WEB-DL.x264/Extras/Sinners.saver/Contents/MacOS/Sinners",
+        "size": 900000
+      }
+    ]
+  },
+  "expect": {
+    "status": "failed",
+    "summaryIncludes": "Sinners.saver"
+  }
+}

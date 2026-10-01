@@ -1,0 +1,16 @@
+{
+  "name": "Holds an ebook that's a program",
+  "download": {
+    "name": "Atomic Habits - James Clear",
+    "files": [
+      {
+        "path": "Atomic Habits - James Clear/Atomic Habits.epub.exe",
+        "size": 900000
+      }
+    ]
+  },
+  "expect": {
+    "status": "failed",
+    "summaryIncludes": "disguised as a book"
+  }
+}

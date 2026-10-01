@@ -1,0 +1,20 @@
+{
+  "name": "Holds a book that includes a reader program",
+  "download": {
+    "name": "Clean Code - Robert C. Martin",
+    "files": [
+      {
+        "path": "Clean Code - Robert C. Martin/Clean Code.pdf",
+        "size": 5000000
+      },
+      {
+        "path": "Clean Code - Robert C. Martin/PDF Reader Setup.exe",
+        "size": 2000000
+      }
+    ]
+  },
+  "expect": {
+    "status": "failed",
+    "summaryIncludes": "A book download that includes a program"
+  }
+}

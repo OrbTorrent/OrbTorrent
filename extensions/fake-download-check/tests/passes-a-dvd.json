@@ -1,0 +1,43 @@
+{
+  "name": "Passes a DVD",
+  "download": {
+    "name": "Casablanca (1942) DVD9",
+    "files": [
+      {
+        "path": "Casablanca (1942) DVD9/VIDEO_TS/VTS_01_1.VOB",
+        "size": 1073000000
+      },
+      {
+        "path": "Casablanca (1942) DVD9/VIDEO_TS/VTS_01_2.VOB",
+        "size": 1073000000
+      },
+      {
+        "path": "Casablanca (1942) DVD9/VIDEO_TS/VTS_01_3.VOB",
+        "size": 1073000000
+      },
+      {
+        "path": "Casablanca (1942) DVD9/VIDEO_TS/VTS_01_4.VOB",
+        "size": 1073000000
+      },
+      {
+        "path": "Casablanca (1942) DVD9/VIDEO_TS/VTS_01_5.VOB",
+        "size": 1073000000
+      },
+      {
+        "path": "Casablanca (1942) DVD9/VIDEO_TS/VTS_01_6.VOB",
+        "size": 1073000000
+      },
+      {
+        "path": "Casablanca (1942) DVD9/VIDEO_TS/VIDEO_TS.IFO",
+        "size": 12000
+      },
+      {
+        "path": "Casablanca (1942) DVD9/VIDEO_TS/VIDEO_TS.BUP",
+        "size": 12000
+      }
+    ]
+  },
+  "expect": {
+    "status": "passed"
+  }
+}

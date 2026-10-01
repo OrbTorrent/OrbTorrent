@@ -1,0 +1,15 @@
+{
+  "name": "Passes a trailer, which is meant to be small",
+  "download": {
+    "name": "Dune.Part.Three.2026.Official.Trailer.1080p",
+    "files": [
+      {
+        "path": "Dune.Part.Three.2026.Official.Trailer.1080p/Dune.Part.Three.2026.Official.Trailer.1080p.mp4",
+        "size": 60000000
+      }
+    ]
+  },
+  "expect": {
+    "status": "passed"
+  }
+}

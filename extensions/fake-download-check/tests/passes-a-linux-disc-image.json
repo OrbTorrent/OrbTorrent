@@ -1,0 +1,15 @@
+{
+  "name": "Passes a Linux disc image",
+  "download": {
+    "name": "ubuntu-24.04.3-desktop-amd64.iso",
+    "files": [
+      {
+        "path": "ubuntu-24.04.3-desktop-amd64.iso",
+        "size": 6000000000
+      }
+    ]
+  },
+  "expect": {
+    "status": "passed"
+  }
+}

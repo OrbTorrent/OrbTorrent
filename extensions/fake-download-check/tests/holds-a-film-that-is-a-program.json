@@ -1,0 +1,16 @@
+{
+  "name": "Holds a film that's only a program, as MovieReaper's fakes were",
+  "download": {
+    "name": "the odyssey (2026) [1080p] [webrip] [5.1]",
+    "files": [
+      {
+        "path": "the odyssey (2026) [1080p] [webrip] [5.1].exe",
+        "size": 4800000
+      }
+    ]
+  },
+  "expect": {
+    "status": "failed",
+    "summaryIncludes": "includes a program: the odyssey (2026) [1080p] [webrip] [5.1].exe"
+  }
+}

@@ -1,0 +1,20 @@
+{
+  "name": "Holds a Mac app disguised as a picture",
+  "download": {
+    "name": "Wallpapers",
+    "files": [
+      {
+        "path": "Wallpapers/Sunset.jpg.app/Contents/MacOS/Sunset",
+        "size": 900000
+      },
+      {
+        "path": "Wallpapers/Sunset.jpg.app/Contents/Info.plist",
+        "size": 900
+      }
+    ]
+  },
+  "expect": {
+    "status": "failed",
+    "summaryIncludes": "disguised as a picture: Sunset.jpg.app"
+  }
+}

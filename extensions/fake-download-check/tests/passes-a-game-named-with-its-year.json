@@ -1,0 +1,19 @@
+{
+  "name": "Passes a game named with its year",
+  "download": {
+    "name": "Hollow Knight (2017) [GOG]",
+    "files": [
+      {
+        "path": "Hollow Knight (2017) [GOG]/setup_hollow_knight_1.5.78.exe",
+        "size": 1500000
+      },
+      {
+        "path": "Hollow Knight (2017) [GOG]/setup_hollow_knight_1.5.78-1.bin",
+        "size": 7000000000
+      }
+    ]
+  },
+  "expect": {
+    "status": "passed"
+  }
+}

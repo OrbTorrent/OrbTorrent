@@ -1,0 +1,16 @@
+{
+  "name": "Holds a film-like program whose name doesn't give a quality",
+  "download": {
+    "name": "Dune Part Two (2024) Full Movie",
+    "files": [
+      {
+        "path": "Dune Part Two (2024) Full Movie.exe",
+        "size": 2400000
+      }
+    ]
+  },
+  "expect": {
+    "status": "failed",
+    "summaryIncludes": "includes a program"
+  }
+}

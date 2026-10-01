@@ -1,0 +1,15 @@
+{
+  "name": "Passes a Mac app with 4K in its name",
+  "download": {
+    "name": "4K Video Downloader+ 1.10 for Mac",
+    "files": [
+      {
+        "path": "4K Video Downloader+ 1.10 for Mac/4K Video Downloader+.dmg",
+        "size": 120000000
+      }
+    ]
+  },
+  "expect": {
+    "status": "passed"
+  }
+}

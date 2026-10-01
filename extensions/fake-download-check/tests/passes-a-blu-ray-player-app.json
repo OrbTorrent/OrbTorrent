@@ -1,0 +1,15 @@
+{
+  "name": "Passes a Blu-ray player app",
+  "download": {
+    "name": "Macgo Mac Blu-ray Player Pro 3.3.21",
+    "files": [
+      {
+        "path": "Macgo Mac Blu-ray Player Pro 3.3.21/Mac Blu-ray Player Pro.dmg",
+        "size": 80000000
+      }
+    ]
+  },
+  "expect": {
+    "status": "passed"
+  }
+}

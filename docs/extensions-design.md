@@ -586,38 +586,59 @@ covers the real runtime.
 
 A `beforeStart` hook, with no network access and no settings.
 
-Most of its rules apply to downloads that look like a film or an episode: their
-name has a resolution, source or episode marker (1080p, WEB-DL, BluRay, S01E02),
-or most of their size is video.
+It first works out what a download is. A video, music or a book is what most
+of its size is; otherwise its name decides, since a fake film often has no
+video. A film or episode name has a resolution or episode marker (1080p,
+S01E02, "Title - 28"), or a year with a source, codec or word such as "Full
+Movie". A name with a version number (v2.3, 1.10.2) or words such as "for Mac",
+"x64" or "FitGirl" is software. Software, games and courses carry programs for
+good reason, so programs only count in videos, music and books.
 
 **Held (failed):**
 
 1. **A file with a double extension ending in a program or shortcut**, such as
-   `Movie.mp4.exe`, `Episode.avi.lnk` or `Film.mkv.scr`. This rule applies to any
+   `Movie.mp4.exe`, `Episode.avi.lnk` or `Book.epub.exe`, or a Mac bundle such
+   as `Sunset.jpg.app`, even with spaces or zero-width characters between the
+   two; or a name with a right-to-left character. This rule applies to any
    download.
-2. **A video download that contains a Windows program, script or shortcut:**
-   `.exe`, `.scr`, `.com`, `.bat`, `.cmd`, `.msi`, `.lnk`, `.vbs`, `.js`, `.ps1`
-   or `.jar`. A film doesn't need a program to play.
+2. **A video, music or book download that contains a program:** a Windows
+   program, script or shortcut (`.exe`, `.scr`, `.lnk`, `.msi`, `.bat`, `.js`,
+   `.ps1`, `.jar` and the like), or a Mac one (`.app`, `.dmg`, `.pkg`,
+   `.command`, `.scpt`, `.saver` and the like). Scripts don't count next to
+   source code or in a course. Neither do RARBG's 99-byte
+   `RARBG_DO_NOT_MIRROR.exe`, which is text, or the Java menus under `BDMV/` on
+   a whole Blu-ray disc.
 3. **A video download that's an archive plus a file about a password**, such as
    `password.txt`, `password.url` or `get-password.html`. That means the video is
-   locked, and the password is sold or hidden elsewhere.
+   locked, and the password is sold or hidden elsewhere. A file named after the
+   release, such as a scene `.nfo`, doesn't count.
 
 **Warned:**
 
-4. **The video is far too small for the quality its name claims:** under 300 MB
-   for a 1080p film, or under 1 GB for 2160p. This rule doesn't apply to episodes.
-5. **The only video is `.wmv` or `.asf`** in a download whose name says it's a
-   recent release. That's the classic "codec required" fake.
-6. **Link files** (`.url`, `.webloc`, `.html`) whose names say to download or
+4. **The video is far too small:** under 150 MB for a 720p film, 300 MB for
+   1080p, 1 GB for 2160p, or 100 MB for a film that claims no quality. Samples,
+   trailers and extras don't count, and the rule doesn't apply to episodes,
+   trailers or courses.
+5. **A film from a year still to come.** A year more than five years ahead is
+   taken as part of the title, as in *Blade Runner 2049*.
+6. **The only video is `.wmv` or `.asf`.** That's the classic "codec required"
+   fake.
+7. **Link files** (`.url`, `.webloc`, `.html`) whose names say to download or
    watch elsewhere.
-7. **A film-like name with no video file at all.**
+8. **A film-like name with no video file at all,** or with its video in an
+   archive, except from a private tracker, where scene releases come that way.
+9. **A course that includes a program,** since courses often include the
+   software they teach.
 
 **The summary says which file and why.** For example: "Contains a program
 disguised as a video: Dune.Part.Two.2024.1080p.mp4.exe".
 
-**Tests cover false positives too.** Each rule has a test, and there are also
-tests for downloads that must pass: normal film and TV releases, a software
-download with an installer, and a music album.
+**Tests cover false positives too.** Each rule has a test, and so do real
+downloads that must pass: film, TV and anime releases, scene releases in
+archives, a whole Blu-ray disc and a DVD, Mac apps with "4K", "HDR" or
+"Blu-ray" in their names, games, courses with their code, music, audiobooks,
+comics and books. The app's tests run every one of them in OrbTorrent's own
+extension host too.
 
 ### VirusTotal Scan
 

@@ -1,0 +1,16 @@
+{
+  "name": "Warns about a 720p film that's far too small",
+  "download": {
+    "name": "Nosferatu.2024.720p.WEBRip",
+    "files": [
+      {
+        "path": "Nosferatu.2024.720p.WEBRip/Nosferatu.2024.720p.WEBRip.mp4",
+        "size": 40000000
+      }
+    ]
+  },
+  "expect": {
+    "status": "warning",
+    "summaryIncludes": "too small for a 720p film"
+  }
+}

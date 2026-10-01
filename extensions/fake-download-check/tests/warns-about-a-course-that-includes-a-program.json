@@ -1,0 +1,132 @@
+{
+  "name": "Warns about, but doesn't hold, a course that includes an installer",
+  "download": {
+    "name": "Python Crash Course 3rd Edition (Udemy) [1080p]",
+    "files": [
+      {
+        "path": "Python Crash Course 3rd Edition (Udemy) [1080p]/01 Lesson.mp4",
+        "size": 70000000
+      },
+      {
+        "path": "Python Crash Course 3rd Edition (Udemy) [1080p]/02 Lesson.mp4",
+        "size": 70000000
+      },
+      {
+        "path": "Python Crash Course 3rd Edition (Udemy) [1080p]/03 Lesson.mp4",
+        "size": 70000000
+      },
+      {
+        "path": "Python Crash Course 3rd Edition (Udemy) [1080p]/04 Lesson.mp4",
+        "size": 70000000
+      },
+      {
+        "path": "Python Crash Course 3rd Edition (Udemy) [1080p]/05 Lesson.mp4",
+        "size": 70000000
+      },
+      {
+        "path": "Python Crash Course 3rd Edition (Udemy) [1080p]/06 Lesson.mp4",
+        "size": 70000000
+      },
+      {
+        "path": "Python Crash Course 3rd Edition (Udemy) [1080p]/07 Lesson.mp4",
+        "size": 70000000
+      },
+      {
+        "path": "Python Crash Course 3rd Edition (Udemy) [1080p]/08 Lesson.mp4",
+        "size": 70000000
+      },
+      {
+        "path": "Python Crash Course 3rd Edition (Udemy) [1080p]/09 Lesson.mp4",
+        "size": 70000000
+      },
+      {
+        "path": "Python Crash Course 3rd Edition (Udemy) [1080p]/10 Lesson.mp4",
+        "size": 70000000
+      },
+      {
+        "path": "Python Crash Course 3rd Edition (Udemy) [1080p]/11 Lesson.mp4",
+        "size": 70000000
+      },
+      {
+        "path": "Python Crash Course 3rd Edition (Udemy) [1080p]/12 Lesson.mp4",
+        "size": 70000000
+      },
+      {
+        "path": "Python Crash Course 3rd Edition (Udemy) [1080p]/13 Lesson.mp4",
+        "size": 70000000
+      },
+      {
+        "path": "Python Crash Course 3rd Edition (Udemy) [1080p]/14 Lesson.mp4",
+        "size": 70000000
+      },
+      {
+        "path": "Python Crash Course 3rd Edition (Udemy) [1080p]/15 Lesson.mp4",
+        "size": 70000000
+      },
+      {
+        "path": "Python Crash Course 3rd Edition (Udemy) [1080p]/16 Lesson.mp4",
+        "size": 70000000
+      },
+      {
+        "path": "Python Crash Course 3rd Edition (Udemy) [1080p]/17 Lesson.mp4",
+        "size": 70000000
+      },
+      {
+        "path": "Python Crash Course 3rd Edition (Udemy) [1080p]/18 Lesson.mp4",
+        "size": 70000000
+      },
+      {
+        "path": "Python Crash Course 3rd Edition (Udemy) [1080p]/19 Lesson.mp4",
+        "size": 70000000
+      },
+      {
+        "path": "Python Crash Course 3rd Edition (Udemy) [1080p]/20 Lesson.mp4",
+        "size": 70000000
+      },
+      {
+        "path": "Python Crash Course 3rd Edition (Udemy) [1080p]/21 Lesson.mp4",
+        "size": 70000000
+      },
+      {
+        "path": "Python Crash Course 3rd Edition (Udemy) [1080p]/22 Lesson.mp4",
+        "size": 70000000
+      },
+      {
+        "path": "Python Crash Course 3rd Edition (Udemy) [1080p]/23 Lesson.mp4",
+        "size": 70000000
+      },
+      {
+        "path": "Python Crash Course 3rd Edition (Udemy) [1080p]/24 Lesson.mp4",
+        "size": 70000000
+      },
+      {
+        "path": "Python Crash Course 3rd Edition (Udemy) [1080p]/25 Lesson.mp4",
+        "size": 70000000
+      },
+      {
+        "path": "Python Crash Course 3rd Edition (Udemy) [1080p]/26 Lesson.mp4",
+        "size": 70000000
+      },
+      {
+        "path": "Python Crash Course 3rd Edition (Udemy) [1080p]/27 Lesson.mp4",
+        "size": 70000000
+      },
+      {
+        "path": "Python Crash Course 3rd Edition (Udemy) [1080p]/28 Lesson.mp4",
+        "size": 70000000
+      },
+      {
+        "path": "Python Crash Course 3rd Edition (Udemy) [1080p]/29 Lesson.mp4",
+        "size": 70000000
+      },
+      {
+        "path": "Python Crash Course 3rd Edition (Udemy) [1080p]/Tools/python-3.13.0-macos11.pkg",
+        "size": 70000000
+      }
+    ]
+  },
+  "expect": {
+    "status": "warning",
+    "summaryIncludes": "A course that includes a program"
+  }
+}

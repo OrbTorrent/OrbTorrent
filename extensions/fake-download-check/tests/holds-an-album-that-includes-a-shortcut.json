@@ -1,0 +1,56 @@
+{
+  "name": "Holds an album that includes a shortcut",
+  "download": {
+    "name": "Artist - Album (2025) [FLAC]",
+    "files": [
+      {
+        "path": "Artist - Album (2025) [FLAC]/01 - Track.flac",
+        "size": 30000000
+      },
+      {
+        "path": "Artist - Album (2025) [FLAC]/02 - Track.flac",
+        "size": 30000000
+      },
+      {
+        "path": "Artist - Album (2025) [FLAC]/03 - Track.flac",
+        "size": 30000000
+      },
+      {
+        "path": "Artist - Album (2025) [FLAC]/04 - Track.flac",
+        "size": 30000000
+      },
+      {
+        "path": "Artist - Album (2025) [FLAC]/05 - Track.flac",
+        "size": 30000000
+      },
+      {
+        "path": "Artist - Album (2025) [FLAC]/06 - Track.flac",
+        "size": 30000000
+      },
+      {
+        "path": "Artist - Album (2025) [FLAC]/07 - Track.flac",
+        "size": 30000000
+      },
+      {
+        "path": "Artist - Album (2025) [FLAC]/08 - Track.flac",
+        "size": 30000000
+      },
+      {
+        "path": "Artist - Album (2025) [FLAC]/09 - Track.flac",
+        "size": 30000000
+      },
+      {
+        "path": "Artist - Album (2025) [FLAC]/10 - Track.flac",
+        "size": 30000000
+      },
+      {
+        "path": "Artist - Album (2025) [FLAC]/Bonus Content.lnk",
+        "size": 2000
+      }
+    ]
+  },
+  "expect": {
+    "status": "failed",
+    "summaryIncludes": "A music download that includes a program: Bonus Content.lnk"
+  }
+}

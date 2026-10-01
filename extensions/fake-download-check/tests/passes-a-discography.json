@@ -1,0 +1,71 @@
+{
+  "name": "Passes a discography with its cue sheets and logs",
+  "download": {
+    "name": "Artist - Discography (1999-2024) [MP3 320]",
+    "files": [
+      {
+        "path": "Artist - Discography (1999-2024) [MP3 320]/1999 - First/01 - Track.mp3",
+        "size": 9000000
+      },
+      {
+        "path": "Artist - Discography (1999-2024) [MP3 320]/1999 - First/02 - Track.mp3",
+        "size": 9000000
+      },
+      {
+        "path": "Artist - Discography (1999-2024) [MP3 320]/1999 - First/03 - Track.mp3",
+        "size": 9000000
+      },
+      {
+        "path": "Artist - Discography (1999-2024) [MP3 320]/1999 - First/04 - Track.mp3",
+        "size": 9000000
+      },
+      {
+        "path": "Artist - Discography (1999-2024) [MP3 320]/1999 - First/05 - Track.mp3",
+        "size": 9000000
+      },
+      {
+        "path": "Artist - Discography (1999-2024) [MP3 320]/1999 - First/06 - Track.mp3",
+        "size": 9000000
+      },
+      {
+        "path": "Artist - Discography (1999-2024) [MP3 320]/1999 - First/07 - Track.mp3",
+        "size": 9000000
+      },
+      {
+        "path": "Artist - Discography (1999-2024) [MP3 320]/1999 - First/08 - Track.mp3",
+        "size": 9000000
+      },
+      {
+        "path": "Artist - Discography (1999-2024) [MP3 320]/1999 - First/09 - Track.mp3",
+        "size": 9000000
+      },
+      {
+        "path": "Artist - Discography (1999-2024) [MP3 320]/1999 - First/10 - Track.mp3",
+        "size": 9000000
+      },
+      {
+        "path": "Artist - Discography (1999-2024) [MP3 320]/1999 - First/11 - Track.mp3",
+        "size": 9000000
+      },
+      {
+        "path": "Artist - Discography (1999-2024) [MP3 320]/1999 - First/First.cue",
+        "size": 2000
+      },
+      {
+        "path": "Artist - Discography (1999-2024) [MP3 320]/1999 - First/First.log",
+        "size": 6000
+      },
+      {
+        "path": "Artist - Discography (1999-2024) [MP3 320]/1999 - First/playlist.m3u",
+        "size": 500
+      },
+      {
+        "path": "Artist - Discography (1999-2024) [MP3 320]/1999 - First/folder.jpg",
+        "size": 300000
+      }
+    ]
+  },
+  "expect": {
+    "status": "passed"
+  }
+}

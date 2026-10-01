@@ -1,0 +1,15 @@
+{
+  "name": "Passes a Mac app with HDR and a year in its name",
+  "download": {
+    "name": "Aurora HDR 2019 1.0.0 macOS",
+    "files": [
+      {
+        "path": "Aurora HDR 2019 1.0.0 macOS/Aurora HDR 2019.dmg",
+        "size": 500000000
+      }
+    ]
+  },
+  "expect": {
+    "status": "passed"
+  }
+}

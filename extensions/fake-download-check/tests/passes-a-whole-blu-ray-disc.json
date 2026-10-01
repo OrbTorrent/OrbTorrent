@@ -1,0 +1,31 @@
+{
+  "name": "Passes a whole Blu-ray disc, whose menus are Java programs",
+  "download": {
+    "name": "Oppenheimer.2023.COMPLETE.UHD.BLURAY-SURCODE",
+    "files": [
+      {
+        "path": "Oppenheimer.2023.COMPLETE.UHD.BLURAY-SURCODE/BDMV/STREAM/00800.m2ts",
+        "size": 70000000000
+      },
+      {
+        "path": "Oppenheimer.2023.COMPLETE.UHD.BLURAY-SURCODE/BDMV/STREAM/00801.m2ts",
+        "size": 4000000000
+      },
+      {
+        "path": "Oppenheimer.2023.COMPLETE.UHD.BLURAY-SURCODE/BDMV/JAR/00000/00000.jar",
+        "size": 6000000
+      },
+      {
+        "path": "Oppenheimer.2023.COMPLETE.UHD.BLURAY-SURCODE/BDMV/index.bdmv",
+        "size": 300
+      },
+      {
+        "path": "Oppenheimer.2023.COMPLETE.UHD.BLURAY-SURCODE/CERTIFICATE/id.bdmv",
+        "size": 100
+      }
+    ]
+  },
+  "expect": {
+    "status": "passed"
+  }
+}

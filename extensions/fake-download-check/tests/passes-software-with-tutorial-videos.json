@@ -1,0 +1,51 @@
+{
+  "name": "Passes software that comes with tutorial videos",
+  "download": {
+    "name": "Blender 4.2 for Mac + Tutorials",
+    "files": [
+      {
+        "path": "Blender 4.2 for Mac + Tutorials/blender-4.2.0-macos-arm64.dmg",
+        "size": 300000000
+      },
+      {
+        "path": "Blender 4.2 for Mac + Tutorials/Tutorials/01 Basics.mp4",
+        "size": 90000000
+      },
+      {
+        "path": "Blender 4.2 for Mac + Tutorials/Tutorials/02 Basics.mp4",
+        "size": 90000000
+      },
+      {
+        "path": "Blender 4.2 for Mac + Tutorials/Tutorials/03 Basics.mp4",
+        "size": 90000000
+      },
+      {
+        "path": "Blender 4.2 for Mac + Tutorials/Tutorials/04 Basics.mp4",
+        "size": 90000000
+      },
+      {
+        "path": "Blender 4.2 for Mac + Tutorials/Tutorials/05 Basics.mp4",
+        "size": 90000000
+      },
+      {
+        "path": "Blender 4.2 for Mac + Tutorials/Tutorials/06 Basics.mp4",
+        "size": 90000000
+      },
+      {
+        "path": "Blender 4.2 for Mac + Tutorials/Tutorials/07 Basics.mp4",
+        "size": 90000000
+      },
+      {
+        "path": "Blender 4.2 for Mac + Tutorials/Tutorials/08 Basics.mp4",
+        "size": 90000000
+      },
+      {
+        "path": "Blender 4.2 for Mac + Tutorials/Tutorials/09 Basics.mp4",
+        "size": 90000000
+      }
+    ]
+  },
+  "expect": {
+    "status": "passed"
+  }
+}

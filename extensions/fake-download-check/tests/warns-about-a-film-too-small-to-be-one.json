@@ -1,0 +1,16 @@
+{
+  "name": "Warns about a film too small to be a whole film",
+  "download": {
+    "name": "Wicked For Good (2025)",
+    "files": [
+      {
+        "path": "Wicked For Good (2025)/Wicked For Good (2025).mp4",
+        "size": 25000000
+      }
+    ]
+  },
+  "expect": {
+    "status": "warning",
+    "summaryIncludes": "too small for a whole film"
+  }
+}

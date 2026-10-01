@@ -1,0 +1,19 @@
+{
+  "name": "Passes an audiobook",
+  "download": {
+    "name": "Project Hail Mary - Andy Weir (Audiobook)",
+    "files": [
+      {
+        "path": "Project Hail Mary - Andy Weir (Audiobook)/Project Hail Mary.m4b",
+        "size": 650000000
+      },
+      {
+        "path": "Project Hail Mary - Andy Weir (Audiobook)/cover.jpg",
+        "size": 400000
+      }
+    ]
+  },
+  "expect": {
+    "status": "passed"
+  }
+}

@@ -1,0 +1,15 @@
+{
+  "name": "Passes a 4K remux",
+  "download": {
+    "name": "Dune.Part.Two.2024.2160p.UHD.BluRay.REMUX.HDR.HEVC.Atmos-FGT",
+    "files": [
+      {
+        "path": "Dune.Part.Two.2024.2160p.UHD.BluRay.REMUX.HDR.HEVC.Atmos-FGT/Dune.Part.Two.2024.2160p.UHD.BluRay.REMUX.HDR.HEVC.Atmos-FGT.mkv",
+        "size": 65000000000
+      }
+    ]
+  },
+  "expect": {
+    "status": "passed"
+  }
+}

@@ -1,0 +1,55 @@
+{
+  "name": "Passes comics",
+  "download": {
+    "name": "Saga - Volumes 1-11",
+    "files": [
+      {
+        "path": "Saga - Volumes 1-11/Saga v01.cbr",
+        "size": 120000000
+      },
+      {
+        "path": "Saga - Volumes 1-11/Saga v02.cbr",
+        "size": 120000000
+      },
+      {
+        "path": "Saga - Volumes 1-11/Saga v03.cbr",
+        "size": 120000000
+      },
+      {
+        "path": "Saga - Volumes 1-11/Saga v04.cbr",
+        "size": 120000000
+      },
+      {
+        "path": "Saga - Volumes 1-11/Saga v05.cbr",
+        "size": 120000000
+      },
+      {
+        "path": "Saga - Volumes 1-11/Saga v06.cbr",
+        "size": 120000000
+      },
+      {
+        "path": "Saga - Volumes 1-11/Saga v07.cbr",
+        "size": 120000000
+      },
+      {
+        "path": "Saga - Volumes 1-11/Saga v08.cbr",
+        "size": 120000000
+      },
+      {
+        "path": "Saga - Volumes 1-11/Saga v09.cbr",
+        "size": 120000000
+      },
+      {
+        "path": "Saga - Volumes 1-11/Saga v10.cbr",
+        "size": 120000000
+      },
+      {
+        "path": "Saga - Volumes 1-11/Saga v11.cbr",
+        "size": 120000000
+      }
+    ]
+  },
+  "expect": {
+    "status": "passed"
+  }
+}

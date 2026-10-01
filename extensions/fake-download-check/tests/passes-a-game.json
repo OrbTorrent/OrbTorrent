@@ -1,0 +1,131 @@
+{
+  "name": "Passes a game with its installer",
+  "download": {
+    "name": "Cyberpunk 2077 v2.3 [FitGirl Repack]",
+    "files": [
+      {
+        "path": "Cyberpunk 2077 v2.3 [FitGirl Repack]/setup.exe",
+        "size": 5000000
+      },
+      {
+        "path": "Cyberpunk 2077 v2.3 [FitGirl Repack]/fg-01.bin",
+        "size": 2000000000
+      },
+      {
+        "path": "Cyberpunk 2077 v2.3 [FitGirl Repack]/fg-02.bin",
+        "size": 2000000000
+      },
+      {
+        "path": "Cyberpunk 2077 v2.3 [FitGirl Repack]/fg-03.bin",
+        "size": 2000000000
+      },
+      {
+        "path": "Cyberpunk 2077 v2.3 [FitGirl Repack]/fg-04.bin",
+        "size": 2000000000
+      },
+      {
+        "path": "Cyberpunk 2077 v2.3 [FitGirl Repack]/fg-05.bin",
+        "size": 2000000000
+      },
+      {
+        "path": "Cyberpunk 2077 v2.3 [FitGirl Repack]/fg-06.bin",
+        "size": 2000000000
+      },
+      {
+        "path": "Cyberpunk 2077 v2.3 [FitGirl Repack]/fg-07.bin",
+        "size": 2000000000
+      },
+      {
+        "path": "Cyberpunk 2077 v2.3 [FitGirl Repack]/fg-08.bin",
+        "size": 2000000000
+      },
+      {
+        "path": "Cyberpunk 2077 v2.3 [FitGirl Repack]/fg-09.bin",
+        "size": 2000000000
+      },
+      {
+        "path": "Cyberpunk 2077 v2.3 [FitGirl Repack]/fg-10.bin",
+        "size": 2000000000
+      },
+      {
+        "path": "Cyberpunk 2077 v2.3 [FitGirl Repack]/fg-11.bin",
+        "size": 2000000000
+      },
+      {
+        "path": "Cyberpunk 2077 v2.3 [FitGirl Repack]/fg-12.bin",
+        "size": 2000000000
+      },
+      {
+        "path": "Cyberpunk 2077 v2.3 [FitGirl Repack]/fg-13.bin",
+        "size": 2000000000
+      },
+      {
+        "path": "Cyberpunk 2077 v2.3 [FitGirl Repack]/fg-14.bin",
+        "size": 2000000000
+      },
+      {
+        "path": "Cyberpunk 2077 v2.3 [FitGirl Repack]/fg-15.bin",
+        "size": 2000000000
+      },
+      {
+        "path": "Cyberpunk 2077 v2.3 [FitGirl Repack]/fg-16.bin",
+        "size": 2000000000
+      },
+      {
+        "path": "Cyberpunk 2077 v2.3 [FitGirl Repack]/fg-17.bin",
+        "size": 2000000000
+      },
+      {
+        "path": "Cyberpunk 2077 v2.3 [FitGirl Repack]/fg-18.bin",
+        "size": 2000000000
+      },
+      {
+        "path": "Cyberpunk 2077 v2.3 [FitGirl Repack]/fg-19.bin",
+        "size": 2000000000
+      },
+      {
+        "path": "Cyberpunk 2077 v2.3 [FitGirl Repack]/fg-20.bin",
+        "size": 2000000000
+      },
+      {
+        "path": "Cyberpunk 2077 v2.3 [FitGirl Repack]/fg-21.bin",
+        "size": 2000000000
+      },
+      {
+        "path": "Cyberpunk 2077 v2.3 [FitGirl Repack]/fg-22.bin",
+        "size": 2000000000
+      },
+      {
+        "path": "Cyberpunk 2077 v2.3 [FitGirl Repack]/fg-23.bin",
+        "size": 2000000000
+      },
+      {
+        "path": "Cyberpunk 2077 v2.3 [FitGirl Repack]/fg-24.bin",
+        "size": 2000000000
+      },
+      {
+        "path": "Cyberpunk 2077 v2.3 [FitGirl Repack]/fg-25.bin",
+        "size": 2000000000
+      },
+      {
+        "path": "Cyberpunk 2077 v2.3 [FitGirl Repack]/fg-26.bin",
+        "size": 2000000000
+      },
+      {
+        "path": "Cyberpunk 2077 v2.3 [FitGirl Repack]/fg-27.bin",
+        "size": 2000000000
+      },
+      {
+        "path": "Cyberpunk 2077 v2.3 [FitGirl Repack]/fg-28.bin",
+        "size": 2000000000
+      },
+      {
+        "path": "Cyberpunk 2077 v2.3 [FitGirl Repack]/fg-29.bin",
+        "size": 2000000000
+      }
+    ]
+  },
+  "expect": {
+    "status": "passed"
+  }
+}

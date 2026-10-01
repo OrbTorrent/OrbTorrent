@@ -1,0 +1,15 @@
+{
+  "name": "Passes a single episode",
+  "download": {
+    "name": "The.Last.of.Us.S02E07.1080p.WEB.h264-ETHEL[EZTVx.to].mkv",
+    "files": [
+      {
+        "path": "The.Last.of.Us.S02E07.1080p.WEB.h264-ETHEL[EZTVx.to].mkv",
+        "size": 1600000000
+      }
+    ]
+  },
+  "expect": {
+    "status": "passed"
+  }
+}
