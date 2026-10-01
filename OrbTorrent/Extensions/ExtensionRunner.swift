@@ -250,13 +250,20 @@ private final class HelperSession: @unchecked Sendable {
         }
         guard status == 0 else { return nil }
         let ticks = info.ri_user_time + info.ri_system_time
-        return (info.ri_phys_footprint, .nanoseconds(Int64(clamping: ticks * UInt64(timebase.numer) / UInt64(timebase.denom))))
+        return (info.ri_phys_footprint, .seconds(Double(ticks) / ticksPerSecond))
     }
 
-    /// CPU times are in Mach time units, which aren't nanoseconds on Apple silicon.
-    private static let timebase: mach_timebase_info_data_t = {
-        var info = mach_timebase_info_data_t()
-        mach_timebase_info(&info)
-        return info
+    /// CPU times are in the Mac's own clock ticks: nanoseconds on Intel, 24 MHz
+    /// on Apple silicon. Read from the hardware, because under Rosetta
+    /// `mach_timebase_info` reports Intel's ticks while these stay native.
+    private static let ticksPerSecond: Double = {
+        var frequency: Int64 = 0
+        var size = MemoryLayout<Int64>.size
+        if sysctlbyname("hw.tbfrequency", &frequency, &size, nil, 0) == 0, frequency > 0 {
+            return Double(frequency)
+        }
+        var timebase = mach_timebase_info_data_t()
+        mach_timebase_info(&timebase)
+        return 1e9 * Double(timebase.denom) / Double(timebase.numer)
     }()
 }
