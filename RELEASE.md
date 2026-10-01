@@ -155,9 +155,12 @@ OrbTorrent safely onto other people's Macs and keeping it up to date there.
   `sanjevirau/OrbTorrent`, workflow `sdk.yml`, and their publishing access
   requires two-factor authentication and disallows tokens. So `sdk-v*` tags
   publish from CI (`.github/workflows/sdk.yml`), and otherwise only the owner
-  can publish, by hand with two-factor authentication. If the repo moves to
-  the `orbtorrent` organisation, change the trusted publisher on npmjs.com and
-  the packages' `repository` to match.
+  can publish, by hand with two-factor authentication. npm ties this to the
+  repo itself, not just its name: when the repo was deleted and created again
+  on 1 October 2026, both packages' trusted publishers had to be removed and
+  added again, then a test run got a publishing token for each without
+  publishing. Do the same if the repo moves to the `orbtorrent`
+  organisation, and change the packages' `repository` to match.
 - [x] **Building extensions with AI,** on 29 September 2026. The Develop tab
   has the development switch as a slim row on top, then **Build an
   Extension** with a With AI / Yourself toggle, then what's in development,
