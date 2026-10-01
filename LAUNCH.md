@@ -87,9 +87,9 @@ None of the loud launch happens until all of these are true:
   claim, and so far it's tested against a Proton-style gateway, not Proton's
   own servers. Until then, the launch copy says "Proton-style NAT-PMP" rather
   than naming Proton.
-- [ ] **The repo is public** with a clean history, a README that opens with a
-  short video or GIF, the download and the `brew install` line, plus issue
-  templates and contribution rules. (RELEASE.md, section 6)
+- [ ] **The repo is public,** with a README that opens with a short video or
+  GIF, the download and the `brew install` line. Its clean history, issue
+  forms and contribution rules are ready. (RELEASE.md, section 6)
 - [ ] **The engine's source is easy to find:** each release says which
   qBittorrent, libtorrent and Qt versions it contains and links the build
   scripts, as their licences ask.
@@ -97,8 +97,6 @@ None of the loud launch happens until all of these are true:
   criticised another torrent app's Show HN for showing only two or three at a
   time.
 - [ ] **Answers ready** for the questions in section 7.
-- [ ] **Trademark search** (parked in RELEASE.md), before the press writes
-  about the name.
 
 ## 3. What to make
 

@@ -29,7 +29,8 @@ OrbTorrent safely onto other people's Macs and keeping it up to date there.
   so it's renewed by hand before then. The update feed
   is at `updates.orbtorrent.com` (see Automatic updates), and the website
   goes at `orbtorrent.com`. `help@orbtorrent.com` forwards to the owner's
-  Gmail through Cloudflare Email Routing, set up on 29 September 2026.
+  Gmail through Cloudflare Email Routing, set up on 29 September 2026 and
+  tested on 1 October 2026 with an email from another inbox.
 - [x] **Counting users:** no analytics in the app. The update feed counts
   update checks by version and build, which is roughly the Macs using each
   version each day (`updates/stats.sh`). With GitHub's download counts and,
@@ -168,9 +169,9 @@ OrbTorrent safely onto other people's Macs and keeping it up to date there.
   gained `doctor` (what's missing, and who must fix it), `downloads`, and
   `install`, which shows the install sheet and waits for the user's answer.
   Installing replaces a development copy. `scripts/agent-eval.mjs` tests it:
-  Claude Code and Codex each built all three test extensions right, Cursor
-  wasn't signed in. That testing found `npm create` reusing an old cached
-  template, fixed in 1.0.2 and by saying `npm create
+  Claude Code and Codex each built all three test extensions right, and
+  Cursor did too on 1 October 2026. That testing found `npm create` reusing
+  an old cached template, fixed in 1.0.2 and by saying `npm create
   @orbtorrent/extension@latest` everywhere (1.0.3). `@orbtorrent/api` 1.0.1 to
   1.0.3 were published by GitHub Actions through trusted publishing the same
   day, the first releases from CI. Later, once the repo is public: the Agent
