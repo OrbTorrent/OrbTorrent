@@ -76,9 +76,6 @@ final class TorrentFilesModel {
     /// Whether every file is on disk, leaving nothing to choose or order.
     var isAllDownloaded: Bool { !files.isEmpty && files.allSatisfy { $0.isWanted && $0.isComplete } }
 
-    /// Whether any chosen file is still downloading.
-    var hasFilesLeft: Bool { files.contains { $0.isWanted && !$0.isComplete } }
-
     /// Whether ordering would change anything: at least two wanted files still downloading.
     var canOrder: Bool { files.count(where: { $0.isWanted && !$0.isComplete }) >= 2 }
 

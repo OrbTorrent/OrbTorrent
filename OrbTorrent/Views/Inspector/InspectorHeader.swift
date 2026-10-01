@@ -19,11 +19,19 @@ struct InspectorHeader: View {
                         .font(.headline)
                         .lineLimit(2)
                         .textSelection(.enabled)
-                    Text(statusText)
-                        .font(.subheadline)
-                        .monospacedDigit()
-                        .foregroundStyle(torrent.state.activity == .error ? AnyShapeStyle(.red) : AnyShapeStyle(.secondary))
-                        .lineLimit(2)
+                    // Two lines that each stay one line, so the figures changing every
+                    // second never wrap and move everything below up and down.
+                    Group {
+                        Text(statusText)
+                            .foregroundStyle(torrent.state.activity == .error ? AnyShapeStyle(.red) : AnyShapeStyle(.secondary))
+                        if let liveText {
+                            Text(liveText)
+                                .foregroundStyle(.secondary)
+                        }
+                    }
+                    .font(.subheadline)
+                    .monospacedDigit()
+                    .lineLimit(1)
                 }
                 .frame(maxWidth: .infinity, alignment: .leading)
             }
@@ -32,8 +40,7 @@ struct InspectorHeader: View {
         }
     }
 
-    /// Everything about the download in one line, e.g.
-    /// "Downloading · 23% · 680 MB of 2.93 GB · ↓ 32.6 MB/s · 2 min left".
+    /// Where the download is, e.g. "Downloading · 23% · 680 MB of 2.93 GB".
     private var statusText: String {
         var parts = [torrent.state.title]
         // Unknown until a magnet link's details arrive.
@@ -45,17 +52,19 @@ struct InspectorHeader: View {
                 parts.append("\(Format.bytes(torrent.downloadedSize)) of \(Format.bytes(torrent.size))")
             }
         }
-        // Live figures, while there are any.
+        return parts.joined(separator: " · ")
+    }
+
+    /// The live figures, while there are any, e.g. "↓ 32.6 MB/s · 2 min left".
+    private var liveText: String? {
         switch torrent.state.activity {
         case .downloading:
-            parts.append("↓ \(Format.speed(torrent.downloadSpeed))")
-            if let eta = Format.eta(torrent.eta) { parts.append("\(eta) left") }
+            ["↓ \(Format.speed(torrent.downloadSpeed))", Format.eta(torrent.eta).map { "\($0) left" }]
+                .compactMap { $0 }.joined(separator: " · ")
         case .seeding:
-            parts.append("↑ \(Format.speed(torrent.uploadSpeed))")
-            parts.append("Ratio \(Format.ratio(torrent.ratio))")
+            "↑ \(Format.speed(torrent.uploadSpeed)) · Ratio \(Format.ratio(torrent.ratio))"
         default:
-            break
+            nil
         }
-        return parts.joined(separator: " · ")
     }
 }

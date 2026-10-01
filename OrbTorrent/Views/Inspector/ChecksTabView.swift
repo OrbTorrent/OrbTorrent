@@ -71,7 +71,8 @@ private struct CheckTimeline: View {
                 StageChecks(event: .beforeStart, summary: summary, torrent: torrent)
             }
             TimelineStep("Downloading", symbol: "arrow.down", state: downloadState, next: afterState,
-                         subtitle: downloadSubtitle(downloadState), timing: downloadTiming(downloadState)) {
+                         subtitle: downloadSubtitle(downloadState), live: downloadState == .current,
+                         timing: downloadTiming(downloadState)) {
                 if downloadState == .current {
                     ProgressCapsule(value: torrent.progress, tint: torrent.tint, height: 4)
                         .padding(.top, 2)
@@ -128,6 +129,11 @@ private struct CheckTimeline: View {
             guard let took = downloadTook, took >= 1 else { return size }
             return "\(size) · \(Format.speed(Int64(Double(torrent.size) / took))) on average"
         case .current, .attention:
+            if torrent.state.activity == .downloading, torrent.size > 0 {
+                // The step's title already says it's downloading.
+                let of = "\(Format.bytes(torrent.downloadedSize)) of \(Format.bytes(torrent.size))"
+                return [of, Format.eta(torrent.eta).map { "\($0) left" }].compactMap { $0 }.joined(separator: " · ")
+            }
             return torrent.statusLine(waitingForSpace: model.store.waitingForSpace.contains(torrent.hash))
         case .ahead:
             if summary.isHeld { return "Starts once you decide" }
@@ -211,16 +217,20 @@ private struct TimelineStep<Content: View>: View {
     /// The step the line leads on to. The last step has none.
     let next: StepState?
     let subtitle: String?
+    /// A subtitle that changes every second keeps to one line, so what's
+    /// below it doesn't jump up and down as it gets longer and shorter.
+    let live: Bool
     let timing: StepTiming?
     let content: Content
 
     init(_ title: String, symbol: String, state: StepState, next: StepState?, subtitle: String? = nil,
-         timing: StepTiming? = nil, @ViewBuilder content: () -> Content) {
+         live: Bool = false, timing: StepTiming? = nil, @ViewBuilder content: () -> Content) {
         self.title = title
         self.symbol = symbol
         self.state = state
         self.next = next
         self.subtitle = subtitle
+        self.live = live
         self.timing = timing
         self.content = content()
     }
@@ -232,21 +242,24 @@ private struct TimelineStep<Content: View>: View {
                 StepCircle(symbol: symbol, state: state)
                     .alignmentGuide(.firstTextBaseline) { $0[VerticalAlignment.center] + 4 }
                 VStack(alignment: .leading, spacing: 2) {
-                    Text(title)
-                        .font(.subheadline.weight(.semibold))
-                        .foregroundStyle(state == .ahead ? .secondary : .primary)
+                    // The time sits beside the title, leaving the subtitle the whole width.
+                    HStack(alignment: .firstTextBaseline, spacing: 0) {
+                        Text(title)
+                            .font(.subheadline.weight(.semibold))
+                            .foregroundStyle(state == .ahead ? .secondary : .primary)
+                        Spacer(minLength: 8)
+                        if let timing {
+                            TimingText(timing: timing)
+                        }
+                    }
                     if let subtitle {
                         Text(subtitle)
                             .font(.caption)
                             .foregroundStyle(state == .attention ? AnyShapeStyle(.orange) : AnyShapeStyle(.secondary))
                             .monospacedDigit()
-                            .lineLimit(2)
+                            .lineLimit(live ? 1 : 2)
                             .fixedSize(horizontal: false, vertical: true)
                     }
-                }
-                Spacer(minLength: 8)
-                if let timing {
-                    TimingText(timing: timing)
                 }
             }
             content
@@ -268,8 +281,8 @@ private struct TimelineStep<Content: View>: View {
 
 extension TimelineStep where Content == EmptyView {
     init(_ title: String, symbol: String, state: StepState, next: StepState?, subtitle: String? = nil,
-         timing: StepTiming? = nil) {
-        self.init(title, symbol: symbol, state: state, next: next, subtitle: subtitle, timing: timing) { EmptyView() }
+         live: Bool = false, timing: StepTiming? = nil) {
+        self.init(title, symbol: symbol, state: state, next: next, subtitle: subtitle, live: live, timing: timing) { EmptyView() }
     }
 }
 

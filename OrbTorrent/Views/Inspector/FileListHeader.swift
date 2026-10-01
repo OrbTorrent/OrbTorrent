@@ -4,7 +4,8 @@ import SwiftUI
 /// the switch that makes files download one after another.
 ///
 /// Once every file is downloaded there's nothing to choose or order, so it's
-/// just the count.
+/// just the count. The switch shows only while there are at least two files
+/// left to put in order, or while it's on, so it can be switched off.
 struct FileListHeader: View {
     let files: TorrentFilesModel
 
@@ -21,7 +22,7 @@ struct FileListHeader: View {
 
                 Spacer(minLength: 8)
 
-                if files.isOrdering || files.hasFilesLeft {
+                if files.isOrdering || files.canOrder {
                     orderToggle
                 }
             }
@@ -41,7 +42,7 @@ struct FileListHeader: View {
     }
 
     private var orderToggle: some View {
-        Toggle("Download in Order", isOn: Binding(
+        Toggle("Download Files in Order", isOn: Binding(
             get: { files.isOrdering },
             set: { files.setOrdering($0) }
         ))
@@ -49,11 +50,7 @@ struct FileListHeader: View {
         .controlSize(.mini)
         .font(.caption)
         .foregroundStyle(.secondary)
-        // Stays enabled while on, so it can always be switched off.
-        .disabled(!files.isOrdering && !files.canOrder)
-        .help(files.isOrdering || files.canOrder
-              ? "Download the files one at a time, in the order you choose"
-              : "Needs at least two files still downloading")
+        .help("Download the files one at a time, in the order you choose")
     }
 
     private var wantedBindings: [Binding<Bool>] {
