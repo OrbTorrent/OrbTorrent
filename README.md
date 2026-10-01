@@ -1,11 +1,24 @@
 <p align="center">
+  <img src="docs/icon.png" width="128" height="128" alt="">
+</p>
+
+<h1 align="center">OrbTorrent</h1>
+
+<p align="center">A fast, native torrent app for macOS, powered by qBittorrent.</p>
+
+<p align="center">
   <img src="docs/hero.jpg" alt="OrbTorrent's library window with a download's files, its menu bar panel with live speeds, and the checks the extensions ran on a download">
 </p>
 
 <p align="center">
-  <a href="https://github.com/sanjevirau/OrbTorrent/releases/latest"><b>Download for Mac</b></a>
-  &nbsp;·&nbsp; Free and open source &nbsp;·&nbsp; macOS 26 or later &nbsp;·&nbsp; Apple silicon and Intel
+  <a href="https://github.com/sanjevirau/OrbTorrent/releases/latest"><b>Download for Mac</b></a> ·
+  <a href="#extensions">Extensions</a> ·
+  <a href="ROADMAP.md">Roadmap</a>
+  <br>
+  <sub>Free and open source · macOS 26 or later · Apple silicon and Intel</sub>
 </p>
+
+---
 
 OrbTorrent is a torrent app made for the Mac. It's written in SwiftUI with
 Liquid Glass, lives in your menu bar, and downloads with
@@ -62,8 +75,8 @@ free, with no ads, no account and no tracking.
   it once.
 - **Fake downloads held.** The Fake Download Check holds a download that looks
   fake, such as a "film" that contains a program, before any of it arrives,
-  and waits for you to decide. VirusTotal Scan looks up finished downloads'
-  files by their fingerprints. Each download's checks show in its inspector.
+  and waits for you to decide. VirusTotal Scan checks finished downloads'
+  files. Both are [extensions](#extensions).
 - **Deleting is safe.** A deleted download's files go to the Trash, so you can
   put them back.
 
@@ -95,17 +108,43 @@ free, with no ads, no account and no tracking.
   from. Torrents from private trackers are never changed.
 - **Updates itself,** with signed updates, and shows what's new after each one.
 
-### Extensions
+## Extensions
 
-Extensions check your downloads at points in their life: before a download
-starts, or after it finishes. Fake Download Check and VirusTotal Scan are the
-first two, and you can turn extensions off to use OrbTorrent as a plain
-torrent client.
+Extensions check your downloads at two moments: before a download starts,
+when they can hold it until you decide, and after it finishes. Their results
+show in each download's **Checks** tab. Each extension runs in a sandbox and
+can only reach the files and sites it lists, which its page shows. One switch
+turns them all off, to use OrbTorrent as a plain torrent client.
 
-Anyone can build one in TypeScript, or describe it to a coding agent such as
-Claude Code, Codex or Cursor and let it write and test it. Each extension runs
-in a sandbox, and can only reach the files and sites it lists, which its page
-shows. See [docs/extensions](docs/extensions/README.md).
+### Official
+
+- **[Fake Download Check](extensions/fake-download-check/README.md)** runs
+  before a download starts, and is on from the start. It holds a download that
+  looks fake, such as a film that contains a program, until you decide. It
+  looks only at the names and sizes of the files, and sends nothing anywhere.
+- **[VirusTotal Scan](extensions/virustotal/README.md)** runs when a download
+  finishes. It looks up each file's fingerprint on VirusTotal, which checks it
+  against about 70 antivirus engines. Nothing is uploaded unless you turn that
+  on. Turn it on and add a free VirusTotal key to use it.
+
+### Build your own
+
+Extensions are written in TypeScript. Start one with:
+
+```sh
+npm create @orbtorrent/extension@latest my-extension
+```
+
+Or describe what you want to a coding agent such as Claude Code, Codex or
+Cursor: the **Develop** tab on OrbTorrent's Extensions page gives you what to
+paste in, and the agent writes it, tests it and tries it on your downloads.
+Share it as an `.orbext` file, which others install by opening it. See
+[docs/extensions](docs/extensions/README.md).
+
+### Community
+
+Made an extension? Add it to this list with a pull request: its name, a link,
+and a line on what it does.
 
 ## Install
 
