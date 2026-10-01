@@ -68,7 +68,11 @@ struct MenuBarTorrentRow: View {
                     in: .rect(cornerRadius: 12))
         .onHover { isHovering = $0 }
         .onTapGesture(perform: onSelect)
-        .contextMenu { contextMenu }
+        .rightClickMenu {
+            contextMenu
+        } onOpenChange: { isOpen, pointerInside in
+            isHovering = isOpen || pointerInside
+        }
         .help("Show files")
         // The Delete button only shows on hover.
         .accessibilityAction(named: "Delete…") { isConfirmingDelete = true }

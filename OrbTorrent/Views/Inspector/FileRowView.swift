@@ -28,7 +28,11 @@ struct FileRowView: View {
                 .onTapGesture {
                     if canOpen { FileActions.open(file, in: torrent) }
                 }
-                .rightClickMenu { FileContextMenu(targets: [file], torrent: torrent, files: files) }
+                .rightClickMenu {
+                    FileContextMenu(targets: [file], torrent: torrent, files: files)
+                } onOpenChange: { isOpen, pointerInside in
+                    isHovering = isOpen || pointerInside
+                }
         } else {
             row
         }

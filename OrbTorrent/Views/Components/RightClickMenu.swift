@@ -5,13 +5,22 @@ extension View {
     /// A menu for a right click or Control-click, for rows in a list. A list's
     /// own context menu draws a blue outline around the row, which in the menu
     /// bar panel is square and wider than the rounded rows; this one doesn't.
-    func rightClickMenu<Menu: View>(@ViewBuilder _ menu: @escaping () -> Menu) -> some View {
-        overlay { RightClickMenu(menu: menu) }
+    ///
+    /// While a menu is open, rows get no hover changes, so right-clicking
+    /// another row would leave the highlight on the first. `onOpenChange` says
+    /// when the menu opens, and when it closes whether the pointer is still
+    /// over the row, for the row to show as hovered instead.
+    func rightClickMenu<Menu: View>(
+        @ViewBuilder _ menu: @escaping () -> Menu,
+        onOpenChange: @escaping (_ isOpen: Bool, _ pointerInside: Bool) -> Void = { _, _ in }
+    ) -> some View {
+        overlay { RightClickMenu(menu: menu, onOpenChange: onOpenChange) }
     }
 }
 
 private struct RightClickMenu<Menu: View>: NSViewRepresentable {
     let menu: () -> Menu
+    let onOpenChange: (Bool, Bool) -> Void
 
     func makeNSView(context: Context) -> MenuView {
         MenuView()
@@ -19,10 +28,12 @@ private struct RightClickMenu<Menu: View>: NSViewRepresentable {
 
     func updateNSView(_ view: MenuView, context: Context) {
         view.makeMenu = { NSHostingMenu(rootView: menu()) }
+        view.onOpenChange = onOpenChange
     }
 
     final class MenuView: NSView {
         var makeMenu: (() -> NSMenu)?
+        var onOpenChange: ((Bool, Bool) -> Void)?
 
         /// Only clicks that open the menu land here; everything else goes
         /// through to the row underneath.
@@ -31,14 +42,26 @@ private struct RightClickMenu<Menu: View>: NSViewRepresentable {
             return super.hitTest(point)
         }
 
-        override func menu(for event: NSEvent) -> NSMenu? {
-            makeMenu?()
+        override func rightMouseDown(with event: NSEvent) {
+            showMenu(for: event)
         }
 
+        /// Only Control-clicks land here.
         override func mouseDown(with event: NSEvent) {
-            if let menu = menu(for: event) {
-                NSMenu.popUpContextMenu(menu, with: event, for: self)
-            }
+            showMenu(for: event)
+        }
+
+        private func showMenu(for event: NSEvent) {
+            guard let menu = makeMenu?() else { return }
+            onOpenChange?(true, true)
+            // Returns once the menu closes.
+            NSMenu.popUpContextMenu(menu, with: event, for: self)
+            onOpenChange?(false, isPointerInside)
+        }
+
+        private var isPointerInside: Bool {
+            guard let window else { return false }
+            return bounds.contains(convert(window.mouseLocationOutsideOfEventStream, from: nil))
         }
 
         private static func opensMenu(_ event: NSEvent) -> Bool {
