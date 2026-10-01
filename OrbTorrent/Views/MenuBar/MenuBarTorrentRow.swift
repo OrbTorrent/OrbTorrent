@@ -1,8 +1,8 @@
 import SwiftUI
 
 /// A compact download row for the menu bar panel. Clicking it shows the
-/// download's files; the round button pauses, resumes or opens it, and a
-/// Delete button appears beside it on hover.
+/// download's files; the round button pauses, resumes or opens it, a
+/// Delete button appears beside it on hover, and a right click shows the rest.
 struct MenuBarTorrentRow: View {
     @Environment(AppModel.self) private var model
     let torrent: Torrent
@@ -68,9 +68,32 @@ struct MenuBarTorrentRow: View {
                     in: .rect(cornerRadius: 12))
         .onHover { isHovering = $0 }
         .onTapGesture(perform: onSelect)
+        .contextMenu { contextMenu }
         .help("Show files")
         // The Delete button only shows on hover.
         .accessibilityAction(named: "Delete…") { isConfirmingDelete = true }
+    }
+
+    @ViewBuilder
+    private var contextMenu: some View {
+        Button("Open", systemImage: "arrow.up.forward.app") { FileActions.open(torrent) }
+        Button("Show in Finder", systemImage: "folder") { FileActions.reveal(torrent) }
+        Divider()
+        let stopped = torrent.state.isStopped
+        Button(stopped ? "Resume" : "Pause", systemImage: stopped ? "play" : "pause") {
+            Task { await model.store.togglePause([torrent]) }
+        }
+        Button("Copy Magnet Link", systemImage: "link") {
+            NSPasteboard.general.clearContents()
+            NSPasteboard.general.setString(torrent.magnetURI, forType: .string)
+        }
+        Button("Show in OrbTorrent", systemImage: "macwindow") {
+            model.showMainWindow(selecting: torrent.hash)
+        }
+        Divider()
+        Button("Delete…", systemImage: "trash", role: .destructive) {
+            isConfirmingDelete = true
+        }
     }
 
     @ViewBuilder

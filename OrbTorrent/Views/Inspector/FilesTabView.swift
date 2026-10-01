@@ -1,10 +1,12 @@
 import SwiftUI
 
 /// The files in a download, with per-file priorities and an optional
-/// "download in this order" mode.
+/// "download in this order" mode. Files can be selected, to open or change
+/// several at once.
 struct FilesTabView: View {
     let torrent: Torrent
     @State private var files: TorrentFilesModel
+    @State private var selection = Set<TorrentFile.ID>()
 
     init(torrent: Torrent, store: TorrentStore) {
         self.torrent = torrent
@@ -24,6 +26,7 @@ struct FilesTabView: View {
         .task(id: torrent.hash) {
             await files.track(torrent.hash)
         }
+        .onChange(of: torrent.hash) { selection = [] }
     }
 
     @ViewBuilder
@@ -48,17 +51,30 @@ struct FilesTabView: View {
 
     private var fileList: some View {
         let moveAction: ((IndexSet, Int) -> Void)? = files.isOrdering ? { files.move(from: $0, to: $1) } : nil
-        return List {
+        return List(selection: $selection) {
             ForEach(files.displayedFiles) { file in
                 FileRowView(file: file, torrent: torrent, files: files)
                     .listRowSeparator(.hidden)
                     // Line the checkboxes up with the select-all checkbox above.
-                    .listRowInsets(EdgeInsets(top: 1, leading: 8, bottom: 1, trailing: 8))
+                    .listRowInsets(EdgeInsets(top: 1, leading: 0, bottom: 1, trailing: 0))
             }
             .onMove(perform: moveAction)
         }
-        .listStyle(.plain)
+        // Rounded highlights, like the list of downloads.
+        .listStyle(.inset)
         .scrollContentBackground(.hidden)
         .environment(\.defaultMinListRowHeight, FileRowView.height + 2)
+        // For the files right-clicked: the selection, or the one clicked outside it.
+        .contextMenu(forSelectionType: TorrentFile.ID.self) { ids in
+            let targets = files.displayedFiles.filter { ids.contains($0.id) }
+            if !targets.isEmpty {
+                FileContextMenu(targets: targets, torrent: torrent, files: files)
+            }
+        } primaryAction: { ids in
+            // Double-click or Return.
+            for file in files.displayedFiles where ids.contains(file.id) && file.progress > 0 {
+                FileActions.open(file, in: torrent)
+            }
+        }
     }
 }

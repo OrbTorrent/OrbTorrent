@@ -46,11 +46,16 @@ enum FileActions {
     }
 
     static func reveal(_ file: TorrentFile, in torrent: Torrent) {
-        let url = url(of: file, in: torrent)
-        if exists(url) {
-            NSWorkspace.shared.activateFileViewerSelecting([url])
-        } else {
+        reveal([file], in: torrent)
+    }
+
+    /// Selects the files in Finder, or shows the download if none are on disk yet.
+    static func reveal(_ files: [TorrentFile], in torrent: Torrent) {
+        let urls = files.map { url(of: $0, in: torrent) }.filter { exists($0) }
+        if urls.isEmpty {
             reveal(torrent)
+        } else {
+            NSWorkspace.shared.activateFileViewerSelecting(urls)
         }
     }
 

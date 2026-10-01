@@ -38,7 +38,7 @@ struct FileStateMenu: View {
                 .disabled(position == 1)
             Button("Don't Download", systemImage: FilePriority.skip.symbol) { files.setWanted(false, for: [file]) }
         } else {
-            FilePriorityPicker(file: file, files: files)
+            FilePriorityPicker(targets: [file], files: files)
         }
     }
 
@@ -65,16 +65,19 @@ struct FileStateMenu: View {
 
 /// The four priorities as a checkable list, for menus.
 struct FilePriorityPicker: View {
-    let file: TorrentFile
+    let targets: [TorrentFile]
     let files: TorrentFilesModel
 
     var body: some View {
-        Picker("Priority", selection: Binding(
-            get: { file.priority },
-            set: { files.setPriority($0, for: [file]) }
+        // Ticked when every file has it; none is when they differ.
+        Picker("Priority", selection: Binding<FilePriority?>(
+            get: { Set(targets.map(\.priority)).count == 1 ? targets.first?.priority : nil },
+            set: { priority in
+                if let priority { files.setPriority(priority, for: targets.filter { $0.priority != priority }) }
+            }
         )) {
             ForEach(FilePriority.allCases) { priority in
-                Label(priority.title, systemImage: priority.symbol).tag(priority)
+                Label(priority.title, systemImage: priority.symbol).tag(FilePriority?.some(priority))
             }
         }
         .pickerStyle(.inline)

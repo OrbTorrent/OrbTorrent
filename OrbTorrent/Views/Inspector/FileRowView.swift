@@ -8,7 +8,9 @@ struct FileRowView: View {
     let file: TorrentFile
     let torrent: Torrent
     let files: TorrentFilesModel
-    /// Opens the file on a single click instead of a double click.
+    /// In the menu bar panel, a click opens the file and the row has its own
+    /// menu. In the inspector, the list selects rows, and opens and shows the
+    /// menu for the selected files.
     var opensOnClick = false
 
     /// Every file row has this height; lists use it for their minimum row height.
@@ -21,6 +23,18 @@ struct FileRowView: View {
     private var canOpen: Bool { file.progress > 0 }
 
     var body: some View {
+        if opensOnClick {
+            row
+                .onTapGesture {
+                    if canOpen { FileActions.open(file, in: torrent) }
+                }
+                .rightClickMenu { FileContextMenu(targets: [file], torrent: torrent, files: files) }
+        } else {
+            row
+        }
+    }
+
+    private var row: some View {
         HStack(spacing: 8) {
             // Nothing left to choose once every file is downloaded.
             if !files.isAllDownloaded {
@@ -80,36 +94,7 @@ struct FileRowView: View {
         .background(opensOnClick && isHovering && canOpen ? AnyShapeStyle(.quaternary.opacity(0.6)) : AnyShapeStyle(.clear),
                     in: .rect(cornerRadius: 8))
         .onHover { isHovering = $0 }
-        .onTapGesture(count: opensOnClick ? 1 : 2) {
-            if canOpen { FileActions.open(file, in: torrent) }
-        }
-        .contextMenu { contextMenu }
         .help(file.name)
-    }
-
-    @ViewBuilder
-    private var contextMenu: some View {
-        Button("Open", systemImage: "arrow.up.forward.app") { FileActions.open(file, in: torrent) }
-            .disabled(!canOpen)
-        Button("Show in Finder", systemImage: "folder") { FileActions.reveal(file, in: torrent) }
-        if !files.isAllDownloaded {
-            fileChoices
-        }
-    }
-
-    @ViewBuilder
-    private var fileChoices: some View {
-        Divider()
-        if isOrdering {
-            if file.isWanted, !file.isComplete {
-                Button("Download This Next", systemImage: "arrow.up.to.line") { files.downloadNext(file) }
-            }
-        } else {
-            Menu("Priority") { FilePriorityPicker(file: file, files: files) }
-        }
-        Divider()
-        Button("Download All Files") { files.setAllWanted(true) }
-        Button("Skip All Files") { files.setAllWanted(false) }
     }
 
     private var detail: String {
@@ -130,5 +115,52 @@ struct FileRowView: View {
         let components = folder.split(separator: "/")
         guard components.count > 1 else { return nil }
         return components.dropFirst().joined(separator: " › ")
+    }
+}
+
+/// What can be done to one or more files: a file row's menu in the menu bar
+/// panel, or the menu for the files selected in the inspector.
+struct FileContextMenu: View {
+    let targets: [TorrentFile]
+    let torrent: Torrent
+    let files: TorrentFilesModel
+
+    var body: some View {
+        let openable = targets.filter { $0.progress > 0 }
+        Button("Open", systemImage: "arrow.up.forward.app") {
+            for file in openable { FileActions.open(file, in: torrent) }
+        }
+        .disabled(openable.isEmpty)
+        Button("Show in Finder", systemImage: "folder") { FileActions.reveal(targets, in: torrent) }
+        // Nothing left to choose once every file is downloaded.
+        if !files.isAllDownloaded {
+            choices
+        }
+    }
+
+    @ViewBuilder
+    private var choices: some View {
+        Divider()
+        // One file has its own checkbox; several are quicker from here.
+        if targets.count > 1 {
+            let skipped = targets.filter { !$0.isWanted }
+            let wanted = targets.filter(\.isWanted)
+            if !skipped.isEmpty {
+                Button("Download \(Format.count(skipped.count, "File"))") { files.setWanted(true, for: skipped) }
+            }
+            if !wanted.isEmpty {
+                Button("Skip \(Format.count(wanted.count, "File"))") { files.setWanted(false, for: wanted) }
+            }
+        }
+        if files.isOrdering {
+            if targets.count == 1, let file = targets.first, file.isWanted, !file.isComplete {
+                Button("Download This Next", systemImage: "arrow.up.to.line") { files.downloadNext(file) }
+            }
+        } else {
+            Menu("Priority") { FilePriorityPicker(targets: targets, files: files) }
+        }
+        Divider()
+        Button("Download All Files") { files.setAllWanted(true) }
+        Button("Skip All Files") { files.setAllWanted(false) }
     }
 }
