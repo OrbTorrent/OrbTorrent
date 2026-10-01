@@ -1,0 +1,167 @@
+# Developing OrbTorrent
+
+How OrbTorrent is built, how to build it yourself, and how releases go out.
+To build an extension instead, see [extensions](extensions/README.md). To
+send a change, see [CONTRIBUTING.md](../CONTRIBUTING.md).
+
+## How it works
+
+```
+OrbTorrent.app
+├── Contents/MacOS/OrbTorrent              SwiftUI app (menu bar, window, settings)
+├── Contents/MacOS/qbittorrent-nox         qBittorrent's headless engine
+├── Contents/MacOS/orb-extension-host      runs extensions, sandboxed
+├── Contents/Frameworks/Sparkle.framework  updates
+└── Contents/Resources/Extensions/         the official extensions
+```
+
+OrbTorrent starts `qbittorrent-nox` as a child process with its own profile in
+`~/Library/Application Support/OrbTorrent/Engine` and talks to it through the
+qBittorrent Web API:
+
+- The API listens on `127.0.0.1` only, on a random free port.
+- It's protected by a random password that OrbTorrent generates on first launch and
+  stores readable only by you. It's saved in qBittorrent's PBKDF2 format.
+- When OrbTorrent quits it asks the engine to shut down, so resume data is always saved.
+  If the engine crashes, OrbTorrent restarts it.
+
+The engine is statically linked: the binary depends only on macOS itself, so
+OrbTorrent ships as one self-contained app.
+
+Extensions run one at a time per hook in `orb-extension-host`, a small helper
+with JavaScriptCore and the App Sandbox: it can't read files or reach the
+network itself, and asks OrbTorrent for everything, which checks each request
+against the extension's permissions. See
+[extensions/security.md](extensions/security.md).
+
+## Building
+
+You need Xcode 26 or later, Node.js 22.13 or later (for the extensions), and
+three command-line tools:
+
+```sh
+brew install cmake ninja xcodegen
+```
+
+Then:
+
+```sh
+make engine   # build qbittorrent-nox for this Mac (about 15 minutes the first time)
+make sparkle  # download Sparkle, the updater (the other targets do it too)
+make dev      # build OrbTorrent Dev, quit the running copy and open the new one
+make run      # build OrbTorrent.app and open it
+make test     # run the unit tests
+make test-extensions  # the extension SDK's and the official extensions' tests
+make dmg      # package build/OrbTorrent-<version>-<arch>.dmg
+make release  # universal engine, app and DMG
+```
+
+`make project` generates `OrbTorrent.xcodeproj` from `project.yml` if you'd rather
+work in Xcode. The build embeds `engine/dist/qbittorrent-nox`, the official
+extensions, which `make extensions` builds, and
+[Sparkle](https://sparkle-project.org), which `scripts/fetch-sparkle.sh`
+downloads into `build/sparkle` and checks against its known checksum.
+
+### OrbTorrent Dev
+
+The Debug and Dev configurations build **OrbTorrent Dev**
+(`com.orbtorrent.mac.dev`), so you can keep using OrbTorrent while you
+work on it. It has its own library and engine in
+`~/Library/Application Support/OrbTorrent Dev`, its own settings and Keychain
+items, and an amber icon in the Dock and menu bar. It never opens magnet links
+or `.torrent` files and doesn't start at login, leaving both to OrbTorrent.
+Unit tests run inside it too. Point `orb dev` at it with `ORB_APP=dev`. It
+doesn't update itself, unless pointed at a test feed made by
+`scripts/publish-update.sh --test`.
+
+Builds are signed with a certificate from your Keychain when there is one
+("Developer ID Application" or "Apple Development"), so macOS keeps the app's
+permissions and Keychain access from one build to the next. Without one, as on
+CI, they're signed ad hoc.
+
+### The engine build
+
+`engine/build.sh` builds every dependency from source, with nothing taken from
+Homebrew or `/usr/local`:
+
+| Component   | Version | Verified against |
+|-------------|---------|------------------|
+| qBittorrent | 5.2.3   | GPG signature (key `6E4A2D025B7CC9A2`) and qbittorrent.org checksum |
+| libtorrent  | 1.2.20  | Pinned SHA-256 |
+| Qt (qtbase + linguist tools) | 6.10.3 | download.qt.io SHA-256 |
+| OpenSSL     | 3.6.4   | Upstream SHA-256 |
+| Boost       | 1.86.0  | Upstream SHA-256 |
+
+These versions mirror qBittorrent's own macOS release. Pins live in
+`engine/versions.env`, and any fixes needed for newer toolchains live in
+`engine/patches/<component>/`. Set `ARCHS="arm64 x86_64"` for a universal binary.
+
+## Project layout
+
+```
+OrbTorrent/
+  App/          App entry, delegate, commands, AppModel
+  API/          qBittorrent Web API client and models
+  Engine/       Engine process management and configuration
+  Import/       Importing downloads and settings from Transmission and qBittorrent
+  Store/        Library state, add flow, download order, VPN, disk space, notifications
+  System/       Default app, login item, VPN detection and NAT-PMP port forwarding
+  Parsing/      Bencode, .torrent metadata and magnet links
+  Extensions/   Running extensions: registry, runner, checks, settings, dev socket
+  Updates/      Automatic updates with Sparkle, and release notes for What's New
+  Support/      Report a Problem
+  Views/        SwiftUI views (main window, inspector, menu bar, settings, onboarding)
+  Resources/    AppIcon.icon and OrbTorrent Dev's AppIconDev.icon (Icon Composer)
+OrbTorrentTests/  The app's unit tests
+ExtensionHost/  orb-extension-host, the sandboxed helper that runs extensions
+extensions/     The official extensions (Fake Download Check, VirusTotal Scan)
+sdk/            @orbtorrent/api: the extension API, the orb CLI and templates
+  create-extension/  @orbtorrent/create-extension, for npm create @orbtorrent/extension@latest
+skills/         The Agent Skill for building extensions
+engine/         Engine build script, pinned versions and patches
+updates/        updates.orbtorrent.com, the update feed (a Cloudflare Worker)
+scripts/        DMG packaging, publishing updates, extension docs and permission checks
+docs/           This guide, the extension docs and the extension system's design
+```
+
+## Releasing
+
+### Publishing an update
+
+1. Raise `CURRENT_PROJECT_VERSION` in `project.yml`, and push a tag such as
+   `v1.0-beta.2`. CI builds the disk image and makes a draft release.
+2. On GitHub, write the release's notes in Markdown, with sections such as
+   `## New`, `## Improved` and `## Fixed` and a bold first phrase for each
+   item, and publish it. What's New in the app shows them the same way.
+3. Run `scripts/publish-update.sh v1.0-beta.2`. It signs the disk image and
+   the feed with the key in your Keychain and puts the feed on
+   `updates.orbtorrent.com`, where every copy finds it within a day.
+
+`updates/` is the feed's Cloudflare Worker, and `updates/stats.sh` shows how
+many Macs checked for updates each day, by version.
+
+### Publishing the extension SDK
+
+`@orbtorrent/api` (`sdk/`) and `@orbtorrent/create-extension`
+(`sdk/create-extension/`) are on npm under the `orbtorrent` organisation.
+
+1. Raise `version` in `sdk/package.json` and add it to `sdk/CHANGELOG.md`.
+   The major and minor version are the extension API's: a patch version for
+   changes to `orb` and fixes, a minor one for additions to the API, and a
+   major one for anything that breaks an extension. For a new minor or major
+   version, raise `ExtensionAPI.version` in `ExtensionManifest.swift` to match,
+   so OrbTorrent runs what it builds.
+2. Push a tag such as `sdk-v1.1.0`. CI checks both packages have that
+   version, builds, tests and publishes them, through npm's trusted
+   publishing, so no npm token is stored anywhere.
+
+The two packages share a version and are released together: raise
+`sdk/create-extension/package.json` to match. `npm create` always fetches the
+newest `@orbtorrent/api` to make an extension from, so its template and
+`AGENTS.md` are never older than what's on npm.
+
+`node scripts/agent-eval.mjs` asks the coding agents on this Mac (Claude Code,
+Codex and Cursor) to build three extensions from what the Develop tab's **Build
+with AI** gives them, each in an empty folder with the SDK from npm, and checks
+that they pass their tests, build, lint, run at the right moment and ask for no
+more than they need. Run it after changing the SDK's docs or `AGENTS.md`.

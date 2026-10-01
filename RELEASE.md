@@ -118,7 +118,7 @@ OrbTorrent safely onto other people's Macs and keeping it up to date there.
   - **Signing:** the feed and each update are signed with an EdDSA key in the
     owner's login Keychain (account `orbtorrent`), whose public half is in
     the app. Losing it means existing users can't be updated.
-  - **Publishing** (see the README): tag, write the notes on the GitHub
+  - **Publishing** (see docs/development.md): tag, write the notes on the GitHub
     release and publish it, then run `scripts/publish-update.sh <tag>`.
   - **Tested** on 29 September 2026: OrbTorrent Dev build 1 updated itself to
     build 3 from a test feed listing builds 2 and 3, checked both signatures,
@@ -204,7 +204,8 @@ OrbTorrent safely onto other people's Macs and keeping it up to date there.
   - The version is 1.0. Betas are 1.0 with rising build numbers
     (`CURRENT_PROJECT_VERSION`), called "1.0 beta N" in their release titles,
     so Sparkle sees each as newer.
-  - Still to do before going public: fresh screenshots in the README.
+  - The README's three old screenshots are now one image of the app as it
+    is (1 October 2026).
 
 ## 4. Signing and notarization
 

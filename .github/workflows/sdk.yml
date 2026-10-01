@@ -3,7 +3,7 @@ name: Publish the extension SDK
 # Publishes @orbtorrent/api and @orbtorrent/create-extension to npm when a tag
 # such as sdk-v1.1.0 is pushed. npm trusts this workflow (trusted publishing,
 # set up on each package's Settings page on npmjs.com), so no npm token is
-# stored anywhere. See "Publishing the extension SDK" in the README.
+# stored anywhere. See "Publishing the extension SDK" in docs/development.md.
 
 on:
   push:

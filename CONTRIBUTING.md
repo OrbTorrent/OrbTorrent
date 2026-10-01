@@ -24,7 +24,7 @@ will make it in. Many fit better as an extension (see below).
 For anything bigger than a small fix, open an issue first so we can agree on
 the approach before you spend time on it.
 
-1. Build it as the README's [Build from source](README.md#build-from-source)
+1. Build it as [docs/development.md](docs/development.md#building)
    says. Work in **OrbTorrent Dev** (`make dev`), which has its own library
    and settings, so it can run beside your everyday OrbTorrent.
 2. Match the code around your change: its naming, structure and amount of
