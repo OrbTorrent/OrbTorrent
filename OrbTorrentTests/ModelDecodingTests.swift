@@ -43,6 +43,16 @@ struct ModelDecodingTests {
         #expect(trackers[1].status == .notWorking)
     }
 
+    @Test func showsAPeersCountryAsItsFlag() throws {
+        let json = #"[{"ip":"1.2.3.4","country_code":"my"},{"ip":"5.6.7.8","country_code":"zz"},{"ip":"192.168.1.2","country_code":""}]"#
+        let peers = try JSONDecoder().decode([Peer].self, from: Data(json.utf8))
+        #expect(peers[0].countryFlag == "🇲🇾")
+        #expect(peers[0].countryName != nil)
+        // Unknown, and a peer on the local network.
+        #expect(peers[1].countryFlag == nil)
+        #expect(peers[2].countryFlag == nil)
+    }
+
     @Test func formatsEtaAndPercentSafely() {
         #expect(Format.eta(8_640_000) == nil)
         #expect(Format.eta(0) == nil)

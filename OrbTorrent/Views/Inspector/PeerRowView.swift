@@ -11,6 +11,11 @@ struct PeerRowView: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 4) {
             HStack(spacing: 6) {
+                if let flag = peer.countryFlag {
+                    Text(flag)
+                        .help(peer.countryName ?? peer.countryCode)
+                        .accessibilityLabel(peer.countryName ?? peer.countryCode)
+                }
                 Text(peer.ip)
                     .font(.callout.monospaced())
                     .lineLimit(1)

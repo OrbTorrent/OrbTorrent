@@ -124,9 +124,11 @@ struct AcknowledgementsView: View {
 struct Acknowledgement: Identifiable {
     let name: String
     let licence: String
-    /// The licence's file in the app's Licenses folder.
-    let file: String
-    /// How the engine's version list names it, or nil for OrbTorrent itself.
+    /// The licence's file in the app's Licenses folder, or nil when the note
+    /// says it all.
+    let file: String?
+    /// How the engine's version list or a framework names it, to find its
+    /// version, or nil for OrbTorrent itself.
     let listedAs: String?
     var note: String?
 
@@ -142,6 +144,17 @@ struct Acknowledgement: Identifiable {
         Acknowledgement(name: "Boost", licence: "Boost Software License 1.0", file: "Boost-LICENSE_1_0.txt", listedAs: "Boost"),
         Acknowledgement(name: "Sparkle", licence: "MIT", file: "Sparkle-LICENSE.txt", listedAs: "Sparkle",
                         note: "Sparkle keeps OrbTorrent up to date. Parts of it come from other projects, each with its notice below."),
+        // Not part of the app: the engine downloads it each month. It has no version to show.
+        Acknowledgement(name: "DB-IP", licence: "CC BY 4.0", file: nil, listedAs: "DB-IP", note: """
+            IP Geolocation by DB-IP: https://db-ip.com
+
+            The countries of peers, shown as flags in the Peers tab, come from
+            DB-IP's IP to Country Lite database. The engine downloads it from
+            db-ip.com once a month, and looks peers up in it on this Mac.
+
+            The database is licensed under the Creative Commons Attribution 4.0
+            International License: https://creativecommons.org/licenses/by/4.0/
+            """),
     ]
 
     static var folder: URL? { Bundle.main.resourceURL?.appending(path: "Licenses", directoryHint: .isDirectory) }
@@ -168,6 +181,7 @@ struct Acknowledgement: Identifiable {
     }
 
     var text: String {
+        guard let file else { return note ?? "" }
         let licence = Self.folder.flatMap { try? String(contentsOf: $0.appending(path: file), encoding: .utf8) }
             ?? "This copy of OrbTorrent is missing the licence file."
         return [note, licence].compactMap(\.self).joined(separator: "\n\n")
@@ -204,6 +218,8 @@ struct PrivacyView: View {
                       "once a day, to check for a new version, while “Check for updates automatically” is on. It sends OrbTorrent's version and build number, which is how we count the Macs on each version. The address a check comes from isn't kept.")
                 point("arrow.down.app", "github.com",
                       "to download an update you install.")
+                point("globe", "download.db-ip.com",
+                      "once a month, for a database of which country each IP address is in, to show peers' flags. Peers are looked up in it on this Mac, and never sent anywhere.")
             }
             Text("Report a Problem only opens your own mail app with the report filled in. Nothing is sent until you send it.")
                 .foregroundStyle(.secondary)

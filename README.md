@@ -74,11 +74,13 @@ your Mac. It connects only to:
   build number, which is how we count the Macs on each version. The address a
   check comes from isn't kept.
 - **github.com**, to download an update you install.
+- **download.db-ip.com**, once a month, for a database of which country each
+  IP address is in, to show peers' flags. Peers are looked up in it on your
+  Mac, and never sent anywhere.
 
 Report a Problem only opens your own mail app with the report filled in, and
-nothing is sent until you send it. The engine's lookup of peers' countries is off, so it never downloads a
-country database. The same note is in the app, under **About OrbTorrent →
-Privacy**.
+nothing is sent until you send it. The same note is in the app, under **About
+OrbTorrent → Privacy**.
 
 ## How it works
 
@@ -254,7 +256,9 @@ Acknowledgements**:
 - Boost: BSL-1.0
 
 It also includes [Sparkle](https://sparkle-project.org) (MIT), which keeps it
-up to date.
+up to date. Peers' countries come from DB-IP's IP to Country Lite database
+([CC BY 4.0](https://creativecommons.org/licenses/by/4.0/)), which the engine
+downloads each month: IP Geolocation by [DB-IP](https://db-ip.com).
 
 The extension SDK in `sdk/`, published on npm as `@orbtorrent/api` and
 `@orbtorrent/create-extension`, is MIT licensed ([sdk/LICENSE](sdk/LICENSE)),

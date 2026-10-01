@@ -25,9 +25,10 @@ enum EngineConfiguration {
         ini.set("WebUI\\CSRFProtection", "true", in: "Preferences")
         ini.set("WebUI\\HostHeaderValidation", "true", in: "Preferences")
         ini.set("WebUI\\ServerDomains", "127.0.0.1;localhost", in: "Preferences")
-        // OrbTorrent doesn't show peers' countries, so the engine needn't
-        // download a country database for them each month.
-        ini.set("Connection\\ResolvePeerCountries", "false", in: "Preferences")
+        // Peers' countries, for their flags in the Peers tab. The engine
+        // downloads DB-IP's country database for them once a month, and looks
+        // peers up in it on this Mac.
+        ini.set("Connection\\ResolvePeerCountries", "true", in: "Preferences")
         ini.set("Session\\Interface", networkInterface, in: "BitTorrent")
         ini.set("Session\\InterfaceName", networkInterface, in: "BitTorrent")
         try ini.contents.write(to: EnginePaths.configFile, atomically: true, encoding: .utf8)

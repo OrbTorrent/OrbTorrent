@@ -25,6 +25,28 @@ struct Peer: Identifiable, Hashable, Sendable, Decodable {
     var isEncrypted: Bool { flags.split(separator: " ").contains { $0 == "E" || $0 == "e" } }
     var isSeed: Bool { progress >= 1 }
 
+    /// The flag of the peer's country, or nil when it isn't known, as for a
+    /// peer on the local network.
+    var countryFlag: String? {
+        let code = countryCode.uppercased()
+        guard Self.countries.contains(code) else { return nil }
+        // A flag is its country's two letters as regional indicator symbols.
+        var flag = String.UnicodeScalarView()
+        for letter in code.unicodeScalars {
+            guard let symbol = Unicode.Scalar(0x1F1E6 + letter.value - 0x41) else { return nil }
+            flag.append(symbol)
+        }
+        return String(flag)
+    }
+
+    /// The peer's country, in the user's language.
+    var countryName: String? {
+        countryFlag == nil ? nil : Locale.current.localizedString(forRegionCode: countryCode.uppercased())
+    }
+
+    /// Real countries and regions, leaving out codes such as "ZZ", unknown.
+    private static let countries = Set(Locale.Region.isoRegions.map(\.identifier))
+
     private enum CodingKeys: String, CodingKey {
         case ip, port, client, connection, flags, progress, downloaded, uploaded
         case flagsDescription = "flags_desc"

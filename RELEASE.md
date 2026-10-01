@@ -181,9 +181,9 @@ OrbTorrent safely onto other people's Macs and keeping it up to date there.
   trackers, the public tracker list (while "Find more peers for public
   torrents" is on), web addresses torrents are added from, and the sites each
   extension lists, and `updates.orbtorrent.com` once a day and github.com
-  for an update. The engine's lookup of peers' countries is now off
-  (`Connection\ResolvePeerCountries`). OrbTorrent never showed countries, and
-  the lookup downloaded a database from db-ip.com each month.
+  for an update, and download.db-ip.com once a month for the country
+  database behind peers' flags in the Peers tab
+  (`Connection\ResolvePeerCountries`), credited in Acknowledgements.
 - [x] **Clean-up:**
   - Removed the Floe and bundle ID migrations and their tests.
   - The version is 1.0. Betas are 1.0 with rising build numbers
