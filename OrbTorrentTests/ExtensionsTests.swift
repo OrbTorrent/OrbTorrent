@@ -457,7 +457,7 @@ struct ExtensionsTimingTests {
     }
 }
 
-/// Build with AI: what the Develop tab gives people to paste into their coding agent.
+/// Build an Extension → With AI: what the Develop tab gives people to paste into their coding agent.
 struct AgentPromptTests {
     @Test func saysWhatToBuildAndEveryStepAnAgentTakes() {
         let prompt = AgentPrompt.text(for: "  Hold downloads that contain .scr files.\n", isDevelopment: false)

@@ -59,8 +59,8 @@ something's wrong.
 ## With a coding agent
 
 Coding agents such as Claude Code, Codex, Cursor and Gemini CLI can build an
-extension for you. On OrbTorrent's Develop tab, **Build with AI** turns what you
-want into a request to paste into your agent. Every new extension has an
+extension for you. On OrbTorrent's Develop tab, **Build an Extension** → **With
+AI** turns what you want into a request to paste into your agent. Every new extension has an
 `AGENTS.md` that tells the agent the rest, and `orb doctor` tells it what's
 missing. Three steps stay with you: turning on development extensions, allowing
 the folder, and confirming the install.

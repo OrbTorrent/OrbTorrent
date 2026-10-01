@@ -157,7 +157,10 @@ OrbTorrent safely onto other people's Macs and keeping it up to date there.
   the `orbtorrent` organisation, change the trusted publisher on npmjs.com and
   the packages' `repository` to match.
 - [x] **Building extensions with AI,** on 29 September 2026. The Develop tab
-  opens with **Build with AI**: the user says what the extension should do,
+  has the development switch as a slim row on top, then **Build an
+  Extension** with a With AI / Yourself toggle, then what's in development,
+  with the guides and agent files in one Resources panel. With AI: the user
+  says what the extension should do,
   and it becomes a request to paste into Claude Code, Codex, Cursor, Gemini CLI
   or another coding agent, with the three steps only the user takes (allowing
   development extensions, allowing the folder, confirming the install). `orb`

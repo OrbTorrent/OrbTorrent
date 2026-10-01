@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 // Asks coding agents to build OrbTorrent extensions the way the Develop tab's
-// "Build with AI" does, then checks what they made: its tests, build and lint
+// "Build an Extension → With AI" does, then checks what they made: its tests, build and lint
 // pass, its hook runs at the right moment, it has tests that pass a good
 // download, and it asks for no more than it needs.
 //

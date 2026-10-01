@@ -68,9 +68,9 @@ exits with 1 when something's wrong.
 ## With a coding agent
 
 Coding agents such as Claude Code, Codex, Cursor and Gemini CLI can do all of
-this for you. On OrbTorrent's **Develop** tab, **Build with AI** turns what you
-want the extension to do into a request to paste into your agent. It covers every
-step above. Along the way, you're asked to turn on development extensions, to
+this for you. On OrbTorrent's **Develop** tab, **Build an Extension** → **With
+AI** turns what you want the extension to do into a request to paste into your
+agent. It covers every step above. Along the way, you're asked to turn on development extensions, to
 allow the agent's folder, and to confirm the install.
 
 ## Next
