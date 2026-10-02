@@ -181,6 +181,18 @@ summer time, everything US-based comes an hour earlier in MYT.
 
 - [ ] Beta 1 on GitHub, the website's Download button and the Homebrew tap
   switched on.
+- [ ] **Audit the live website,** once it's deployed. (Me)
+  - Lighthouse, on mobile and desktop, for each kind of page: the homepage,
+    download, extensions, FAQ, the docs' home and a long docs page.
+  - SEO: the sitemap submitted to Google Search Console and Bing Webmaster
+    Tools, the structured data checked with validator.schema.org and
+    Google's Rich Results Test, link previews on X, Bluesky and Slack,
+    canonical addresses and robots.txt.
+  - Performance: `CF-Cache-Status: HIT` on a second visit, Brotli
+    compression, load times from the US and Europe as well as Malaysia, and
+    after a few days, Core Web Vitals from real visits in Web Analytics.
+  - That each page loads the analytics script once, and the Download button
+    gives the disk image and is counted by `website/stats.sh`.
 - [ ] **Tell a few people:**
   - the email list;
   - r/macapps, as a request for feedback. Title starts with `[OS]` (open
