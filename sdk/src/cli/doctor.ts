@@ -91,7 +91,7 @@ export async function doctor(folder: string): Promise<Check[]> {
           name: "app", ok: false, message: `${appName} isn't open.`,
           fix: `Open it with \`open -b ${bundleIdentifier}\`, then ask the user to turn on “Allow development extensions” ${switchPlace}, if it's off.`,
         }
-        : { name: "app", ok: false, message: `${appName} isn't installed.`, fix: "Ask the user to download OrbTorrent from orbtorrent.com and open it." });
+        : { name: "app", ok: false, message: `${appName} isn't installed.`, fix: "Ask the user to download OrbTorrent from https://orbtorrent.com/download and open it." });
     }
 
     if (connection && manifest) {

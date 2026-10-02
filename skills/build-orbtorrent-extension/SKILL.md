@@ -19,7 +19,9 @@ permissions.
    then `npm install` in the new folder.
 2. **Read `references/AGENTS.md`.** It covers the API, the manifest, the hooks,
    the test format, the rules for good results, and the errors you'll see with
-   their fixes. An extension made with `orb create` has the same file.
+   their fixes. An extension made with `orb create` has the same file. The
+   full docs are at https://orbtorrent.com/docs/extensions, and all of them in
+   one file at https://orbtorrent.com/docs/extensions/llms-full.txt.
 3. **Write the hook and a test for each behaviour**, including downloads that
    must pass.
 4. **Loop until everything passes:**

@@ -11,7 +11,8 @@
 </p>
 
 <p align="center">
-  <a href="https://github.com/sanjevirau/OrbTorrent/releases/latest"><b>Download for Mac</b></a> ·
+  <a href="https://orbtorrent.com/download"><b>Download for Mac</b></a> ·
+  <a href="https://orbtorrent.com">Website</a> ·
   <a href="https://orbtorrent.com/docs">Docs</a> ·
   <a href="#extensions">Extensions</a> ·
   <a href="ROADMAP.md">Roadmap</a>
@@ -149,7 +150,8 @@ and a line on what it does.
 
 ## Install
 
-1. Download `OrbTorrent-<version>-universal.dmg` from
+1. Download OrbTorrent from [orbtorrent.com](https://orbtorrent.com/download),
+   or `OrbTorrent-<version>-universal.dmg` from
    [Releases](https://github.com/sanjevirau/OrbTorrent/releases/latest).
 2. Open it and drag OrbTorrent to Applications.
 3. Open OrbTorrent. It offers to bring over your downloads from Transmission
@@ -187,7 +189,9 @@ your Mac. It connects only to:
 
 Report a Problem, in the Help menu, only opens your own mail app with the
 report filled in, and nothing is sent until you send it. The same note is in
-the app, under **About OrbTorrent → Privacy**.
+the app, under **About OrbTorrent → Privacy**, and on
+[orbtorrent.com/privacy](https://orbtorrent.com/privacy), with what the website
+counts.
 
 ## Questions
 
@@ -211,7 +215,9 @@ app done well, rather than two done halfway.
 are next. See the [roadmap](ROADMAP.md), which also lists what's been put off,
 and why.
 
-**Found a problem?** Choose **Help → Report a Problem** in the app, or open an
+**Found a problem?** [Troubleshooting](https://orbtorrent.com/docs/help/troubleshooting)
+has fixes for the usual ones. Otherwise choose **Help → Report a Problem** in
+the app, or open an
 [issue](https://github.com/sanjevirau/OrbTorrent/issues/new/choose).
 
 ## For developers

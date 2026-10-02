@@ -42,7 +42,10 @@ OrbTorrent is a menu bar app, so its menus show in your Mac's menu bar while its
 
 | Command | |
 |---|---|
+| OrbTorrent Help | These docs. <kbd class="key">⌘?</kbd> |
+| Troubleshooting | [Fixes for the usual problems](/docs/help/troubleshooting). |
 | What's New in OrbTorrent | The release notes for the version you have. |
+| OrbTorrent Website | orbtorrent.com. |
 | Report a Problem… | A report to send from your own mail app. [Report a problem](/docs/help/report-a-problem) explains. |
 
 ## In the window

@@ -188,8 +188,10 @@ OrbTorrent safely onto other people's Macs and keeping it up to date there.
   extension host. Still beyond names and sizes: a fake with believable ones,
   which needs reading files after they arrive (a new extension API) or release
   dates from a film database (see ROADMAP.md).
-- [ ] **Help menu, later:** the website and the extension docs, once both are
-  public, and a GitHub issue as another way to report, once the repo is.
+- [x] **Help menu:** OrbTorrent Help (the docs, ⌘?), Troubleshooting and the
+  website, all on orbtorrent.com. The Develop tab links the extension docs.
+- [ ] **A GitHub issue as another way to report,** from Report a Problem, once
+  the repo is public.
 - [x] **Privacy note,** in the About window and the README; the website
   still to come. OrbTorrent collects nothing and contacts only peers and
   trackers, the public tracker list (while "Find more peers for public

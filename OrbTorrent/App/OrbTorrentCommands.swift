@@ -19,11 +19,16 @@ struct OrbTorrentCommands: Commands {
         }
 
         CommandGroup(replacing: .help) {
+            Button("\(AppIdentity.name) Help") { NSWorkspace.shared.open(Website.docs) }
+                .keyboardShortcut("?", modifiers: .command)
+            Button("Troubleshooting") { NSWorkspace.shared.open(Website.troubleshooting) }
+            Divider()
             Button("What's New in \(AppIdentity.name)") {
                 model.updates.showWhatsNew()
                 model.showMainWindow()
             }
             .disabled(model.updates.currentRelease == nil)
+            Button("\(AppIdentity.name) Website") { NSWorkspace.shared.open(Website.home) }
             Divider()
             Button("Report a Problem…") {
                 NSApp.activate()

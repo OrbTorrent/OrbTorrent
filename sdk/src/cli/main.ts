@@ -89,6 +89,7 @@ async function main(): Promise<number> {
           console.log(`${style.green("✓")} Made ${style.bold(shown)}. Next:\n`);
           console.log(`  cd ${shown}\n  npm install\n  npm test          ${style.dim("# run its tests")}\n  npx orb doctor    ${style.dim("# check OrbTorrent is ready for it")}\n  npm run dev       ${style.dim("# load it into OrbTorrent")}`);
           console.log(`\n${style.dim("AGENTS.md in the folder explains the API, the rules and the loop to follow.")}`);
+          console.log(style.dim("Docs: https://orbtorrent.com/docs/extensions/getting-started"));
         }
         return 0;
       }
