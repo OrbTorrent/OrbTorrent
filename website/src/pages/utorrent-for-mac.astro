@@ -1,0 +1,92 @@
+---
+// For people looking for µTorrent on a Mac, which "utorrent mac" (1,300 a
+// month on Google in the US) and "utorrent for mac" (720) bring here.
+// SEARCH.md has the research.
+import Compare, { type Row } from "../layouts/Compare.astro";
+
+const rows: Row[] = [
+  { label: "What it is", ours: "An app, in your menu bar and its own window", theirs: "A page in your web browser" },
+  { label: "Ads", ours: "None", theirs: "In the free version", better: "ours" },
+  { label: "Price", ours: "Free", theirs: "Free with ads, or a yearly subscription", better: "ours" },
+  { label: "Source code", ours: "Open, under the GPL", theirs: "Closed", better: "ours" },
+  { label: "Playing a video as it downloads", ours: "Downloads its files in order, for your own player", theirs: "Plays it in its own player", better: "theirs" },
+  { label: "Checking for malware", ours: "Holds fake downloads before they arrive, and can check finished files with VirusTotal", theirs: "Antivirus, in its Pro subscription" },
+];
+
+const questions = [
+  {
+    question: "Does µTorrent work on a Mac?",
+    answer: "µTorrent Web does: it runs inside your web browser. µTorrent Classic, the desktop app, only runs on macOS 10.14 Mojave and earlier, and its last version came out in January 2020.",
+  },
+  {
+    question: "Why did µTorrent stop working on my Mac?",
+    answer: "µTorrent's Mac app was a 32-bit app, and since macOS Catalina in 2019, Macs only run 64-bit apps. µTorrent moved Mac users to µTorrent Web rather than rebuild it.",
+  },
+  {
+    question: "Is there a free µTorrent alternative for Mac without ads?",
+    answer: "Yes. OrbTorrent is free, open source and has no ads, and needs macOS 26 or later. Transmission and qBittorrent are free and open source too, and run on older versions of macOS.",
+  },
+  {
+    question: "Can I bring my µTorrent downloads to OrbTorrent?",
+    answer: "Not automatically: OrbTorrent imports downloads from Transmission and qBittorrent. Open each download's magnet link or .torrent file in OrbTorrent and choose the folder µTorrent saved it in. OrbTorrent checks the files already there and downloads only what's missing.",
+  },
+  {
+    question: "Is OrbTorrent made by µTorrent's makers?",
+    answer: "No. OrbTorrent is an independent, open-source Mac app that runs qBittorrent's engine. It isn't affiliated with µTorrent or its owner, Rainberry.",
+  },
+];
+---
+
+<Compare
+  title="µTorrent (uTorrent) for Mac: what works now · OrbTorrent"
+  description="µTorrent's Mac desktop app stopped working with macOS Catalina, and µTorrent Web runs in your browser, with ads. OrbTorrent is a free Mac app without them."
+  path="/utorrent-for-mac"
+  name="µTorrent for Mac"
+  label="µTorrent for Mac"
+  heading="µTorrent on the Mac:"
+  tone="what works now."
+  app="µTorrent Web"
+  glanceTitle="µTorrent"
+  glance={[
+    ["Desktop app", "µTorrent Classic 1.8.7"],
+    ["Runs on", "macOS 10.14 and earlier"],
+    ["Newer Macs", "µTorrent Web"],
+    ["Free version", "With ads"],
+    ["Without ads", "Yearly subscription"],
+    ["Source code", "Closed"],
+  ]}
+  rows={rows}
+  questions={questions}
+  checked="3 October 2026"
+  trademark="µTorrent belongs to Rainberry, Inc., and OrbTorrent isn't affiliated with or endorsed by it."
+>
+  <Fragment slot="intro">
+    µTorrent's desktop app for the Mac stopped working with macOS Catalina in 2019. Mac users get µTorrent Web instead, which runs inside your browser. If you'd rather have a real app, OrbTorrent is free, open source and has no ads.
+  </Fragment>
+
+  <h2>What happened to µTorrent on the Mac</h2>
+  <p>µTorrent's Mac app, now called µTorrent Classic, was a 32-bit app. With macOS Catalina in 2019, Macs stopped running 32-bit apps, and rather than rebuild it, µTorrent <a href="https://en.wikipedia.org/wiki/%CE%9CTorrent">moved Mac users to µTorrent Web</a>. Its last version came out in January 2020.</p>
+  <p>µTorrent's <a href="https://www.utorrent.com/downloads/mac/">Mac download page</a> still offers Classic, marked “Not compatible with MAC OS Catalina Version 10.15 and above”. So on any recent Mac, µTorrent's desktop app won't open.</p>
+
+  <h2>µTorrent Web</h2>
+  <p><a href="https://www.utorrent.com/web/mac/">µTorrent Web</a> runs inside your web browser: you add torrents and watch them in a browser tab, and it can play a video or a song while it downloads. The free version shows ads, and yearly subscriptions remove them. Its source code isn't public.</p>
+
+  <h2>A Mac app instead</h2>
+  <p>If you miss having a real app, OrbTorrent is one:</p>
+  <ul>
+    <li><strong>Free, with no ads,</strong> no account and nothing to buy. It's open source, under the GPL.</li>
+    <li><strong>In your menu bar.</strong> An orb shows how your downloads are doing, and a click shows speeds, downloads and their files.</li>
+    <li><strong>qBittorrent's engine</strong> does the downloading. It's free and open source too.</li>
+    <li><strong>Downloads only through your VPN,</strong> if you like. If the VPN drops, downloading stops instead of carrying on without it.</li>
+    <li><strong>Fake downloads held</strong> before they arrive, such as a “film” that's really a program.</li>
+  </ul>
+  <p>OrbTorrent needs macOS 26 or later. On an older Mac, <a href="https://transmissionbt.com">Transmission</a> runs on macOS 11 and later, and is free and open source too.</p>
+
+  <h2>Bringing your downloads over</h2>
+  <p>OrbTorrent <a href="/switch">imports downloads</a> from Transmission and qBittorrent, but not from µTorrent. To carry on with a download, open its magnet link or .torrent file in OrbTorrent and choose the folder µTorrent saved it in. OrbTorrent checks the files already there, and downloads only what's missing.</p>
+
+  <Fragment slot="switch-title">A real app, <span class="tone">and no ads.</span></Fragment>
+  <Fragment slot="switch">
+    <p>Download OrbTorrent and make it your Mac's torrent app when it asks. From then on, magnet links in your browser and .torrent files in Finder open in it.</p>
+  </Fragment>
+</Compare>

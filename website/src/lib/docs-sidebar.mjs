@@ -9,6 +9,7 @@ export const sidebar = [
     items: [
       { label: "Install OrbTorrent", link: "/docs/get-started/install" },
       { label: "Your first download", link: "/docs/get-started/first-download" },
+      { label: "Magnet links and .torrent files", link: "/docs/get-started/magnet-links" },
       { label: "Switch from another app", link: "/docs/get-started/switch" },
     ],
   },

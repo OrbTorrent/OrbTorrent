@@ -1,0 +1,100 @@
+---
+// For people looking for qBittorrent on a Mac, which "qbittorrent mac" (1,300
+// a month on Google in the US), "qbittorrent for mac" (170) and "qbittorrent
+// macos" (110) bring here. SEARCH.md has the research. OrbTorrent is built on
+// qBittorrent's engine, so the page is grateful, and says plainly where
+// qBittorrent is the better choice.
+import Compare, { type Row } from "../layouts/Compare.astro";
+import { site } from "../lib/site";
+
+const rows: Row[] = [
+  { label: "Engine", ours: `qBittorrent ${site.engine.qbittorrent}, with libtorrent ${site.engine.libtorrent}`, theirs: "qBittorrent 5.2.3, with libtorrent 1.2 or 2.0" },
+  { label: "The app", ours: "Swift and SwiftUI, made for the Mac", theirs: "Qt, the same on every system", better: "ours" },
+  { label: "Opens without a warning", ours: "Yes: notarized by Apple", theirs: "No: you allow it in Privacy & Security first", better: "ours" },
+  { label: "Runs on", ours: "macOS 26 or later", theirs: "macOS 13 or later", better: "theirs" },
+  { label: "Downloads only through your VPN", ours: "One switch, and it follows the VPN after sleep", theirs: "Choose the VPN's network interface, and again if its name changes", better: "ours" },
+  { label: "Torrent search, RSS and a web interface", ours: "Not built in", theirs: "Yes", better: "theirs" },
+  { label: "Fake downloads", ours: "Held before they arrive", theirs: "Not checked", better: "ours" },
+  { label: "Price", ours: "Free, no ads, open source", theirs: "Free, no ads, open source" },
+];
+
+const questions = [
+  {
+    question: "Does qBittorrent work on a Mac?",
+    answer: "Yes. qBittorrent 5.2.3 runs on macOS 13 or later, on Apple silicon and Intel. Its download page says the macOS version is barely supported, as the project has no active macOS developers, and it isn't notarized by Apple.",
+  },
+  {
+    question: "Why does my Mac say Apple could not verify qBittorrent?",
+    answer: "qBittorrent's Mac app isn't notarized, so macOS can't check it. If you downloaded it from qbittorrent.org, open System Settings › Privacy & Security, and click Open Anyway next to qBittorrent.",
+  },
+  {
+    question: "Is OrbTorrent the same as qBittorrent?",
+    answer: "It runs the same engine, so downloads behave the same, but it's a separate app, made for the Mac, with its own settings and library. OrbTorrent isn't affiliated with or endorsed by the qBittorrent project.",
+  },
+  {
+    question: "Can I move my qBittorrent downloads to OrbTorrent?",
+    answer: "Yes. OrbTorrent offers to when you first open it, or later from File › Import From. Downloads keep their folders, file choices, names, labels and progress, and you choose which settings come over.",
+  },
+  {
+    question: "Does OrbTorrent have qBittorrent's search and RSS feeds?",
+    answer: "No. Search plugins need constant upkeep and bring legal risk, and people who want downloads from RSS feeds tend to use Sonarr and Radarr. Remote access is planned.",
+  },
+];
+---
+
+<Compare
+  title="qBittorrent for Mac, and a native alternative · OrbTorrent"
+  description="qBittorrent runs on a Mac, but it isn't notarized or made for the Mac. OrbTorrent runs qBittorrent's engine in a free, native Mac app. Here's how they compare."
+  path="/qbittorrent-for-mac"
+  name="qBittorrent for Mac"
+  label="qBittorrent for Mac"
+  heading="qBittorrent on the Mac,"
+  tone="and a native way to run it."
+  app="qBittorrent"
+  glance={[
+    ["Version", "5.2.3"],
+    ["Needs", "macOS 13 or later"],
+    ["Chips", "Apple silicon and Intel"],
+    ["Notarized by Apple", "No"],
+    ["The app", "Qt"],
+    ["Source code", "Open, under the GPL"],
+  ]}
+  rows={rows}
+  questions={questions}
+  checked="3 October 2026"
+  trademark="qBittorrent is the qBittorrent project's. OrbTorrent uses its engine under the GPL, and isn't affiliated with or endorsed by the project."
+>
+  <Fragment slot="intro">
+    qBittorrent runs on the Mac, and <a class="link" href="https://www.qbittorrent.org/download">qbittorrent.org</a> has its download. OrbTorrent runs the same engine inside a native Mac app: notarized by Apple, in your menu bar, and tied to your VPN if you like. Your qBittorrent downloads come over in one step.
+  </Fragment>
+
+  <h2>qBittorrent on a Mac today</h2>
+  <p>qBittorrent is free, open source and has more features than most torrent apps. On the Mac, though, it has some rough edges:</p>
+  <ul>
+    <li><strong>Its own download page says the macOS version is “barely supported”,</strong> because the project has no active macOS developers. (<a href="https://www.qbittorrent.org/download">qbittorrent.org</a>)</li>
+    <li><strong>It isn't notarized by Apple.</strong> The first time you open it, macOS says Apple could not verify it's free of malware, and you have to allow it in <strong>System Settings › Privacy &amp; Security</strong>. We checked version 5.2.3.</li>
+    <li><strong>Its window is drawn by Qt,</strong> the same on Windows, Linux and the Mac, rather than with the Mac's own controls.</li>
+    <li><strong>New versions of macOS can catch it out.</strong> After macOS 26 came out, some people found it <a href="https://github.com/qbittorrent/qBittorrent/discussions/23288">stopped downloading</a> until builds made for it arrived in 2026.</li>
+  </ul>
+
+  <h2>The same engine, in a Mac app</h2>
+  <p>OrbTorrent bundles qBittorrent's engine, version {site.engine.qbittorrent} with libtorrent {site.engine.libtorrent}, built from qBittorrent's released source and checked against its signature. The engine runs in the background, and OrbTorrent is the app you see:</p>
+  <ul>
+    <li><strong>Native, and notarized.</strong> It's written in Swift and SwiftUI, with Liquid Glass, and opens without a warning.</li>
+    <li><strong>In your menu bar.</strong> An orb shows how your downloads are doing, and a click shows speeds, downloads and their files.</li>
+    <li><strong>Tied to your VPN, without the fiddling.</strong> qBittorrent lets you choose your VPN's network interface, but on a Mac <a href="https://safelyo.com/how-to-bind-qbittorrent-to-vpn/">its name can change</a> when the VPN reconnects or your Mac wakes, and downloads stall until you choose it again. OrbTorrent follows the VPN by itself, and stops if it drops.</li>
+    <li><strong>Your VPN's forwarded port, kept in step,</strong> from VPNs that forward a port over NAT-PMP and from Private Internet Access.</li>
+    <li><strong>Fake downloads held</strong> before they arrive, such as a “film” that's really a program.</li>
+  </ul>
+
+  <h2>What qBittorrent has that OrbTorrent doesn't</h2>
+  <p>qBittorrent has a built-in torrent search, RSS feeds that download new episodes by themselves, a web interface for using it from another computer, and many more settings. OrbTorrent leaves out search and RSS on purpose, and remote access is planned: <a href={site.roadmap}>the roadmap</a> says why. If you rely on them, qBittorrent is the better app for you.</p>
+
+  <h2>Bringing your downloads over</h2>
+  <p>OrbTorrent <a href="/switch">imports qBittorrent's downloads</a> in one step, when you first open it or later from <strong>File › Import From</strong>. They keep their folders, file choices, names, labels and progress, and you choose which of qBittorrent's settings come over.</p>
+
+  <Fragment slot="switch-title">The engine you trust, <span class="tone">made for your Mac.</span></Fragment>
+  <Fragment slot="switch">
+    <p>Download OrbTorrent and open it. It finds qBittorrent on your Mac and offers to bring your downloads and settings over, progress and all.</p>
+  </Fragment>
+</Compare>

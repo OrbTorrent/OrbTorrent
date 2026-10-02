@@ -95,11 +95,11 @@ accounts early: Reddit and Hacker News need weeks of history.
 - [x] **Search research:** what Mac users search for and how many, who
   answers them, and the pages to make, from autocomplete, Bing, forums and
   Semrush ([SEARCH.md](SEARCH.md)). (3 Oct)
-- [ ] **Search pages,** in [SEARCH.md](SEARCH.md)'s order: the homepage's
+- [x] **Search pages,** in [SEARCH.md](SEARCH.md)'s order: the homepage's
   title and description, µTorrent for Mac, qBittorrent for Mac, a guide to
-  magnet links, and Transmission for Mac. Each app page says what OrbTorrent
-  is, has a calm comparison table and shows how to switch. They keep bringing
-  people from search long after the launch.
+  magnet links, Transmission for Mac, and "kill switch" in the VPN guide. Each
+  app page has a fair comparison table, its facts checked and linked, and how
+  to switch. They go live with the site. (3 Oct)
 - [ ] **The technical write-up,** "How OrbTorrent is built", for Show HN,
   newsletters and Lobsters. You review it.
 - [ ] **The video's script,** for you to record.

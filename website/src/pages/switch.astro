@@ -6,6 +6,7 @@ import Move from "../components/Move.astro";
 import DownloadButton from "../components/DownloadButton.astro";
 import Check from "@lucide/astro/icons/check";
 import { tints } from "../lib/site";
+import { comparePages } from "../lib/compare";
 import { breadcrumbs, graph, organization } from "../lib/schema";
 
 const schema = graph(organization, breadcrumbs([{ name: "Switch from Transmission or qBittorrent", path: "/switch" }]));
@@ -73,6 +74,7 @@ const steps = [
     ))}
   </ol>
   <p class="wrap inset mt-8 muted reveal">Later on, choose <strong class="font-medium text-[var(--ink)]">File › Import From</strong>, or the Import button in OrbTorrent's settings.</p>
+  <p class="wrap inset mt-3 muted reveal">Comparing first? See OrbTorrent next to {comparePages.map((page, index) => <>{index > 0 && (index === comparePages.length - 1 ? " and " : ", ")}<a class="link" href={page.path}>{page.app}</a></>)}.</p>
 
   <section class="wrap inset section">
     <div class="dossier why reveal">

@@ -71,7 +71,7 @@ export default defineConfig({
         // somewhere. The site's own pages and files aren't docs, so they're
         // left out.
         starlightLinksValidator({
-          exclude: ["/", "/download", "/download/mac", "/extensions", "/switch", "/privacy", "/privacy#counts", "/faq", "/press", "/*.txt", "/docs/**/*.txt", "/docs/**/*.md", "/docs.md"],
+          exclude: ["/", "/download", "/download/mac", "/extensions", "/switch", "/utorrent-for-mac", "/qbittorrent-for-mac", "/transmission-for-mac", "/privacy", "/privacy#counts", "/faq", "/press", "/*.txt", "/docs/**/*.txt", "/docs/**/*.md", "/docs.md"],
         }),
       ],
     }),

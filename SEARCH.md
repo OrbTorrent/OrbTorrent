@@ -179,6 +179,18 @@ What people say, from Hacker News, AlternativeTo and the apps' own sites:
 
 ## The pages to make
 
+Made on 3 October 2026, and live with the site: the homepage's wording,
+[/utorrent-for-mac](https://orbtorrent.com/utorrent-for-mac),
+[/qbittorrent-for-mac](https://orbtorrent.com/qbittorrent-for-mac),
+[/transmission-for-mac](https://orbtorrent.com/transmission-for-mac), the
+[magnet links guide](https://orbtorrent.com/docs/get-started/magnet-links), and
+the VPN guide's kill switch section. They share `website/src/layouts/Compare.astro`,
+and the footer's Compare column links them. Facts about the other apps were
+checked that day, against their sites, source and downloads: qBittorrent
+5.2.3's Mac app isn't notarized (Gatekeeper rejects it, signed by "qbittorrent
+macos" without a team), and Transmission 4.1.3's is. Check them again with
+each page's "Checked on" date.
+
 In order. Each is written for the person searching, with facts checked
 against each app's current version and linked to a source. Where the other app
 is better, the page says so: a page that only exists to rank is what Google
@@ -234,7 +246,7 @@ look like the app's own site.
   autocomplete (190 phrases), such as "safari won't open magnet links" and
   "how to change default torrent client mac". The pages that answer for the
   Mac today are old forum threads.
-- **The page:** a guide in the docs, `/docs/guides/magnet-links`: what a magnet
+- **The page:** a guide in the docs, `/docs/get-started/magnet-links`: what a magnet
   link is, how macOS chooses the app that opens it, how to change that app,
   and what to do when Safari or Chrome won't open one. Useful whichever app
   they use, and OrbTorrent is the example.
@@ -267,9 +279,9 @@ look like the app's own site.
 
 - **For:** qbittorrent port forwarding (170, difficulty 14, the easiest here),
   and "protonvpn port forwarding mac" in autocomplete.
-- **Now:** the [Port forwarding](https://orbtorrent.com/docs/guides/port-forwarding)
-  guide's description says what it does for qBittorrent's engine through a
-  VPN.
+- **Now:** nothing. People searching "qbittorrent port forwarding" want
+  qBittorrent's own settings, which a guide to OrbTorrent can't honestly give
+  them.
 - **Later:** a how-to for Proton VPN, once port forwarding is tried on a paid
   Proton VPN plan (CHECKLIST.md §3). Until then, don't name Proton.
 

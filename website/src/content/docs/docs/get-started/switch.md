@@ -60,3 +60,9 @@ The other app keeps its own list. You can open it again afterwards, though only 
 
 - **"There's nothing new to bring over."** OrbTorrent already has that app's downloads, and its settings match.
 - **A download is missing its files, or starts again from the beginning.** OrbTorrent looks for its files where the other app saved them. If you've moved them since, move them back, then select the download and choose **More › Verify Local Data**, which [checks what's on disk](/docs/guides/download-details#actions).
+
+## From µTorrent or another app
+
+OrbTorrent can't import from other apps, such as µTorrent. Open each download's magnet link or `.torrent` file in OrbTorrent instead, and choose the folder the other app saved it in. OrbTorrent checks the files already there, and downloads only what's missing.
+
+To see how OrbTorrent compares first, there are pages for [µTorrent](/utorrent-for-mac), [qBittorrent](/qbittorrent-for-mac) and [Transmission](/transmission-for-mac).

@@ -1,6 +1,6 @@
 ---
 title: Download only through a VPN
-description: Tie OrbTorrent to your VPN, so downloading and sharing stop if the VPN drops instead of carrying on over your normal connection.
+description: A kill switch for your downloads. Tie OrbTorrent to your VPN, so downloading and sharing stop if the VPN drops instead of carrying on without it.
 ---
 
 Peers and trackers can see the IP address you download from. A VPN gives them its address instead of yours, but if the VPN drops, most torrent apps carry on over your normal connection without saying so.
@@ -33,6 +33,16 @@ OrbTorrent finds VPNs in two ways, so most work with nothing to set up:
 - **Tunnels that route all your traffic** without being in your network settings, such as **Tunnelblick**, WireGuard's **`wg-quick`**, and **Private Internet Access** with OpenVPN. OrbTorrent finds these from your Mac's routes.
 
 It notices within moments when a VPN connects or drops, including after your Mac sleeps, or when Wi-Fi drops and comes back.
+
+## A kill switch, just for downloads
+
+Many VPN apps have a kill switch, which cuts off your whole Mac's internet if the VPN drops. **Only download through a VPN** is one for OrbTorrent alone:
+
+- **It works with any VPN,** including ones whose app has no kill switch, or one you've turned off.
+- **The rest of your Mac stays online** while the VPN reconnects. Only downloading and sharing wait.
+- **It follows the VPN** when it reconnects or your Mac wakes, with nothing to choose again.
+
+You can use both: a VPN app's kill switch doesn't get in OrbTorrent's way.
 
 ## Faster downloads through a VPN
 

@@ -1,6 +1,7 @@
 ---
 import { site } from "../lib/site";
 import SignUp from "./SignUp.astro";
+import { comparePages } from "../lib/compare";
 
 interface Props {
   /** The email sign-up, except on its own pages. */
@@ -19,6 +20,10 @@ const columns = [
       { href: "/faq", label: "FAQ" },
       { href: "/docs/help/troubleshooting", label: "Help" },
     ],
+  },
+  {
+    title: "Compare",
+    links: comparePages.map((page) => ({ href: page.path, label: page.name })),
   },
   {
     title: "Developers",
@@ -55,7 +60,7 @@ const columns = [
         <SignUp id="footer-signup" />
       </div>
     )}
-    <div class="grid grid-cols-2 gap-x-6 gap-y-12 md:grid-cols-[1.5fr_repeat(3,1fr)]">
+    <div class="grid grid-cols-2 gap-x-6 gap-y-12 md:grid-cols-[1.5fr_repeat(4,1fr)]">
       <div class="col-span-2 max-w-xs md:col-span-1">
         <a href="/" class="flex items-center gap-2.5 font-semibold tracking-tight text-[1.0625rem]">
           <img src="/brand/orb-mark.webp" alt="" width="24" height="24" loading="lazy" />

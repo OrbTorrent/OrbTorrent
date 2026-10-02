@@ -5,7 +5,7 @@ export const site = {
   url: "https://orbtorrent.com",
   tagline: "A fast, native torrent app for macOS, powered by qBittorrent.",
   description:
-    "OrbTorrent is a free, open-source Mac torrent client on qBittorrent's engine. It lives in your menu bar, keeps downloads on your VPN and stops fake ones.",
+    "OrbTorrent is a free, open-source torrent client for Mac, with no ads. It runs qBittorrent's engine, lives in your menu bar, stays on your VPN and stops fakes.",
   author: "Sanjevi Rau",
   email: "help@orbtorrent.com",
   repo: "https://github.com/sanjevirau/OrbTorrent",

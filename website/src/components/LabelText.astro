@@ -1,0 +1,13 @@
+---
+// A label's words, with µ kept as it is: uppercase labels would turn the µ of
+// µTorrent into a capital Greek M, and "µTorrent" into "MTORRENT".
+interface Props { text: string }
+const parts = Astro.props.text.split("µ");
+---
+
+<!-- One span, so a label that's a flex box keeps its words together. -->
+<span>{parts.map((part, index) => <>{index > 0 && <span class="label-text-mu">µ</span>}{part}</>)}</span>
+
+<style>
+  .label-text-mu { text-transform: none; }
+</style>

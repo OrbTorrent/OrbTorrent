@@ -1,0 +1,196 @@
+---
+// A page for people coming from another torrent app: what that app is on the
+// Mac today, how OrbTorrent compares, side by side, and how to switch. Every
+// fact about the other app is checked against its own site or download, and
+// linked, and the page says where the other app is better. A page that only
+// exists to rank would be a doorway page, and would hurt the whole site.
+import Base from "./Base.astro";
+import PageHero from "../components/PageHero.astro";
+import SectionHeader from "../components/SectionHeader.astro";
+import DownloadButton from "../components/DownloadButton.astro";
+import LabelText from "../components/LabelText.astro";
+import Faq from "../components/Faq.astro";
+import type { Faq as Question } from "../lib/faqs";
+import { comparePages } from "../lib/compare";
+import { application, breadcrumbs, faqPage, graph, organization } from "../lib/schema";
+
+export interface Row {
+  /** What's compared, such as "Ads". */
+  label: string;
+  ours: string;
+  theirs: string;
+  /** Which side is better, if either: marked so the table is fair both ways. */
+  better?: "ours" | "theirs";
+}
+
+interface Props {
+  /** The page's title and description, for search results. */
+  title: string;
+  description: string;
+  path: string;
+  /** Its name in breadcrumbs. */
+  name: string;
+  label: string;
+  heading: string;
+  tone: string;
+  /** The other app, as the table's heading names it. */
+  app: string;
+  /** The facts about the other app, in the aside, and what it's headed, if not by the app's name. */
+  glance: [string, string][];
+  glanceTitle?: string;
+  rows: Row[];
+  questions: Question[];
+  /** When the facts about the other app were checked, such as "3 October 2026". */
+  checked: string;
+  /** Whose name the other app's is, and that OrbTorrent isn't theirs. */
+  trademark: string;
+}
+
+const { title, description, path, name, label, heading, tone, app, glance, glanceTitle = app, rows, questions, checked, trademark } = Astro.props;
+const schema = graph(organization, application, breadcrumbs([{ name, path }]), faqPage(questions));
+const others = comparePages.filter((page) => page.path !== path);
+---
+
+<Base title={title} description={description} schema={schema}>
+  <PageHero label={label} title={heading} tone={tone}>
+    <slot name="intro" />
+  </PageHero>
+
+  <div class="rule"></div>
+
+  <div class="wrap inset compare-layout">
+    <aside class="dossier compare-glance reveal" aria-label={`${glanceTitle} at a glance`}>
+      <p class="label"><LabelText text={`${glanceTitle} today`} /></p>
+      <dl class="facts mt-5">
+        {glance.map(([what, value]) => (
+          <div><dt class="label">{what}</dt><dd>{value}</dd></div>
+        ))}
+      </dl>
+      <p class="mt-5 text-sm faint">Checked on {checked}.</p>
+    </aside>
+    <article class="prose compare-prose reveal">
+      <slot />
+    </article>
+  </div>
+
+  <div class="rule"></div>
+
+  <section class="wrap inset compare-section">
+    <SectionHeader label="Side by side" title={`OrbTorrent and ${app},`} tone="compared." />
+    <div class="compare-table-wrap reveal">
+      <table class="compare-table">
+        <caption class="sr-only">How OrbTorrent and {app} compare. A dot marks the better of the two, where one is.</caption>
+        <thead>
+          <tr>
+            <td></td>
+            <th scope="col">OrbTorrent</th>
+            <th scope="col"><LabelText text={app} /></th>
+          </tr>
+        </thead>
+        <tbody>
+          {rows.map((row) => (
+            <tr>
+              <th scope="row">{row.label}</th>
+              <td class:list={[row.better === "ours" && "compare-better"]}>{row.ours}</td>
+              <td class:list={[row.better === "theirs" && "compare-better"]}>{row.theirs}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+    <p class="mt-5 text-sm faint reveal"><span class="compare-better-dot" aria-hidden="true"></span> The better of the two, where one is.</p>
+  </section>
+
+  <section class="wrap inset pb-4">
+    <div class="dossier compare-switch reveal">
+      <div>
+        <p class="label">Switching</p>
+        <h2 class="heading mt-4"><slot name="switch-title" /></h2>
+        <div class="mt-4 muted max-w-xl"><slot name="switch" /></div>
+      </div>
+      <div class="compare-switch-action">
+        <DownloadButton />
+        <p class="mt-4 text-sm faint">Free · macOS 26 or later · Apple silicon and Intel</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="wrap inset compare-section">
+    <SectionHeader label="Questions" title="Good questions." />
+    <div class="mt-10 max-w-3xl">
+      <Faq items={questions} />
+    </div>
+    <p class="mt-12 text-sm faint reveal">
+      Coming from another app? {others.map((page, index) => <>{index > 0 && " or "}<a class="link" href={page.path}>{page.name}</a></>)}.{" "}
+      {trademark}
+    </p>
+  </section>
+</Base>
+
+<style>
+  .compare-layout {
+    display: grid;
+    gap: 3rem;
+    padding-block: clamp(3rem, 7vw, 5rem);
+  }
+  .compare-prose > :global(h2:first-child) { margin-top: 0; }
+  .compare-prose :global(a) { overflow-wrap: anywhere; }
+  .compare-glance { padding: 1.6rem 1.75rem; align-self: start; }
+  @media (min-width: 1024px) {
+    .compare-layout { grid-template-columns: minmax(0, 1fr) 19rem; gap: 6rem; }
+    .compare-glance { position: sticky; top: 6rem; order: 2; }
+  }
+
+  .compare-section { padding-block: clamp(4.5rem, 9vw, 7rem); }
+  .compare-table-wrap { margin-top: 3rem; }
+  .compare-table {
+    width: 100%;
+    border-collapse: collapse;
+    table-layout: fixed;
+    font-size: 0.9375rem;
+  }
+  .compare-table th, .compare-table td {
+    padding: 0.95rem 0.75rem 0.95rem 0;
+    border-bottom: 1px solid var(--line-2);
+    text-align: left;
+    vertical-align: top;
+  }
+  .compare-table thead th {
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    font-weight: 500;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--ink-3);
+    border-bottom-color: var(--ink-3);
+  }
+  .compare-table thead td { border-bottom-color: var(--ink-3); }
+  .compare-table tbody th { font-weight: 500; color: var(--ink); width: 30%; }
+  .compare-table td { color: var(--ink-2); }
+  .compare-table .compare-better { color: var(--ink); }
+  .compare-table .compare-better::before,
+  .compare-better-dot {
+    content: "";
+    display: inline-block;
+    width: 0.45rem;
+    height: 0.45rem;
+    margin-right: 0.45rem;
+    border-radius: 999px;
+    background: #16a061;
+    vertical-align: 0.1em;
+  }
+  @media (max-width: 639px) {
+    .compare-table { font-size: 0.875rem; }
+    .compare-table tbody th { width: 34%; }
+  }
+
+  .compare-switch {
+    display: grid;
+    gap: 2.5rem;
+    padding: clamp(1.75rem, 5vw, 3rem);
+  }
+  @media (min-width: 1024px) {
+    .compare-switch { grid-template-columns: 1.2fr 0.8fr; align-items: center; gap: 4rem; }
+    .compare-switch-action { justify-self: end; text-align: right; }
+  }
+</style>
