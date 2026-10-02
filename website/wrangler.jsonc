@@ -5,7 +5,8 @@
 	"name": "orbtorrent-website",
 	// The site answers at orbtorrent.com once deployed.
 	"routes": [{ "pattern": "orbtorrent.com", "custom_domain": true }],
-	// Answers /download/mac; every other page is a file from the build.
+	// Answers /download/mac and the email sign-up's posts; every other page is
+	// a file from the build.
 	"main": "src/worker.ts",
 	"assets": {
 		"directory": "./dist",
@@ -13,10 +14,26 @@
 		// /docs/hooks is served from docs/hooks.html, and unknown
 		// addresses get the site's own not-found page.
 		"html_handling": "auto-trailing-slash",
-		"not_found_handling": "404-page"
+		"not_found_handling": "404-page",
+		// The sign-up's pages post back to these, so the Worker sees them first.
+		"run_worker_first": ["/subscribe", "/subscribe/confirm", "/unsubscribe"]
 	},
 	// Downloads, counted by the Worker; stats.sh shows them.
 	"analytics_engine_datasets": [{ "binding": "DOWNLOADS", "dataset": "orbtorrent_downloads" }],
+	// The email sign-up (src/lib/newsletter.ts): its list, kept in the EU
+	// (migrations/), the confirmation emails, sent only as hello@, and five
+	// sign-ups a minute from any one visitor.
+	"d1_databases": [
+		{
+			"binding": "DB",
+			"database_name": "orbtorrent-newsletter",
+			"database_id": "54d91a81-0c6c-482d-963c-038bd96d6e42"
+		}
+	],
+	"send_email": [{ "name": "EMAIL", "allowed_sender_addresses": ["hello@orbtorrent.com"] }],
+	"ratelimits": [{ "name": "SIGNUPS", "namespace_id": "1001", "simple": { "limit": 5, "period": 60 } }],
+	// Each day, the addresses no one confirmed within 7 days are deleted.
+	"triggers": { "crons": ["17 3 * * *"] },
 	// Keeps what the Worker logs, but no log of each request and who made it.
 	"observability": {
 		"enabled": true,

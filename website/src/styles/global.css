@@ -185,19 +185,26 @@
     display: inline-flex;
     align-items: center;
     gap: 0.35rem;
-    color: var(--accent);
+    color: var(--ink);
     font-weight: 500;
   }
-  .arrow-link svg { transition: translate 0.25s var(--ease-out-soft); }
+  .arrow-link svg { color: var(--color-blue); transition: translate 0.25s var(--ease-out-soft); }
   .arrow-link:hover svg { translate: 3px 0; }
-  .link {
-    color: var(--accent);
-    text-decoration: underline;
-    text-decoration-color: color-mix(in srgb, var(--accent) 35%, transparent);
-    text-underline-offset: 3px;
+  /* Links in a sentence: ink, underlined dashed like the frame, and solid in
+     the orb's blue on hover. On a night stage, the ink is light. */
+  .link, .prose a {
+    color: var(--ink);
+    text-decoration: underline dashed;
+    text-decoration-thickness: 1px;
+    text-decoration-color: color-mix(in srgb, currentColor 45%, transparent);
+    text-underline-offset: 4px;
     transition: text-decoration-color 0.2s;
   }
-  .link:hover { text-decoration-color: currentColor; }
+  :is(.link, .prose a):hover {
+    text-decoration-style: solid;
+    text-decoration-thickness: 1.5px;
+    text-decoration-color: var(--color-blue);
+  }
 
   .chip {
     display: inline-flex;
@@ -411,7 +418,6 @@
   .prose li { margin-block: 0.45rem; padding-left: 0.2rem; }
   .prose li::marker { color: var(--ink-3); }
   .prose strong { color: var(--ink); font-weight: 600; }
-  .prose a { color: var(--accent); text-decoration: underline; text-underline-offset: 3px; text-decoration-color: color-mix(in srgb, var(--accent) 35%, transparent); }
 }
 
 /* Things that appear as they scroll into view. */

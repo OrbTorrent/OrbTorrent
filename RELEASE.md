@@ -3,25 +3,26 @@
 Everything between today and OrbTorrent's first public release, in order.
 Planned on 29 September 2026. Features are done: this is the work of getting
 OrbTorrent safely onto other people's Macs and keeping it up to date there.
-"You" marks steps only the owner can do. For features after 1.0, see
-[ROADMAP.md](ROADMAP.md).
+"You" marks steps only the owner can do. What's done and what's left is
+tracked in [CHECKLIST.md](CHECKLIST.md); this file has the details. For
+features after 1.0, see [ROADMAP.md](ROADMAP.md).
 
 ## 1. Decisions
 
-- [x] **Bundle ID:** `com.orbtorrent.mac`, and `com.orbtorrent.mac.dev`
+- **Bundle ID:** `com.orbtorrent.mac`, and `com.orbtorrent.mac.dev`
   for OrbTorrent Dev. Chosen before anyone else installs the app, because
   after release a new bundle ID would wipe every user's settings, Keychain
   items and permissions.
-- [ ] **Apple Developer Program,** applied for on 29 September 2026; waiting
+- **Apple Developer Program,** applied for on 29 September 2026; waiting
   for Apple to verify, then the agreement and the US$99 payment. (You)
-- [x] **Where the code lives:** the personal account, as
+- **Where the code lives:** the personal account, as
   `github.com/sanjevirau/OrbTorrent`. It can move to a GitHub organisation
   later. So nothing breaks then, anything built into the app, above all the
   update feed, goes on a domain we control, not a GitHub address: the Develop
   tab's guides and llms.txt link to orbtorrent.com/docs.
-- [x] **Copyright owner:** Sanjevi Rau, personally. "Copyright © 2026 Sanjevi
+- **Copyright owner:** Sanjevi Rau, personally. "Copyright © 2026 Sanjevi
   Rau" is in the About window, the app's Info.plist and the README.
-- [x] **Domain: `orbtorrent.com`,** bought on 29 September 2026 through
+- **Domain: `orbtorrent.com`,** bought on 29 September 2026 through
   Cloudflare Registrar, on the owner's Cloudflare account. Its DNS is on
   Cloudflare, the registrar lock is on and the owner's details are hidden
   from public lookups. It expires on 29 September 2027, and auto-renew is off,
@@ -30,7 +31,7 @@ OrbTorrent safely onto other people's Macs and keeping it up to date there.
   goes at `orbtorrent.com`. `help@orbtorrent.com` forwards to the owner's
   Gmail through Cloudflare Email Routing, set up on 29 September 2026 and
   tested on 1 October 2026 with an email from another inbox.
-- [x] **Counting users:** anonymous counts with the daily update check, no
+- **Counting users:** anonymous counts with the daily update check, no
   ID (`AnonymousCounts.swift`): the version, macOS, chip, install week, first
   check ever, this week and this month, and unexpected quits of the app and
   the engine. On unless turned off in Settings, which shows exactly what's
@@ -41,10 +42,10 @@ OrbTorrent safely onto other people's Macs and keeping it up to date there.
   how it's used: an opt-in for that (features, downloads, opened or not) was
   built and taken out again for launch, as these answer what matters. Add it
   only if a question comes up that they can't.
-- [ ] **Say what's counted at launch,** in the first release's notes and the
+- **Say what's counted at launch,** in the first release's notes and the
   announcement, pointing to orbtorrent.com/privacy#counts, rather than let
   someone find it.
-- [x] **Hold the name "OrbTorrent":** the domain, the GitHub organisation
+- **Hold the name "OrbTorrent":** the domain, the GitHub organisation
   `orbtorrent` (github.com/orbtorrent, owner's personal account as admin,
   holding the name; the code stays at `sanjevirau/OrbTorrent` for now), and
   the npm organisation `orbtorrent`, which reserves the `@orbtorrent` scope
@@ -52,7 +53,7 @@ OrbTorrent safely onto other people's Macs and keeping it up to date there.
 
 ## 2. Foundation
 
-- [x] **Change the bundle ID everywhere.** Done on 29 September 2026. The
+- **Change the bundle ID everywhere.** Done on 29 September 2026. The
   owner's settings and the VirusTotal key moved from
   `io.github.sanjevirau.OrbTorrent` on the first launch
   (`IdentityMigration.swift`); the library didn't need to, since its folder is
@@ -60,7 +61,7 @@ OrbTorrent safely onto other people's Macs and keeping it up to date there.
   app for magnet links and .torrent files again, and "Open OrbTorrent when you
   log in" turned back on, and the old login item
   (`io.github.sanjevirau.OrbTorrent`) removed in System Settings.
-- [x] **Split Dev from the daily app.**
+- **Split Dev from the daily app.**
 
   | | OrbTorrent (daily) | OrbTorrent Dev |
   |---|---|---|
@@ -86,7 +87,7 @@ OrbTorrent safely onto other people's Macs and keeping it up to date there.
     has, or two engines would work on the same files.
   - Turn on "Download only through a VPN" while the daily app has it on, or
     both would ask the VPN for its one forwarded port.
-- [x] **Sign with a certificate.** `make` signs with the first certificate in
+- **Sign with a certificate.** `make` signs with the first certificate in
   the Keychain: for OrbTorrent a "Developer ID Application" one, else "Apple
   Development"; for Dev "Apple Development". For now that's the owner's
   personal Apple Development certificate. Before this, builds
@@ -95,13 +96,13 @@ OrbTorrent safely onto other people's Macs and keeping it up to date there.
   access again after each rebuild. Now it knows the app by its bundle ID and
   certificate. It will ask once more when builds move to Developer ID
   certificates.
-- [x] **First commit and push** to the private repo
+- **First commit and push** to the private repo
   `github.com/sanjevirau/OrbTorrent`, on 29 September 2026. Whether it goes
   public is decided later.
 
 ## 3. What the release needs
 
-- [x] **Automatic updates** with Sparkle 2.10, done on 29 September 2026.
+- **Automatic updates** with Sparkle 2.10, done on 29 September 2026.
   It has to be in the first release, since people can only get the updater
   through an update.
   - **In the app:** a check once a day, "Check for Updates…" in the app menu
@@ -145,22 +146,22 @@ OrbTorrent safely onto other people's Macs and keeping it up to date there.
     the anonymous counts, downloaded build 5 and showed "1.0 beta 5 is
     ready"; with no one at the Mac it restarted 66 s later into build 5, in
     the menu bar only, and What's New showed when the window opened.
-- [x] **Back up the update key:** in the owner's password manager, since 29
+- **Back up the update key:** in the owner's password manager, since 29
   September 2026. On a new Mac, `build/sparkle/bin/generate_keys --account
   orbtorrent -f <file>` puts it back in the Keychain.
-- [x] **About window,** from the app menu, the menu bar's ⋯ menu and
+- **About window,** from the app menu, the menu bar's ⋯ menu and
   Settings → About. It shows the orb, the version, the copyright and the GPL
   notice (free software, no warranty). Acknowledgements lists OrbTorrent,
   qBittorrent, libtorrent, Qt, OpenSSL and Boost, each with its version and
   licence text, from the Licenses folder the build embeds. Privacy has the
   note below, and Source Code links to the repo. A Sponsor link can come once
   GitHub Sponsors is set up.
-- [x] **Help menu:** What's New, and Report a Problem, which is also in the
+- **Help menu:** What's New, and Report a Problem, which is also in the
   menu bar's ⋯ menu. The report shows OrbTorrent's, macOS's and the engine's
   versions and the Mac, and optionally the engine's last 60 log lines with IP
   addresses and the user name hidden, then opens the person's mail app
   addressed to `help@orbtorrent.com`. Nothing is sent on its own.
-- [x] **Extension SDK on npm,** so anyone can build extensions with
+- **Extension SDK on npm,** so anyone can build extensions with
   `npm create @orbtorrent/extension@latest <name>`: `@orbtorrent/api` (the API and
   the `orb` tool) and `@orbtorrent/create-extension`, 1.0.0, published by the
   owner on 29 September 2026. Both are MIT licensed, so extensions can use any
@@ -168,7 +169,7 @@ OrbTorrent safely onto other people's Macs and keeping it up to date there.
   `npm create`. Tested first from a stand-in registry outside the repo (both
   templates made, installed, tested, built, linted and packaged, and one run
   on a download in OrbTorrent Dev), then again from npm itself once live.
-- [x] **Trusted publishing for the SDK,** set up by the owner on 29
+- **Trusted publishing for the SDK,** set up by the owner on 29
   September 2026: both packages trust GitHub Actions in
   `sanjevirau/OrbTorrent`, workflow `sdk.yml`, and their publishing access
   requires two-factor authentication and disallows tokens. So `sdk-v*` tags
@@ -179,7 +180,7 @@ OrbTorrent safely onto other people's Macs and keeping it up to date there.
   added again, then a test run got a publishing token for each without
   publishing. Do the same if the repo moves to the `orbtorrent`
   organisation, and change the packages' `repository` to match.
-- [x] **Building extensions with AI,** on 29 September 2026. The Develop tab
+- **Building extensions with AI,** on 29 September 2026. The Develop tab
   has the development switch as a slim row on top, then **Build an
   Extension** with a With AI / Yourself toggle, then what's in development,
   with the guides and agent files in one Resources panel. With AI: the user
@@ -197,7 +198,7 @@ OrbTorrent safely onto other people's Macs and keeping it up to date there.
   1.0.3 were published by GitHub Actions through trusted publishing the same
   day, the first releases from CI. Later, once the repo is public: the Agent
   Skill through `npx skills add`, and the docs on Context7.
-- [x] **Fake Download Check, sharpened,** on 1 October 2026. Of 25 tricky
+- **Fake Download Check, sharpened,** on 1 October 2026. Of 25 tricky
   downloads it got 2 right: it held Mac apps with "4K", "HDR" or "Blu-ray" in
   their names, RARBG releases, scene releases of *Passengers* and *Key Largo*,
   and coding courses, and missed fakes named without a quality, programs in
@@ -207,11 +208,11 @@ OrbTorrent safely onto other people's Macs and keeping it up to date there.
   extension host. Still beyond names and sizes: a fake with believable ones,
   which needs reading files after they arrive (a new extension API) or release
   dates from a film database (see ROADMAP.md).
-- [x] **Help menu:** OrbTorrent Help (the docs, ⌘?), Troubleshooting and the
+- **Help menu:** OrbTorrent Help (the docs, ⌘?), Troubleshooting and the
   website, all on orbtorrent.com. The Develop tab links the extension docs.
-- [ ] **A GitHub issue as another way to report,** from Report a Problem, once
+- **A GitHub issue as another way to report,** from Report a Problem, once
   the repo is public.
-- [x] **Privacy note,** in the About window, the README and the website.
+- **Privacy note,** in the About window, the README and the website.
   OrbTorrent knows nothing about you, counts only anonymously (see Counting
   users), and contacts only peers and
   trackers, the public tracker list (while "Find more peers for public
@@ -220,7 +221,7 @@ OrbTorrent safely onto other people's Macs and keeping it up to date there.
   for an update, and download.db-ip.com once a month for the country
   database behind peers' flags in the Peers tab
   (`Connection\ResolvePeerCountries`), credited in Acknowledgements.
-- [x] **Clean-up:**
+- **Clean-up:**
   - Removed the Floe and bundle ID migrations and their tests.
   - The version is 1.0. Betas are 1.0 with rising build numbers
     (`CURRENT_PROJECT_VERSION`), called "1.0 beta N" in their release titles,
@@ -230,20 +231,20 @@ OrbTorrent safely onto other people's Macs and keeping it up to date there.
 
 ## 4. Signing and notarization
 
-- [ ] **Developer ID Application certificate and an App Store Connect API
+- **Developer ID Application certificate and an App Store Connect API
   key** for notarization, once the developer account is approved. (You, with
   help)
-- [ ] **CI signs and notarizes each release.** The certificate, its password,
+- **CI signs and notarizes each release.** The certificate, its password,
   the API key and the update key go in GitHub secrets. CI signs the app, the
   engine (`qbittorrent-nox`) and the extension helper (`orb-extension-host`)
   with the hardened runtime, which is already on. `scripts/make-dmg.sh` then
   signs, notarizes and staples the disk image; it already takes
   `SIGN_IDENTITY` and `NOTARY_PROFILE`. Check the result with
   `spctl --assess` and `stapler validate`.
-- [ ] **First notarized build.** Fix whatever Apple flags; the extra
+- **First notarized build.** Fix whatever Apple flags; the extra
   programs inside the app are the usual suspects. Sparkle's helpers are
   already re-signed with the app's certificate and the hardened runtime.
-- [ ] **CI publishes updates too,** once it notarizes: the update key and a
+- **CI publishes updates too,** once it notarizes: the update key and a
   Cloudflare API token that can only write the feed's KV namespace go in
   GitHub secrets, and a job runs `scripts/publish-update.sh` when a release
   is published. Until then, publish from the owner's Mac.
@@ -262,26 +263,26 @@ automatically.
 
 ## 5. Testing
 
-- [ ] **Fresh user account:** download from GitHub like a stranger would.
+- **Fresh user account:** download from GitHub like a stranger would.
   Then go through Gatekeeper (it must open without warnings), the welcome,
   importing from Transmission and qBittorrent, a magnet link and a .torrent
   file, the VPN, extensions, notifications, start at login, quitting and
   relaunching, and uninstalling.
-- [x] **Intel,** on 1 October 2026, under Rosetta on the owner's Mac.
+- **Intel,** on 1 October 2026, under Rosetta on the owner's Mac.
   OrbTorrent Dev's universal build ran as Intel, the engine too, and the
   engine connected and seeded. All 167 tests passed as Intel as well as on
   Apple silicon, after one fix: under Rosetta, extensions' CPU limit let them
   run about 42 times too long, because `mach_timebase_info` reports Intel's
   clock ticks while CPU times stay in Apple silicon's. It now reads the
   hardware's own (`hw.tbfrequency`), which is right on both.
-- [ ] **Updating:** install beta 1, publish beta 2, and confirm it updates
+- **Updating:** install beta 1, publish beta 2, and confirm it updates
   without asking for any permission or Keychain access again.
-- [ ] **Daily use:** the owner's daily app becomes the signed release build
+- **Daily use:** the owner's daily app becomes the signed release build
   for a few days. (You)
 
 ## 6. Going public
 
-- [x] **Ready to go public,** on 1 October 2026. Making the repo public now
+- **Ready to go public,** on 1 October 2026. Making the repo public now
   needs nothing else:
   - The build workflow builds every push and pull request once the repo is
     public, and skips them while it's private, since macOS runners use a
@@ -299,17 +300,25 @@ automatically.
   - Issue forms for problems and ideas, and a pull request template.
   - The README says the name OrbTorrent and the orb icon aren't covered by the
     GPL (its section 7(e)), so forks must use their own.
-- [ ] **A simple website** at `orbtorrent.com`: download, screenshots,
-  requirements, privacy. Cloudflare Pages, since the domain is there, with
-  Cloudflare Web Analytics.
-- [ ] **Public beta:** make the repo public, so its releases' disk images can
+- **The website** at `orbtorrent.com`, built on 2 October 2026: the
+  homepage, download, switch, extensions, FAQ, privacy and press pages, and
+  the docs, on Cloudflare (Workers static assets, `website/`), with
+  Cloudflare Web Analytics and downloads counted, and an email sign-up for
+  1.0 (website/AGENTS.md). Deployed with the beta.
+- **Public beta:** make the repo public, so its releases' disk images can
   be downloaded (You), then a GitHub release, posted on r/macapps, quietly.
   Then fixes, shipped through the updater. See [LAUNCH.md](LAUNCH.md).
-- [ ] **1.0,** the big launch, at least 30 days after the beta's r/macapps
+- **1.0,** the big launch, at least 30 days after the beta's r/macapps
   post, since r/macapps allows one a month. Everything about it is in
   [LAUNCH.md](LAUNCH.md).
-- [ ] **Homebrew cask.** Homebrew has a popularity bar for new casks and
-  expects them to pass Gatekeeper, so this may come a little after launch.
+- **Homebrew.** From beta 1, our own tap, `orbtorrent/homebrew-tap`:
+  `brew install orbtorrent/tap/orbtorrent`. The cask comes from
+  `scripts/homebrew-tap.sh`, tested on 2 October 2026 by installing,
+  `livecheck` and uninstalling a local build, and
+  `.github/workflows/homebrew.yml` updates it as each release is published,
+  pushing with a deploy key of the tap. The official cask, for plain `brew
+  install orbtorrent`, needs a popularity bar and a pass from Gatekeeper, so
+  it comes after launch.
 
 ## After 1.0
 

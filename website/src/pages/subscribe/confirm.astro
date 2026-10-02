@@ -1,0 +1,17 @@
+---
+// Where the link in the confirmation email leads. The page confirms by
+// posting back to its own address, with the link's token, so a mail scanner
+// opening the link confirms nothing; with JavaScript it posts by itself.
+import SignUpStep from "../../components/SignUpStep.astro";
+---
+
+<SignUpStep title="Confirm your email" label="One more step" heading="Confirm your email." orb={{ kind: "idle" }} tint="#3885ff">
+  <p>So we know it was you who asked to hear about OrbTorrent's big releases.</p>
+  <form slot="actions" method="post" data-confirm>
+    <button class="btn btn-light" type="submit">Confirm my email</button>
+  </form>
+</SignUpStep>
+
+<script>
+  document.querySelector<HTMLFormElement>("form[data-confirm]")?.requestSubmit();
+</script>

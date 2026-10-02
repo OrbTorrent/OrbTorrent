@@ -4,7 +4,9 @@ How OrbTorrent goes from a finished, notarized app to people actually using
 it: what we say, where we say it, and in what order. Researched on 29
 September 2026; rules and contacts were checked on the day, with sources at
 the end. [RELEASE.md](RELEASE.md) covers getting the app ready; this file
-starts where it ends. "You" marks steps only the owner can do. Times are in
+starts where it ends. "You" marks steps only the owner can do, and "Me" is
+Claude. What's done and what's left, in order, is tracked in
+[CHECKLIST.md](CHECKLIST.md); this file is the plan behind it. Times are in
 Malaysia time (MYT).
 
 ## The short version
@@ -76,31 +78,32 @@ How we talk about it:
 
 None of the loud launch happens until all of these are true:
 
-- [ ] **Notarized and stapled,** and opens on a fresh Mac with no warning.
+- **Notarized and stapled,** and opens on a fresh Mac with no warning.
   Homebrew also requires this: since September 2026 it disables casks that
   fail Gatekeeper. (RELEASE.md, section 4)
-- [ ] **Updates proven:** a beta has updated itself to the next one on other
+- **Updates proven:** a beta has updated itself to the next one on other
   people's Macs, without asking for permissions again.
-- [ ] **Importing tested** from Transmission and qBittorrent in a fresh user
+- **Importing tested** from Transmission and qBittorrent in a fresh user
   account. It's where switchers start.
-- [ ] **Port forwarding tried on a paid Proton VPN plan.** It's a headline
+- **Port forwarding tried on a paid Proton VPN plan.** It's a headline
   claim, and so far it's tested against a Proton-style gateway, not Proton's
   own servers. Until then, the launch copy says "Proton-style NAT-PMP" rather
   than naming Proton.
-- [ ] **The repo is public,** with a README that opens with a short video or
+- **The repo is public,** with a README that opens with a short video or
   GIF, the download and the `brew install` line. Its clean history, issue
   forms and contribution rules are ready. (RELEASE.md, section 6)
-- [ ] **The engine's source is easy to find:** each release says which
+- **The engine's source is easy to find:** each release says which
   qBittorrent, libtorrent and Qt versions it contains and links the build
-  scripts, as their licences ask.
-- [ ] **Screenshots show a full library,** 20 or so downloads. Hacker News
+  scripts, as their licences ask. CI writes this into every release's notes
+  (`scripts/engine-notes.sh`), with the sources attached.
+- **Screenshots show a full library,** 20 or so downloads. Hacker News
   criticised another torrent app's Show HN for showing only two or three at a
   time.
-- [ ] **Answers ready** for the questions in section 7.
+- **Answers ready** for the questions in section 7.
 
 ## 3. What to make
 
-- [ ] **The website, orbtorrent.com,** on Cloudflare (Workers static assets)
+- **The website, orbtorrent.com,** on Cloudflare (Workers static assets)
   with Cloudflare Web Analytics (no cookies):
   - the one-line pitch, a 30 to 60 second video, and Download next to
     `brew install orbtorrent/tap/orbtorrent`;
@@ -108,33 +111,35 @@ None of the loud launch happens until all of these are true:
     a calm, factual comparison with Transmission and qBittorrent;
   - privacy, and how to uninstall;
   - an FAQ: Is it safe? Is it legal? Why is it free? Why macOS 26?
-  - an email sign-up, "Tell me when 1.0 is out", through a privacy-friendly
-    newsletter service, and listed in the privacy note;
+  - an email sign-up, "Hear about big releases", in the footer, confirmed by
+    email, without tracking, and on the privacy page (built 2 October 2026;
+    the 1.0 email itself goes through a newsletter service, CHECKLIST.md §8);
   - pages people search for: "Transmission alternative for Mac",
     "qBittorrent for Mac", "µTorrent alternative for Mac", and a how-to, "Port
     forwarding with Proton VPN on a Mac", which answers a real, recurring
     question.
-- [ ] **A press page, orbtorrent.com/press,** open to everyone:
+- **A press page, orbtorrent.com/press,** open to everyone:
   - a fact sheet: name, version, price (free), macOS 26 or later, universal,
     GPL, developer, website, contact;
   - a short and a long description;
   - 6 to 10 screenshots, the icon at full size, the video;
   - a few lines about you, with a photo;
   - how to uninstall.
-- [ ] **`press@orbtorrent.com`,** forwarding like help@, so press mail stands
+- **`press@orbtorrent.com`,** forwarding like help@, so press mail stands
   out.
-- [ ] **The video** (you record it; I can script it). 30 to 60 seconds: a
+- **The video** (you record it; I can script it). 30 to 60 seconds: a
   magnet link opening, the menu bar panel, the VPN cutting off and coming
   back, a fake download being held, the import. Also cut as a GIF for the
   README. (You)
-- [ ] **A technical write-up,** "How OrbTorrent is built": a SwiftUI app
+- **A technical write-up,** "How OrbTorrent is built": a SwiftUI app
   driving qBittorrent's engine, the extension sandbox, and signed updates
   through Sparkle and a Cloudflare Worker. It's what developer newsletters,
   Lobsters and the Show HN first comment can link to.
-- [ ] **Our own Homebrew tap,** `github.com/orbtorrent/homebrew-tap`, so `brew
-  install orbtorrent/tap/orbtorrent` works from day one. The official
-  Homebrew cask comes later (section 4).
-- [ ] **Hold the handles:** (You)
+- **Our own Homebrew tap,** `github.com/orbtorrent/homebrew-tap`, so `brew
+  install orbtorrent/tap/orbtorrent` works from day one. The cask is written
+  and tested (`scripts/homebrew-tap.sh`), and CI updates it as each release
+  is published. The official Homebrew cask comes later (section 4).
+- **Hold the handles:** (You)
   - Bluesky: `@orbtorrent.com`, set by a DNS record on Cloudflare, which
     also shows it's the real one;
   - Mastodon: `@orbtorrent@indieapps.space`, a server only for indie apps;
@@ -158,30 +163,30 @@ summer time, everything US-based comes an hour earlier in MYT.
 
 ### Now, while Apple reviews
 
-- [ ] Hold the handles (section 3). (You)
-- [ ] **Reddit:** from your personal account, take part in r/macapps and
+- Hold the handles (section 3). (You)
+- **Reddit:** from your personal account, take part in r/macapps and
   r/swift for real: answer questions, especially Mac and VPN port-forwarding
   ones. r/macapps needs 10 karma earned in r/macapps before you can promote
   anything there. r/swift needs an account at least 60 days old, and
   self-promotion under 5% of what you post. (You)
-- [ ] **Hacker News:** comment now and then from the account you'll post
+- **Hacker News:** comment now and then from the account you'll post
   with, so it isn't brand new on the day. New accounts show in green for their
   first two weeks. (You)
-- [ ] **AlternativeTo:** make an account now. New accounts wait before they
+- **AlternativeTo:** make an account now. New accounts wait before they
   can suggest apps, and free review can take a long time. (You)
-- [ ] **Show the work in progress** once or twice a week on Bluesky, Mastodon
+- **Show the work in progress** once or twice a week on Bluesky, Mastodon
   and X: a short clip of the orb, the menu bar, the VPN cut-off, the Fake
   Download Check. Each post points to the email sign-up. (You post; I can
   help write)
-- [ ] The website, press page, email sign-up and Homebrew tap. (Me; you
+- The website, press page, email sign-up and Homebrew tap. (Me; you
   review)
-- [ ] The technical write-up. (Me; you review)
+- The technical write-up. (Me; you review)
 
 ### The beta (quiet)
 
-- [ ] Beta 1 on GitHub, the website's Download button and the Homebrew tap
+- Beta 1 on GitHub, the website's Download button and the Homebrew tap
   switched on.
-- [ ] **Audit the live website,** once it's deployed. (Me)
+- **Audit the live website,** once it's deployed. (Me)
   - Lighthouse, on mobile and desktop, for each kind of page: the homepage,
     download, extensions, FAQ, the docs' home and a long docs page.
   - SEO: the sitemap submitted to Google Search Console and Bing Webmaster
@@ -193,14 +198,14 @@ summer time, everything US-based comes an hour earlier in MYT.
     after a few days, Core Web Vitals from real visits in Web Analytics.
   - That each page loads the analytics script once, and the Download button
     gives the disk image and is counted by `website/stats.sh`.
-- [ ] **Tell a few people:**
+- **Tell a few people:**
   - the email list;
   - r/macapps, as a request for feedback. Title starts with `[OS]` (open
     source), with the Free flair and their developer post template (PCP). This
     starts the 30-day clock;
   - your Bluesky, Mastodon and X.
   - No Hacker News, press, Product Hunt or GitHub lists yet. (You post)
-- [ ] **Collect:**
+- **Collect:**
   - bugs, fixed through the updater;
   - the questions people ask, which become the FAQ;
   - quotes from happy users, used with their permission;
@@ -208,7 +213,7 @@ summer time, everything US-based comes an hour earlier in MYT.
 
 ### Two to three weeks before 1.0
 
-- [ ] **Pitch the press,** with a link to the notarized beta, the press page
+- **Pitch the press,** with a link to the notarized beta, the press page
   and an embargo: "Please don't publish before Tuesday <date> at 9:00 US
   Eastern (22:00 MYT)". (You send; I draft)
   - Keep each email under 150 words, personal, and in plain text: the
@@ -218,11 +223,11 @@ summer time, everything US-based comes an hour earlier in MYT.
   - Not on a Monday, and not on an Apple event day.
   - Follow up once, about a week later, as a short reply to the first email,
     with something new. Never mention that other sites are covering it.
-- [ ] **Pitch the newsletters** (section 5).
-- [ ] **Write every launch post in advance:** the Show HN title and first
+- **Pitch the newsletters** (section 5).
+- **Write every launch post in advance:** the Show HN title and first
   comment, the r/macapps post, the r/apple Sunday post, the r/SideProject
   story, and the social posts. (Me; you review)
-- [ ] **A final check:** a fresh download from the website on a clean Mac,
+- **A final check:** a fresh download from the website on a clean Mac,
   the feed, help@ and press@. (Me)
 
 ### Launch day (a Tuesday)

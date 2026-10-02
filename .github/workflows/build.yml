@@ -69,5 +69,16 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
+          # GitHub's notes, then the engine's versions, with what changed
+          # since the release before.
+          previous="$(gh release list --exclude-drafts --limit 1 --json tagName --jq '.[0].tagName // empty')"
+          if [[ -n "$previous" ]]; then git fetch --depth 1 origin tag "$previous"; fi
+          {
+            gh api "repos/$GITHUB_REPOSITORY/releases/generate-notes" -f tag_name="$GITHUB_REF_NAME" --jq .body
+            echo
+            scripts/engine-notes.sh $previous
+          } > build/release-notes.md
+          # v1.0-beta.2 is "OrbTorrent 1.0 beta 2".
+          version="${GITHUB_REF_NAME#v}"
           gh release create "$GITHUB_REF_NAME" build/*.dmg engine/.cache/*.tar.* \
-            --title "OrbTorrent ${GITHUB_REF_NAME#v}" --generate-notes --draft
+            --title "OrbTorrent ${version/-beta./ beta }" --notes-file build/release-notes.md --draft

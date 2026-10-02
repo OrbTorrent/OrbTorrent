@@ -1,0 +1,11 @@
+---
+// Where the sign-up goes without JavaScript when it didn't work: a wrong
+// address, too many tries, or the email couldn't be sent.
+import SignUp from "../../components/SignUp.astro";
+import SignUpStep from "../../components/SignUpStep.astro";
+---
+
+<SignUpStep title="That didn't work" label="Not signed up" heading="That didn't work." orb={{ kind: "failed", progress: 0.35 }} tint="#ff4040">
+  <p>Check the address, or wait a minute and try again.</p>
+  <SignUp slot="actions" id="problem-signup" tone="night" />
+</SignUpStep>

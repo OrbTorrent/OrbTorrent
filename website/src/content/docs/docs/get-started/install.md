@@ -23,6 +23,16 @@ OrbTorrent is built with this year's SwiftUI and Liquid Glass, so it can't run o
 
 Every release is notarized by Apple, and every update is signed. If macOS won't open OrbTorrent, see [Troubleshooting](/docs/help/troubleshooting#macos-wont-open-orbtorrent).
 
+## With Homebrew
+
+If you use [Homebrew](https://brew.sh), install OrbTorrent from its tap instead:
+
+```sh
+brew install orbtorrent/tap/orbtorrent
+```
+
+OrbTorrent still updates itself, so `brew upgrade` leaves it alone unless you add `--greedy`. To uninstall it, `brew uninstall orbtorrent`, and [Uninstall OrbTorrent](/docs/help/uninstall#with-homebrew) has the rest.
+
 ## The first time it opens
 
 A short welcome walks you through setting up:

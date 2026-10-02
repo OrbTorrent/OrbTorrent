@@ -1,5 +1,12 @@
 ---
 import { site } from "../lib/site";
+import SignUp from "./SignUp.astro";
+
+interface Props {
+  /** The email sign-up, except on its own pages. */
+  signUp?: boolean;
+}
+const { signUp = true } = Astro.props;
 
 const columns = [
   {
@@ -39,6 +46,15 @@ const columns = [
 <footer class="footer">
   <div class="rule"></div>
   <div class="wrap inset pt-16">
+    {signUp && (
+      <div class="footer-signup panel mb-16">
+        <div>
+          <h2 class="text-xl font-medium tracking-tight">Hear about big releases.</h2>
+          <p class="mt-1.5 text-[0.9375rem] muted">We'll only email you when a big new version is out. <a class="link" href="/privacy#emails">No tracking</a>, ever.</p>
+        </div>
+        <SignUp id="footer-signup" />
+      </div>
+    )}
     <div class="grid grid-cols-2 gap-x-6 gap-y-12 md:grid-cols-[1.5fr_repeat(3,1fr)]">
       <div class="col-span-2 max-w-xs md:col-span-1">
         <a href="/" class="flex items-center gap-2.5 font-semibold tracking-tight text-[1.0625rem]">
@@ -69,6 +85,15 @@ const columns = [
 
 <style>
   .footer { margin-top: 6rem; overflow: hidden; }
+  .footer-signup {
+    display: grid;
+    gap: 1.5rem;
+    align-items: center;
+    padding: clamp(1.5rem, 4vw, 2.25rem);
+  }
+  @media (min-width: 900px) {
+    .footer-signup { grid-template-columns: 1fr minmax(20rem, 26rem); }
+  }
   /* The name, set huge and cut off by the page's end. */
   .wordmark {
     margin-top: 2.5rem;

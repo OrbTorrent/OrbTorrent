@@ -1,0 +1,9 @@
+---
+import SignUpStep from "../../components/SignUpStep.astro";
+---
+
+<SignUpStep title="You're on the list" label="Confirmed" heading="You're on the list." orb={{ kind: "finished" }} tint="#33d98c">
+  <p>We'll email you only when there's a big new version. Every email has a link to unsubscribe.</p>
+  <a slot="actions" href="/download" class="btn btn-light">Get OrbTorrent now</a>
+  <a slot="actions" href="/" class="btn btn-ghost-night">Back to OrbTorrent</a>
+</SignUpStep>

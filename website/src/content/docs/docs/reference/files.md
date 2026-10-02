@@ -34,6 +34,8 @@ To open it, choose **Go › Go to Folder…** in Finder and enter `~/Library/App
 | **OrbTorrent's own settings** | `~/Library/Preferences/com.orbtorrent.mac.plist` |
 | **Extension passwords and API keys** | Your login Keychain |
 | **The official extensions** | Inside OrbTorrent, in `OrbTorrent.app/Contents/Resources/Extensions` |
+| **Caches, such as a downloaded update** | `~/Library/Caches/com.orbtorrent.mac` and `~/Library/HTTPStorages/com.orbtorrent.mac` |
+| **The sandbox extensions run in** | `~/Library/Containers/com.orbtorrent.mac.extension-host`, which macOS makes |
 | **Pieces of files you skipped** | A hidden `.<info hash>.parts` file in the download's folder |
 
 The `.parts` file holds the pieces a skipped file shares with files you're downloading, which BitTorrent needs to check them. It goes with the download's files when you remove them too.

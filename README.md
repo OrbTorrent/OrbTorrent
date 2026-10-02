@@ -158,12 +158,21 @@ and a line on what it does.
    or qBittorrent, and to become your default torrent app.
 
 OrbTorrent needs macOS 26 (Tahoe) or later, on Apple silicon or Intel.
+Or install it with [Homebrew](https://brew.sh):
 
-Every release is notarized by Apple, and every update is signed.
+```sh
+brew install orbtorrent/tap/orbtorrent
+```
 
-To uninstall, quit OrbTorrent and drag it to the Trash. Your library and
-settings are in `~/Library/Application Support/OrbTorrent`, if you'd like
-them gone too. Your downloaded files stay where they are.
+
+Every release is notarized by Apple, and every update is signed. OrbTorrent
+updates itself, including when Homebrew installed it.
+
+To uninstall, quit OrbTorrent and drag it to the Trash, or
+`brew uninstall orbtorrent`. Your library and settings are in
+`~/Library/Application Support/OrbTorrent`, if you'd like them gone too
+(`brew uninstall --zap orbtorrent` removes them). Your downloaded files stay
+where they are.
 
 ## Privacy
 

@@ -18,11 +18,23 @@ To leave nothing behind, also delete:
 |---|---|
 | **Your library, the engine's files, logs and extensions** | `~/Library/Application Support/OrbTorrent` |
 | **OrbTorrent's settings** | `~/Library/Preferences/com.orbtorrent.mac.plist` |
+| **Caches, such as a downloaded update** | `~/Library/Caches/com.orbtorrent.mac` and `~/Library/HTTPStorages/com.orbtorrent.mac` |
+| **The sandbox extensions run in** | `~/Library/Containers/com.orbtorrent.mac.extension-host` and `~/Library/Application Scripts/com.orbtorrent.mac.extension-host` |
 | **Extension passwords and API keys** | In **Keychain Access**, search for "OrbTorrent" |
 
 To get to the folders, choose **Go › Go to Folder…** in Finder and paste the path.
 
 If you'd made OrbTorrent your default torrent app, choose another in its own settings, and remove OrbTorrent from **System Settings › General › Login Items & Extensions** if it's still listed.
+
+## With Homebrew
+
+If you installed OrbTorrent with Homebrew, uninstall it with Homebrew too:
+
+```sh
+brew uninstall orbtorrent
+```
+
+To remove everything else as well, add `--zap`: `brew uninstall --zap orbtorrent` deletes everything in the table above, except the passwords in your Keychain.
 
 ## Your downloads
 

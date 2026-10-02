@@ -1,9 +1,10 @@
 name: Website
 
 # Builds orbtorrent.com and its docs when they change: type-checks the code,
-# builds every page, checks every link between docs pages, and checks that the
-# API reference covers every export of @orbtorrent/api. Deploying is by hand,
-# with `npm run deploy` in website/, until the first release.
+# tests the email sign-up, builds every page, checks every link between docs
+# pages, and checks that the API reference covers every export of
+# @orbtorrent/api. Deploying is by hand, with `npm run deploy` in website/,
+# until the first release.
 
 on:
   pull_request:
@@ -42,8 +43,14 @@ jobs:
       - name: Install
         run: npm ci --no-audit --no-fund
 
+      - name: Build the emails, and check them
+        run: npm run emails && npx tsc -p emails
+
       - name: Type-check
         run: npx astro check
+
+      - name: Test the email sign-up
+        run: npm test
 
       - name: Build, and check the docs' links
         run: npx astro build

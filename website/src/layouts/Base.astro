@@ -14,8 +14,12 @@ interface Props {
   image?: string;
   imageAlt?: string;
   noindex?: boolean;
+  /** Cloudflare Web Analytics counts the page; not for pages whose address is private. */
+  analytics?: boolean;
+  /** The email sign-up in the footer. */
+  signUp?: boolean;
 }
-const seo = Astro.props;
+const { analytics = true, signUp = true, ...seo } = Astro.props;
 ---
 
 <!doctype html>
@@ -37,7 +41,7 @@ const seo = Astro.props;
     <link rel="manifest" href="/site.webmanifest" />
     <link rel="sitemap" href="/sitemap-index.xml" />
     <slot name="head" />
-    <Analytics />
+    {analytics && <Analytics />}
   </head>
   <body>
     <a href="#main" class="skip">Skip to content</a>
@@ -46,7 +50,7 @@ const seo = Astro.props;
     <main id="main">
       <slot />
     </main>
-    <Footer />
+    <Footer signUp={signUp} />
     <DownloadStarted />
     <script>
       // Things appear as they scroll into view.

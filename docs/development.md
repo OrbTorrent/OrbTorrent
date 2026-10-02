@@ -132,6 +132,11 @@ npm run build    # every page into dist/, checking the docs' links
   The Worker counts each one, without the address it came from, and
   `website/stats.sh` shows them by day, by the page they started on and by
   country. Pages are counted by Cloudflare Web Analytics.
+- The footer's email sign-up, "Hear about big releases", keeps each address
+  in a D1 database once it's confirmed from an email the Worker sends through
+  Cloudflare Email Service. `npm test` in `website/` tests it,
+  `npm run emails` builds the email, and `website/newsletter.sh` counts and
+  exports the list. `website/AGENTS.md` has the details.
 
 ## Project layout
 
@@ -158,7 +163,7 @@ skills/         The Agent Skill for building extensions
 engine/         Engine build script, pinned versions and patches
 updates/        updates.orbtorrent.com, the update feed (a Cloudflare Worker)
 website/        orbtorrent.com and its docs, and the Worker in front of them
-scripts/        DMG packaging, publishing updates, the Agent Skill's AGENTS.md and permission checks
+scripts/        DMG packaging, publishing updates, release notes, the Homebrew tap, the Agent Skill's AGENTS.md and permission checks
 docs/           This guide, and the extension system's design
 ```
 
@@ -167,10 +172,18 @@ docs/           This guide, and the extension system's design
 ### Publishing an update
 
 1. Raise `CURRENT_PROJECT_VERSION` in `project.yml`, and push a tag such as
-   `v1.0-beta.2`. CI builds the disk image and makes a draft release.
-2. On GitHub, write the release's notes in Markdown, with sections such as
-   `## New`, `## Improved` and `## Fixed` and a bold first phrase for each
-   item, and publish it. What's New in the app shows them the same way.
+   `v1.0-beta.2`. CI builds the disk image and makes a draft release, named
+   "OrbTorrent 1.0 beta 2", with the engine's source attached. Its notes end
+   with "The engine": the version and licence of each project in it, what
+   changed since the release before, and links to the build script
+   (`scripts/engine-notes.sh`).
+2. On GitHub, write the release's notes in Markdown above that, with sections
+   such as `## New`, `## Improved` and `## Fixed` and a bold first phrase for
+   each item, and publish it. What's New in the app shows them the same way,
+   without "The engine". When the engine changes for a fix, say so in the
+   notes too. Publishing it also updates the cask in the Homebrew tap,
+   `orbtorrent/homebrew-tap` (`.github/workflows/homebrew.yml`, writing
+   `scripts/homebrew-tap.sh`).
 3. Run `scripts/publish-update.sh v1.0-beta.2`. It signs the disk image and
    the feed with the key in your Keychain and puts the feed on
    `updates.orbtorrent.com`, where every copy finds it within a day.
@@ -179,8 +192,8 @@ For a fix to a version with a serious problem, add `--critical`: every older
 version shows it at once and can't skip it. `--phased` reaches a seventh more
 of the Macs each day, so a bad release can be stopped early, and
 `scripts/publish-update.sh --withdraw v1.0-beta.3` takes a version off the
-feed, and so off orbtorrent.com/download, without touching the Macs that have
-it.
+feed, and so off orbtorrent.com/download and the Homebrew tap, without
+touching the Macs that have it.
 
 Updates download in the background, and OrbTorrent restarts to install them
 once it isn't in use (`AppModel.installUpdateWhenIdle`), coming back in the

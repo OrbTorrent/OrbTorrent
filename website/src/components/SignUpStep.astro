@@ -1,0 +1,50 @@
+---
+// A page for one step of the email sign-up (src/lib/newsletter.ts): the orb
+// on the night stage, saying where things stand. Never indexed, and not
+// counted, since their addresses carry each person's link.
+import Base from "../layouts/Base.astro";
+import LiveOrb from "./LiveOrb.astro";
+
+interface Props {
+  title: string;
+  label: string;
+  heading: string;
+  /** The orb's state: blue and waiting, green when done, red when it didn't work. */
+  orb: object;
+  /** The stage's glow, to match the orb. */
+  tint: string;
+}
+const { title, label, heading, orb, tint } = Astro.props;
+---
+
+<Base title={`${title} · OrbTorrent`} description="OrbTorrent's email sign-up." noindex analytics={false} signUp={false}>
+  <section class="wrap pt-28">
+    <div class="stage signup-step" style={`--tint: ${tint}`}>
+      <LiveOrb size="clamp(7rem, 16vw, 9.5rem)" state={orb} eager />
+      <p class="label mt-12 text-[var(--ink-3)]">{label}</p>
+      <h1 class="heading mt-3">{heading}</h1>
+      <div class="signup-step-text serif mt-4"><slot /></div>
+      <div class="signup-step-actions mt-9"><slot name="actions" /></div>
+    </div>
+  </section>
+</Base>
+
+<style>
+  .signup-step {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    padding: clamp(4rem, 9vw, 6.5rem) 1.5rem;
+  }
+  .signup-step-text { max-width: 34rem; }
+  .signup-step-text :global(p + p) { margin-top: 0.75rem; }
+  .signup-step-actions {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 0.75rem;
+    width: 100%;
+  }
+  .signup-step-actions:empty { display: none; }
+</style>

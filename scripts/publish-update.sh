@@ -22,8 +22,8 @@
 #
 #   scripts/publish-update.sh --withdraw v1.0-beta.3
 #       Takes a version off the feed, so no more Macs update to it, and
-#       orbtorrent.com/download offers the version before. Macs that have it
-#       keep it: publish a fix, --critical, for them.
+#       orbtorrent.com/download and the Homebrew tap offer the version before.
+#       Macs that have it keep it: publish a fix, --critical, for them.
 #
 #   scripts/publish-update.sh --dry-run v1.0-beta.2
 #       Makes and checks the feed in build/update-feed without uploading it.
@@ -133,13 +133,14 @@ fi
 
 if ! $withdraw; then
   # The notes as people read them in the app, without what GitHub adds for
-  # itself: comments, first-time contributors and the "Full Changelog" link.
+  # itself: comments, first-time contributors and the "Full Changelog" link,
+  # or the engine's versions (scripts/engine-notes.sh).
   python3 - "${ARCHIVE%.dmg}.md" <<'PY'
 import re, sys
 path = sys.argv[1]
 notes = open(path, encoding="utf-8").read().replace("\r\n", "\n")
 notes = re.sub(r"<!--.*?-->", "", notes, flags=re.S)
-notes = re.sub(r"^#+ New Contributors\n(?:(?!#).*\n?)*", "", notes, flags=re.M)
+notes = re.sub(r"^#+ (?:New Contributors|The engine)\n(?:(?!#).*\n?)*", "", notes, flags=re.M)
 notes = re.sub(r"^\s*\*\*Full Changelog\*\*.*$", "", notes, flags=re.M)
 notes = re.sub(r" by @[\w-]+ in https://github\.com/\S+$", "", notes, flags=re.M)
 open(path, "w", encoding="utf-8").write(re.sub(r"\n{3,}", "\n\n", notes).strip() + "\n")
@@ -179,4 +180,24 @@ if curl -fsS "$FEED" | cmp -s - "$WORK/appcast.xml"; then
   if $withdraw; then echo "Withdrew $TAG from $FEED"; else echo "Published ${NAME:-$TAG} to $FEED"; fi
 else
   echo "Uploaded; $FEED may take a minute to show it."
+fi
+
+if $withdraw; then
+  # The Homebrew tap goes back to the newest version left in the feed too.
+  newest="$(python3 - "$WORK/appcast.xml" <<'PY'
+import re, sys
+feed = open(sys.argv[1], encoding="utf-8").read()
+versions = []
+for item in re.findall(r"<item>.*?</item>", feed, re.S):
+    build = re.search(r"<sparkle:version>(\d+)</sparkle:version>", item)
+    tag = re.search(r"/releases/download/([^/\"]+)/", item)
+    if build and tag:
+        versions.append((int(build.group(1)), tag.group(1)))
+print(max(versions)[1] if versions else "")
+PY
+)"
+  if [[ -n "$newest" ]]; then
+    gh workflow run homebrew.yml -R "$REPO" -f tag="$newest"
+    echo "The Homebrew tap goes back to $newest."
+  fi
 fi

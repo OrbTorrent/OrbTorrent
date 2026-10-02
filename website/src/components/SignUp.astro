@@ -1,0 +1,96 @@
+---
+// The email sign-up, for news of big releases: an address, posted to the
+// Worker (src/lib/newsletter.ts), which sends a link to confirm it. With
+// JavaScript, the answer shows in place of the form; without, the post goes
+// on to the page for that step (src/pages/subscribe/).
+interface Props {
+  /** Unique on the page, for the field's label. */
+  id: string;
+  /** On paper, or on a dark stage. */
+  tone?: "paper" | "night";
+  class?: string;
+}
+const { id, tone = "paper", class: className } = Astro.props;
+---
+
+<form class:list={["signup-form", `signup-${tone}`, className]} method="post" action="/subscribe" data-signup>
+  <div class="signup-row">
+    <label for={id} class="sr-only">Your email address</label>
+    <input class="signup-input" id={id} type="email" name="email" required maxlength="254" autocomplete="email" placeholder="you@example.com" />
+    <button class:list={["btn", tone === "night" ? "btn-light" : "btn-dark", "signup-button"]} type="submit">Subscribe</button>
+  </div>
+  <!-- People leave this empty; bots fill in every field. -->
+  <div class="signup-trap" aria-hidden="true">
+    <label>Leave this empty <input type="text" name="website" tabindex="-1" autocomplete="off" /></label>
+  </div>
+  <p class="signup-status" role="status"></p>
+</form>
+
+<script>
+  for (const form of document.querySelectorAll<HTMLFormElement>("form[data-signup]")) {
+    const status = form.querySelector<HTMLElement>(".signup-status")!;
+    const button = form.querySelector<HTMLButtonElement>("button")!;
+    form.addEventListener("submit", async (event) => {
+      event.preventDefault();
+      button.disabled = true;
+      delete form.dataset.state;
+      status.textContent = "";
+      try {
+        const response = await fetch(form.action, { method: "POST", body: new FormData(form), headers: { Accept: "application/json" } });
+        const answer = (await response.json()) as { ok: boolean; message?: string };
+        form.dataset.state = answer.ok ? "sent" : "problem";
+        status.textContent = answer.ok
+          ? "Check your inbox for a link to confirm your address. It works for 7 days."
+          : (answer.message ?? "That didn't work. Try again in a minute.");
+      } catch {
+        form.dataset.state = "problem";
+        status.textContent = "That didn't go through. Check your connection, then try again.";
+      } finally {
+        button.disabled = false;
+      }
+    });
+  }
+</script>
+
+<style>
+  .signup-form { width: 100%; max-width: 26rem; }
+  .signup-row { display: flex; gap: 0.5rem; }
+  .signup-input {
+    flex: 1;
+    min-width: 0;
+    height: 2.75rem;
+    padding-inline: 1.1rem;
+    border-radius: 999px;
+    font: inherit;
+    font-size: 0.9375rem;
+    color: var(--ink);
+    background: var(--card);
+    box-shadow: inset 0 0 0 1px var(--line-2);
+    transition: box-shadow 0.2s;
+  }
+  .signup-input::placeholder { color: var(--ink-3); }
+  .signup-input:focus-visible { outline: none; box-shadow: inset 0 0 0 2px var(--accent); border-radius: 999px; }
+  .signup-night .signup-input { background: rgb(255 255 255 / 0.06); box-shadow: inset 0 0 0 1px var(--line-2); }
+  .signup-night .signup-input:focus-visible { box-shadow: inset 0 0 0 2px var(--tint); }
+  .signup-button:disabled { opacity: 0.6; cursor: progress; }
+  .signup-trap { position: absolute; left: -9999px; width: 1px; height: 1px; overflow: hidden; }
+  .signup-status { font-size: 0.875rem; color: var(--ink-2); }
+  .signup-status:not(:empty) { margin-top: 0.75rem; }
+  .signup-form[data-state="problem"] .signup-status { color: #c42b2b; }
+  .signup-night[data-state="problem"] .signup-status { color: #ff8a8a; }
+  /* Once it's sent, the answer takes the form's place. */
+  .signup-form[data-state="sent"] .signup-row { display: none; }
+  .signup-form[data-state="sent"] .signup-status {
+    margin-top: 0;
+    padding: 0.7rem 1.1rem;
+    border-radius: 1rem;
+    color: var(--ink);
+    background: color-mix(in srgb, var(--color-green) 16%, transparent);
+    box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--color-green) 45%, transparent);
+  }
+  @media (max-width: 420px) {
+    .signup-row { flex-direction: column; }
+    .signup-input { flex: none; }
+    .signup-button { width: 100%; }
+  }
+</style>

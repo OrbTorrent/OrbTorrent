@@ -1,0 +1,13 @@
+---
+// Where the link to unsubscribe in OrbTorrent's emails leads. Like
+// confirming, it posts back to its own address, so nothing happens until
+// you click.
+import SignUpStep from "../components/SignUpStep.astro";
+---
+
+<SignUpStep title="Unsubscribe" label="Unsubscribe" heading="Stop OrbTorrent's emails?" orb={{ kind: "paused", progress: 0.5 }} tint="#8d93a8">
+  <p>Your address is deleted at once, and you won't hear from us again.</p>
+  <form slot="actions" method="post">
+    <button class="btn btn-light" type="submit">Unsubscribe</button>
+  </form>
+</SignUpStep>

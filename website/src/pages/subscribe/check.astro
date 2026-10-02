@@ -1,0 +1,9 @@
+---
+import SignUpStep from "../../components/SignUpStep.astro";
+---
+
+<SignUpStep title="Check your inbox" label="Almost there" heading="Check your inbox." orb={{ kind: "waiting", progress: 0.6 }} tint="#ff9926">
+  <p>We've sent you a link to confirm your address. It works for 7 days.</p>
+  <p class="text-base text-[var(--ink-3)]">Nothing after a few minutes? Look in your spam folder, or sign up again.</p>
+  <a slot="actions" href="/" class="btn btn-light">Back to OrbTorrent</a>
+</SignUpStep>

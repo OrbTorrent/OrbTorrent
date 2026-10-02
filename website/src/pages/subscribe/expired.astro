@@ -1,0 +1,9 @@
+---
+import SignUp from "../../components/SignUp.astro";
+import SignUpStep from "../../components/SignUpStep.astro";
+---
+
+<SignUpStep title="This link has expired" label="Link expired" heading="This link has expired." orb={{ kind: "failed", progress: 0.35 }} tint="#ff4040">
+  <p>A link to confirm works for 7 days, and only the newest one does. Sign up again for a new one.</p>
+  <SignUp slot="actions" id="expired-signup" tone="night" />
+</SignUpStep>

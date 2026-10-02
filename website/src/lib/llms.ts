@@ -49,7 +49,7 @@ export async function llmsIndex(): Promise<string> {
     "## Website",
     "",
     `- [Home](${site.url}/): what OrbTorrent does, with the features.`,
-    `- [Download](${site.url}/download): the newest version, what it needs, how to install and uninstall it.`,
+    `- [Download](${site.url}/download): the newest version, what it needs, how to install it (or \`brew install orbtorrent/tap/orbtorrent\`) and uninstall it.`,
     `- [Extensions](${site.url}/extensions): the Fake Download Check, VirusTotal Scan, and building your own in TypeScript.`,
     `- [Switch from Transmission or qBittorrent](${site.url}/switch): what comes over when importing.`,
     `- [Privacy](${site.url}/privacy): everything the app and the website connect to.`,

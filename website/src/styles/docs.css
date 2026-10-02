@@ -153,18 +153,23 @@ h1#_top {
   font-weight: 600;
 }
 
-/* Links read as links. */
-.sl-markdown-content a:not(:where(.not-content *)) {
-  text-decoration: underline;
-  text-decoration-color: color-mix(in srgb, currentColor 35%, transparent);
-  text-underline-offset: 3px;
+/* Links as on the rest of the site: ink, underlined dashed like the frame,
+   and solid in the orb's blue on hover. Not a link card's title: the whole
+   card is the link. */
+.sl-markdown-content a:not(:where(.not-content *, .sl-link-card *)) {
+  color: var(--sl-color-white);
+  text-decoration: underline dashed;
+  text-decoration-thickness: 1px;
+  text-decoration-color: color-mix(in srgb, currentColor 45%, transparent);
+  text-underline-offset: 4px;
   transition: text-decoration-color 0.2s;
 }
-.sl-markdown-content a:not(:where(.not-content *)):hover {
-  color: var(--sl-color-text-accent);
-  text-decoration-color: currentColor;
+.sl-markdown-content a:not(:where(.not-content *, .sl-link-card *)):hover {
+  color: var(--sl-color-white);
+  text-decoration-style: solid;
+  text-decoration-thickness: 1.5px;
+  text-decoration-color: #3885ff;
 }
-
 /* Code in a sentence. */
 .sl-markdown-content :not(pre) > code:not(:where(.not-content *)) {
   border-radius: 0.35rem;

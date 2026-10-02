@@ -11,7 +11,7 @@ that date.
 work, so OrbTorrent only needs settings and interface, or whether OrbTorrent has
 to build it. Preference names are the engine's `app/setPreferences` keys.
 
-What's left before the first public release is in [RELEASE.md](RELEASE.md).
+What's left before the first public release is in [CHECKLIST.md](CHECKLIST.md), with the details in [RELEASE.md](RELEASE.md) and [LAUNCH.md](LAUNCH.md).
 
 ## Build first
 

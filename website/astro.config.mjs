@@ -75,7 +75,8 @@ export default defineConfig({
         }),
       ],
     }),
-    sitemap({ filter: (page) => !page.includes("/404") }),
+    // Not the not-found page, or the email sign-up's steps.
+    sitemap({ filter: (page) => !page.includes("/404") && !/\/(un)?subscribe(\/|$)/.test(page) }),
     // Every export of @orbtorrent/api has its place in the API reference.
     checkApiDocs(),
   ],

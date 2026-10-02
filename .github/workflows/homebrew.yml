@@ -1,0 +1,61 @@
+name: Homebrew
+
+# Puts each release in OrbTorrent's Homebrew tap, github.com/orbtorrent/homebrew-tap,
+# once it's published, so `brew install orbtorrent/tap/orbtorrent` installs it.
+# Run it by hand with a release's tag to point the tap at that release, as
+# publish-update.sh --withdraw does. It pushes with the tap's deploy key, in
+# the secret HOMEBREW_TAP_DEPLOY_KEY, and does nothing until that's set.
+
+on:
+  release:
+    types: [published]
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: The release's tag, such as v1.0-beta.2
+        required: true
+
+permissions:
+  contents: read
+
+jobs:
+  cask:
+    runs-on: ubuntu-latest
+    env:
+      TAG: ${{ github.event.release.tag_name || inputs.tag }}
+      HAS_KEY: ${{ secrets.HOMEBREW_TAP_DEPLOY_KEY != '' }}
+    steps:
+      - name: Skip without the tap's deploy key
+        if: env.HAS_KEY != 'true'
+        run: echo "::notice::No HOMEBREW_TAP_DEPLOY_KEY yet, so the tap isn't updated."
+
+      - uses: actions/checkout@v4
+        if: env.HAS_KEY == 'true'
+
+      - name: Download the disk image
+        if: env.HAS_KEY == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh release download "$TAG" -p '*.dmg' -D "$RUNNER_TEMP/release"
+
+      - uses: actions/checkout@v4
+        if: env.HAS_KEY == 'true'
+        with:
+          repository: orbtorrent/homebrew-tap
+          ssh-key: ${{ secrets.HOMEBREW_TAP_DEPLOY_KEY }}
+          path: tap
+
+      - name: Update the cask
+        if: env.HAS_KEY == 'true'
+        run: |
+          dmgs=("$RUNNER_TEMP"/release/*.dmg)
+          [[ ${#dmgs[@]} -eq 1 ]] || { echo "::error::$TAG needs exactly one disk image."; exit 1; }
+          scripts/homebrew-tap.sh "$TAG" "${dmgs[0]}" tap
+          ruby -c tap/Casks/orbtorrent.rb
+          cd tap
+          git add -A
+          if git diff --cached --quiet; then echo "The tap already has $TAG."; exit 0; fi
+          git -c user.name="github-actions[bot]" \
+            -c user.email="41898282+github-actions[bot]@users.noreply.github.com" \
+            commit -m "orbtorrent ${TAG#v}"
+          git push

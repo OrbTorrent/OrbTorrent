@@ -1,9 +1,11 @@
 // The Worker in front of orbtorrent.com. Every page is built ahead of time
 // and served as a file; this only answers /download/mac, which goes to the
 // newest disk image in the update feed, so the download button never needs
-// editing. Until a release is in the feed, it goes to the releases page on
-// GitHub.
+// editing (until a release is in the feed, it goes to the releases page on
+// GitHub), and the email sign-up's posts (src/lib/newsletter.ts).
 
+import confirmEmail from "../emails/dist/confirm.json";
+import { answer, forgetUnconfirmed, type Database, type Newsletter } from "./lib/newsletter";
 import { parseFeed } from "./lib/release";
 import { site } from "./lib/site";
 
@@ -12,6 +14,42 @@ interface Env {
   ASSETS: { fetch(request: Request): Promise<Response> };
   /** Downloads, counted by where they started; stats.sh reads them. */
   DOWNLOADS?: { writeDataPoint(point: { indexes?: string[]; blobs?: string[]; doubles?: number[] }): void };
+  /** The email sign-up's list. */
+  DB: Database;
+  /** Cloudflare Email Service, which may send only as hello@orbtorrent.com. */
+  EMAIL: {
+    send(message: {
+      from: { email: string; name: string };
+      to: string;
+      subject: string;
+      html: string;
+      text: string;
+      headers?: Record<string, string>;
+    }): Promise<{ messageId: string }>;
+  };
+  /** Five sign-ups a minute from one visitor. */
+  SIGNUPS: { limit(options: { key: string }): Promise<{ success: boolean }> };
+}
+
+function newsletter(env: Env): Newsletter {
+  return {
+    db: env.DB,
+    origin: site.url,
+    async sendConfirmation(to, link) {
+      await env.EMAIL.send({
+        from: { email: "hello@orbtorrent.com", name: "OrbTorrent" },
+        to,
+        subject: "Confirm your email for OrbTorrent",
+        html: confirmEmail.html.replaceAll("{{link}}", link.replaceAll("&", "&amp;")),
+        text: confirmEmail.text.replaceAll("{{link}}", link),
+        // Sent by the site, not a person, so auto-replies stay quiet.
+        headers: { "Auto-Submitted": "auto-generated" },
+      });
+    },
+    async allow(visitor) {
+      return visitor ? (await env.SIGNUPS.limit({ key: visitor })).success : true;
+    },
+  };
 }
 
 async function newestDiskImage(): Promise<{ url: string; version: string }> {
@@ -62,7 +100,14 @@ export default {
         headers: { Location: url, "Cache-Control": "private, max-age=300" },
       });
     }
+    const signUp = await answer(request, newsletter(env));
+    if (signUp) return signUp;
     // Anything else that isn't a file: the not-found page.
     return env.ASSETS.fetch(request);
+  },
+
+  /** Each day: forgets the sign-ups no one confirmed within 7 days. */
+  async scheduled(_controller: unknown, env: Env): Promise<void> {
+    await forgetUnconfirmed(env.DB);
   },
 };

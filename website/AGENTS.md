@@ -25,10 +25,10 @@ Consult these guides before working on related tasks:
 
 - Every page is built ahead of time, as files (`build.format: "file"`,
   `trailingSlash: "never"`). `src/worker.ts` is the Cloudflare Worker in front
-  of them, which only answers `/download/mac`, configured in
-  `wrangler.jsonc`. `npm run deploy` builds the site and publishes it with
-  Wrangler. Not `cf deploy`: it adds Cloudflare's Astro adapter to the
-  project, which this site doesn't use.
+  of them, which only answers `/download/mac` and the email sign-up's posts,
+  configured in `wrangler.jsonc`. `npm run deploy` builds the site and
+  publishes it with Wrangler. Not `cf deploy`: it adds Cloudflare's Astro
+  adapter to the project, which this site doesn't use.
 - The docs at `/docs` are Starlight. Pages are Markdown in
   `src/content/docs/docs/`, the sidebar is `src/lib/docs-sidebar.mjs`, the
   theme is `src/styles/docs.css`, and overridden Starlight components are in
@@ -59,6 +59,18 @@ Consult these guides before working on related tasks:
   `guides/privacy.md`, `guides/updates.md` and the FAQ. The app's About ›
   Privacy and "See What's Sent", the README and `updates/src/counts.ts` say the
   same. Change them all together.
+- The email sign-up, "Hear about big releases", is in the footer
+  (`src/components/SignUp.astro`). The Worker keeps each address in the D1
+  database `orbtorrent-newsletter` (in the EU; `migrations/`), and sends a
+  link to confirm it through Cloudflare Email Service, as hello@orbtorrent.com
+  (`src/lib/newsletter.ts`, tested by `npm test`). Each step's page is in
+  `src/pages/subscribe/` and `src/pages/unsubscribe*`, never indexed or
+  counted. The email is React Email (`emails/`), built by `npm run emails`,
+  which `npm run build` runs first. `./newsletter.sh` counts and exports the
+  list. Cloudflare Email Service is only for emails like the confirmation, so
+  the 1.0 email itself goes out through a newsletter service; then the
+  privacy page's `#emails` must name it. Change that section with any change
+  to what's kept or who sends.
 - Starlight sets Astro's `scopedStyleStrategy` to `"where"` for the whole
   site. In that mode, a component given a `class` also takes its parent's
   scope, so the parent's scoped styles can reach it. Name a component's own
