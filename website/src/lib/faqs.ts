@@ -40,8 +40,8 @@ export const faqs: Faq[] = [
     answer: "Yes. OrbTorrent never adds trackers to a private torrent, and leaves it exactly as it came.",
   },
   {
-    question: "Why only macOS 26?",
-    answer: "It's built with this year's SwiftUI and Liquid Glass, so it fits in with the rest of your Mac. One app done well, rather than two done halfway.",
+    question: "Why does it need macOS 26?",
+    answer: "It's built with the SwiftUI and Liquid Glass that came with macOS 26, so it fits in with the rest of your Mac. It runs on macOS 26 and every version since. One app done well, rather than two done halfway.",
   },
   {
     question: "Is it an Electron app?",

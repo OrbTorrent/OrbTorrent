@@ -227,8 +227,9 @@ Mac. OrbTorrent isn't affiliated with or endorsed by the qBittorrent project.
 
 **Is it an Electron app?** No. It's Swift and SwiftUI.
 
-**Why only macOS 26?** It's built on this year's SwiftUI and Liquid Glass. One
-app done well, rather than two done halfway.
+**Why does it need macOS 26?** It's built on the SwiftUI and Liquid Glass that
+came with macOS 26, and runs on every version since. One app done well, rather
+than two done halfway.
 
 **Will it stay free?** Yes. OrbTorrent is free and open source, under the GPL.
 

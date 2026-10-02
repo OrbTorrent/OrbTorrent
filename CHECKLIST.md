@@ -7,12 +7,13 @@ happens. This is the only place with checkboxes: tick them here.
 
 **You** marks what only the owner can do, and **Claude** what Claude does,
 for you to review where it says so. Times are Malaysia time (MYT).
-Last brought up to date on 2 October 2026.
+Last brought up to date on 3 October 2026.
 
-**Where we are:** the app, the website and its docs, and the extension SDK
-are built. The notarized build waits on Apple approving the developer
-account. Until then, prepare what's in sections 2 and 3, and start your own
-accounts early: Reddit and Hacker News need weeks of history.
+**Where we are:** the app, the website with its docs and search pages, and
+the extension SDK 1.1.0 are built, and the repo is ready for other developers
+and their coding agents. The notarized build waits on Apple approving the
+developer account. Until then, prepare what's in sections 2 and 3, and start
+your own accounts early: Reddit and Hacker News need weeks of history.
 
 ## 1. Done
 
@@ -70,6 +71,15 @@ accounts early: Reddit and Hacker News need weeks of history.
   "Propose an official extension" issue form. The comment on changed
   extension permissions now knows `"files": "add"` and works on pull
   requests from forks. (3 Oct)
+- [x] **Search research:** what Mac users search for and how many, who
+  answers them, and the pages to make, from autocomplete, Bing, forums and
+  Semrush ([SEARCH.md](SEARCH.md)). (3 Oct)
+- [x] **Search pages,** in [SEARCH.md](SEARCH.md)'s order: the homepage's
+  title and description, µTorrent for Mac, qBittorrent for Mac, a guide to
+  magnet links, Transmission for Mac, and "kill switch" in the VPN guide. Each
+  app page has a fair comparison table, its facts checked first-hand and
+  linked, and how to switch. They go live with the site. The FAQ's "Why does
+  it need macOS 26?" no longer says "this year's", with macOS 27 out. (3 Oct)
 - [x] **The engine's versions in every release's notes,** added by CI:
   qBittorrent, libtorrent, Qt, OpenSSL and Boost with their licences, what
   changed since the release before, and links to the build script, with
@@ -92,14 +102,6 @@ accounts early: Reddit and Hacker News need weeks of history.
 
 ## 2. Now, while Apple reviews: Claude
 
-- [x] **Search research:** what Mac users search for and how many, who
-  answers them, and the pages to make, from autocomplete, Bing, forums and
-  Semrush ([SEARCH.md](SEARCH.md)). (3 Oct)
-- [x] **Search pages,** in [SEARCH.md](SEARCH.md)'s order: the homepage's
-  title and description, µTorrent for Mac, qBittorrent for Mac, a guide to
-  magnet links, Transmission for Mac, and "kill switch" in the VPN guide. Each
-  app page has a fair comparison table, its facts checked and linked, and how
-  to switch. They go live with the site. (3 Oct)
 - [ ] **The technical write-up,** "How OrbTorrent is built", for Show HN,
   newsletters and Lobsters. You review it.
 - [ ] **The video's script,** for you to record.
@@ -238,6 +240,9 @@ In this order:
   address, and the privacy page names the service. (You and Claude)
 - [ ] **A final check:** a fresh download from the website on a clean Mac,
   the feed, help@ and press@. (Claude)
+- [ ] **Check the comparison pages again:** µTorrent, qBittorrent and
+  Transmission, against each app's newest version and site, and update each
+  page's "Checked on" date. (Claude)
 
 ## 9. Launch day, a Tuesday
 
@@ -284,6 +289,10 @@ Details: [LAUNCH.md, launch day](LAUNCH.md#launch-day-a-tuesday).
   - more search pages.
 
   (You and Claude)
+- [ ] **Search, a month after launch:** Google Search Console shows which
+  searches find our pages and get clicks. Then check our positions with
+  Semrush, and make the next pages ([SEARCH.md](SEARCH.md#after-launch)).
+  (Claude)
 - [ ] **GitHub Sponsors,** and a Sponsor link in the About window. (You and
   Claude)
 - [ ] **Renew orbtorrent.com** before 29 September 2027. Auto-renew is off.

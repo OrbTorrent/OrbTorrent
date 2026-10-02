@@ -406,8 +406,9 @@ engine, free and open source`, in their PCP template, saying you made it.
 
 ## 7. Questions to have answers for
 
-- **Why only macOS 26?** It's built on this year's SwiftUI and Liquid Glass.
-  One codebase, done well, rather than two done halfway.
+- **Why does it need macOS 26?** It's built on the SwiftUI and Liquid Glass
+  that came with macOS 26, and runs on every version since. One codebase, done
+  well, rather than two done halfway.
 - **Why not help Transmission or qBittorrent instead?** OrbTorrent runs
   qBittorrent's engine unchanged. What it adds is the Mac app around the
   engine, which neither project sets out to build, and engine improvements

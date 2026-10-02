@@ -13,7 +13,7 @@ OrbTorrent is one universal app for Macs with Apple silicon or Intel. It's free,
 | Mac | Apple silicon or Intel |
 | Price | Free and open source, under the GNU GPL |
 
-OrbTorrent is built with this year's SwiftUI and Liquid Glass, so it can't run on earlier versions of macOS.
+OrbTorrent is built with the SwiftUI and Liquid Glass that came with macOS 26, so it can't run on earlier versions of macOS. It runs on macOS 26 and every version since.
 
 ## Install it
 
