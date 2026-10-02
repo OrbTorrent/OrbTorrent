@@ -112,7 +112,8 @@ struct WelcomeView: View {
             default: .idle
             }
         case .finish:
-            .idle
+            // Green, as a finished download is: everything's ready.
+            .finished
         }
     }
 
@@ -130,9 +131,9 @@ struct WelcomeView: View {
     }
 
     /// A soft glow in the orb's colour behind everything, which follows the
-    /// orb and turns green once downloads have come over.
+    /// orb and turns green once downloads have come over, and at the end.
     private var backdrop: some View {
-        let isDone = step == .bringOver && imports.phase.isFinished
+        let isDone = step == .finish || (step == .bringOver && imports.phase.isFinished)
         let strength = step == .welcome ? 0.25 + 0.75 * fill : 1
         return ZStack {
             Circle()
@@ -143,7 +144,7 @@ struct WelcomeView: View {
                 .scaleEffect(isGlowSwelling ? 1.2 : 1)
                 .position(orbCenter)
             Circle()
-                .fill(OrbPalette.active.veils[1])
+                .fill((isDone ? OrbPalette.finished : OrbPalette.active).veils[1])
                 .frame(width: 280, height: 280)
                 .blur(radius: 80)
                 .opacity(0.14 * strength)
