@@ -125,12 +125,13 @@ versions improve `orb` and fix bugs without changing the API. See the
 
 ## Docs
 
-- [The extension docs](https://github.com/sanjevirau/OrbTorrent/tree/main/docs/extensions):
-  hooks, the API, the manifest, tests, sharing and security.
+- [The extension docs](https://orbtorrent.com/docs/extensions): a tutorial,
+  hooks, the API, the `orb` command, the manifest, tests, sharing and security.
 - `AGENTS.md`, in every new extension: the whole API, the rules and the loop in
   one file, for coding agents. There's also an
   [Agent Skill](https://github.com/sanjevirau/OrbTorrent/tree/main/skills/build-orbtorrent-extension)
-  and [llms.txt](https://github.com/sanjevirau/OrbTorrent/blob/main/docs/extensions/llms.txt).
+  and the docs in one file for language models,
+  [llms-full.txt](https://orbtorrent.com/docs/extensions/llms-full.txt).
 - Problems: [issues](https://github.com/sanjevirau/OrbTorrent/issues), or
   help@orbtorrent.com.
 

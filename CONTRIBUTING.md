@@ -45,7 +45,7 @@ the approach before you spend time on it.
 
 Extensions don't need to be in this repo. Make one with
 `npm create @orbtorrent/extension@latest <name>`, and see
-[docs/extensions](docs/extensions/README.md). Changes to the official
+[the extension docs](https://orbtorrent.com/docs/extensions). Changes to the official
 extensions in `extensions/` follow the same steps as the app, and every rule
 there has tests in its `tests/` folder.
 

@@ -69,7 +69,7 @@ Mac client.
     over NAT-PMP and sets `listen_port`. Small.
 
 - [x] **Fake-download check.** Built as the first official extension, on a new
-  extension system (see [docs/extensions](docs/extensions) and
+  extension system (see [the extension docs](https://orbtorrent.com/docs/extensions) and
   [the design](docs/extensions-design.md)). Before any of a download arrives,
   the Fake Download Check holds one that contains a program disguised as a
   video, a film with a program or installer in it, or a video locked in an

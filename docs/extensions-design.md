@@ -2,7 +2,7 @@
 
 Status: built, 28 September 2026. This was the proposal; what changed while
 building it is under [What changed while building](#what-changed-while-building),
-and the developer docs are in [docs/extensions](extensions).
+and the developer docs are at [orbtorrent.com/docs/extensions](https://orbtorrent.com/docs/extensions).
 
 ## What we're building
 
@@ -574,8 +574,9 @@ covers the real runtime.
 - **An Agent Skill.** `skills/build-orbtorrent-extension/SKILL.md` in this repo
   uses the open Agent Skills format, so it works in Claude Code, Codex, Cursor and
   others.
-- **Docs as markdown.** They live in `docs/extensions/`, with generated `llms.txt`
-  and `llms-full.txt`. They'll be put online with the website later.
+- **Docs as markdown.** They live in `website/src/content/docs/docs/extensions/`,
+  and the website builds them into orbtorrent.com/docs/extensions, with each page
+  also as Markdown, and `llms.txt` and `llms-full.txt`.
 - **Errors that say how to fix them.** For example:
   `Request to api.opensubtitles.com was refused. Add "api.opensubtitles.com" to permissions.network in package.json.`
 - **`--json` everywhere**, and no prompts when there's no terminal.
@@ -698,7 +699,7 @@ extensions/                         official extensions (source)
 sdk/                                @orbtorrent/api: types, runtime, orb CLI
 └── templates/                      before-start, after-finish
 skills/build-orbtorrent-extension/  the Agent Skill
-docs/extensions/                    developer docs, llms.txt
+website/src/content/docs/docs/extensions/  developer docs, on orbtorrent.com
 ExtensionHost/                      the sandboxed helper (a new target)
 OrbTorrent/Extensions/              the app side: registry, runner, gate, Keychain
 OrbTorrent/Views/Extensions/            the Extensions page and each extension's page

@@ -34,7 +34,7 @@ Options:
   --help, --version
 
 Run commands from the extension's folder. Docs: AGENTS.md in the extension, and
-the Extensions docs in the OrbTorrent repository.`;
+https://orbtorrent.com/docs/extensions`;
 
 interface Arguments {
   positional: string[];

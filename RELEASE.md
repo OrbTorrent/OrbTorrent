@@ -15,11 +15,10 @@ OrbTorrent safely onto other people's Macs and keeping it up to date there.
 - [ ] **Apple Developer Program,** applied for on 29 September 2026; waiting
   for Apple to verify, then the agreement and the US$99 payment. (You)
 - [x] **Where the code lives:** the personal account, as
-  `github.com/sanjevirau/OrbTorrent`, which the app, the extension docs
-  (`docs/extensions/llms.txt`, `scripts/extension-docs.mjs`) and the Develop
-  tab already link to. It can move to a GitHub organisation later. So
-  nothing breaks then, anything built into the app, above all the update feed,
-  goes on a domain we control, not a GitHub address.
+  `github.com/sanjevirau/OrbTorrent`. It can move to a GitHub organisation
+  later. So nothing breaks then, anything built into the app, above all the
+  update feed, goes on a domain we control, not a GitHub address: the Develop
+  tab's guides and llms.txt link to orbtorrent.com/docs.
 - [x] **Copyright owner:** Sanjevi Rau, personally. "Copyright © 2026 Sanjevi
   Rau" is in the About window, the app's Info.plist and the README.
 - [x] **Domain: `orbtorrent.com`,** bought on 29 September 2026 through

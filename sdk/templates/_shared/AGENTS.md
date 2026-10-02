@@ -5,6 +5,10 @@ macOS. An extension hooks into moments in a download's life, like a check on a
 pull request: it can look at a download **before it starts** and hold it, or act
 on it **after it finishes**. Its result shows in the download's Checks tab.
 
+This file has what you need. The full docs are at
+https://orbtorrent.com/docs/extensions, and in one file at
+https://orbtorrent.com/docs/extensions/llms-full.txt.
+
 ## The loop
 
 Work in this order, and don't stop at a green build:

@@ -12,6 +12,7 @@
 
 <p align="center">
   <a href="https://github.com/sanjevirau/OrbTorrent/releases/latest"><b>Download for Mac</b></a> ·
+  <a href="https://orbtorrent.com/docs">Docs</a> ·
   <a href="#extensions">Extensions</a> ·
   <a href="ROADMAP.md">Roadmap</a>
   <br>
@@ -139,7 +140,7 @@ Or describe what you want to a coding agent such as Claude Code, Codex or
 Cursor: the **Develop** tab on OrbTorrent's Extensions page gives you what to
 paste in, and the agent writes it, tests it and tries it on your downloads.
 Share it as an `.orbext` file, which others install by opening it. See
-[docs/extensions](docs/extensions/README.md).
+[the extension docs](https://orbtorrent.com/docs/extensions).
 
 ### Community
 
@@ -156,9 +157,7 @@ and a line on what it does.
 
 OrbTorrent needs macOS 26 (Tahoe) or later, on Apple silicon or Intel.
 
-If macOS says it can't check OrbTorrent for malicious software, that build
-isn't notarized by Apple yet. Open OrbTorrent once, then go to **System
-Settings → Privacy & Security** and click **Open Anyway**.
+Every release is notarized by Apple, and every update is signed.
 
 To uninstall, quit OrbTorrent and drag it to the Trash. Your library and
 settings are in `~/Library/Application Support/OrbTorrent`, if you'd like
@@ -232,7 +231,7 @@ make test     # run the tests
 [docs/development.md](docs/development.md) has the rest: how it works, the
 engine build, OrbTorrent Dev, the project layout and how releases go out. To
 build an extension, start with `npm create @orbtorrent/extension@latest` and
-[docs/extensions](docs/extensions/README.md).
+[the extension docs](https://orbtorrent.com/docs/extensions).
 
 ## Contributing
 

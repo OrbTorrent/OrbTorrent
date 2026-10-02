@@ -391,11 +391,12 @@ private struct Resources: View {
     }
 }
 
-/// Where the developer docs live.
+/// Where the developer docs live: on orbtorrent.com, a domain we control,
+/// so the links keep working wherever the code moves.
 private enum DeveloperLinks {
-    private static let base = "https://github.com/sanjevirau/OrbTorrent/blob/main/"
-    static let skill = URL(string: base + "skills/build-orbtorrent-extension/SKILL.md")!
-    static let llms = URL(string: base + "docs/extensions/llms.txt")!
+    private static let docs = "https://orbtorrent.com/docs/extensions/"
+    static let skill = URL(string: "https://github.com/sanjevirau/OrbTorrent/blob/main/skills/build-orbtorrent-extension/SKILL.md")!
+    static let llms = URL(string: docs + "llms.txt")!
 
     struct Guide {
         let title: String
@@ -406,12 +407,12 @@ private enum DeveloperLinks {
     static let guides: [Guide] = [
         ("Getting Started", "flag", "getting-started"),
         ("Hooks", "arrow.triangle.branch", "hooks"),
-        ("API", "curlybraces", "api"),
-        ("Manifest", "doc.text", "manifest"),
+        ("API", "curlybraces", "reference/api"),
+        ("Manifest", "doc.text", "reference/manifest"),
         ("Testing", "checkmark.seal", "testing"),
         ("Sharing", "square.and.arrow.up", "sharing"),
         ("Security", "lock.shield", "security"),
-    ].map { Guide(title: $0.0, symbol: $0.1, url: URL(string: base + "docs/extensions/\($0.2).md")!) }
+    ].map { Guide(title: $0.0, symbol: $0.1, url: URL(string: docs + $0.2)!) }
 }
 
 /// What to paste into a coding agent to have it build an extension, from

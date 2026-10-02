@@ -22,6 +22,6 @@ body:
     id: extension
     attributes:
       label: Could it be an extension?
-      description: Many ideas fit better as an extension anyone can build. See docs/extensions.
+      description: Many ideas fit better as an extension anyone can build. See orbtorrent.com/docs/extensions.
       options:
         - label: It could work as an extension
