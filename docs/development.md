@@ -70,7 +70,10 @@ work on it. It has its own library and engine in
 `~/Library/Application Support/OrbTorrent Dev`, its own settings and Keychain
 items, and an amber icon in the Dock and menu bar. It never opens magnet links
 or `.torrent` files and doesn't start at login, leaving both to OrbTorrent.
-Unit tests run inside it too. Point `orb dev` at it with `ORB_APP=dev`. It
+Unit tests run inside it too. Point `orb dev` at it with `ORB_APP=dev`. Its
+File menu has **Show Welcome** and **Show What's New**, to look at both
+without a fresh install or an update; What's New uses sample notes until
+Dev has read a feed. It
 doesn't update itself, unless pointed at a test feed made by
 `scripts/publish-update.sh --test`.
 

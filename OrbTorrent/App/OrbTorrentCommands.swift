@@ -58,6 +58,18 @@ struct OrbTorrentCommands: Commands {
                 Divider()
                 Button("Install Extension…") { model.chooseExtensionToInstall() }
             }
+            // OrbTorrent Dev only: the pages people see once, on demand.
+            if AppIdentity.isDevelopment {
+                Divider()
+                Button("Show Welcome") {
+                    model.isWelcomePresented = true
+                    model.showMainWindow()
+                }
+                Button("Show What's New") {
+                    model.updates.previewWhatsNew()
+                    model.showMainWindow()
+                }
+            }
         }
 
         CommandMenu("Downloads") {

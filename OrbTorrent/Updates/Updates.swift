@@ -136,6 +136,13 @@ final class Updates: NSObject {
         isWhatsNewPresented = true
     }
 
+    /// What's New on demand in OrbTorrent Dev: the notes it has, or sample
+    /// ones before it has read a feed.
+    func previewWhatsNew() {
+        whatsNew = currentRelease.map { [$0] } ?? Release.samples
+        isWhatsNewPresented = true
+    }
+
     func didDismissWhatsNew() {
         defaults.set(Self.build, forKey: Self.seenBuildKey)
     }
