@@ -1,0 +1,27 @@
+---
+// A page's title, with the part of the docs it's in above it, and what can
+// be done with the page: copy it as Markdown, or ask an AI about it.
+import Default from "@astrojs/starlight/components/PageTitle.astro";
+import PageActions from "./PageActions.astro";
+import { sidebarTrail } from "../../lib/docs";
+
+const { sidebar } = Astro.locals.starlightRoute;
+const trail = sidebarTrail(sidebar) ?? [];
+---
+
+{trail.length > 0 && <p class="eyebrow">{trail.join(" / ")}</p>}
+<Default />
+<PageActions />
+
+<style>
+  .eyebrow {
+    margin-top: 1rem;
+    margin-bottom: -0.5rem;
+    font-family: var(--__sl-font-mono);
+    font-size: 0.75rem;
+    font-weight: 500;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--sl-color-gray-3);
+  }
+</style>

@@ -1,0 +1,80 @@
+---
+import Base from "../layouts/Base.astro";
+import PageHero from "../components/PageHero.astro";
+import { site, tints } from "../lib/site";
+import { breadcrumbs, graph, organization } from "../lib/schema";
+
+const schema = graph(organization, breadcrumbs([{ name: "Privacy", path: "/privacy" }]));
+const connections = [
+  ["Peers and trackers", "for the downloads you add, as every torrent app does. They can see your IP address, unless you download through a VPN."],
+  ["raw.githubusercontent.com", "for a public list of trackers, while “Find more peers for public torrents” is on."],
+  ["Web addresses you add torrents from", "to fetch the .torrent file."],
+  ["The sites an extension lists", "while it's on. Each extension's page shows them, and it can't reach any others."],
+  ["updates.orbtorrent.com", "once a day, to check for a new version, while “Check for updates automatically” is on. It sends OrbTorrent's version and build number, which is how we count the Macs on each version. The address a check comes from isn't kept."],
+  ["github.com", "to download an update you install."],
+  ["download.db-ip.com", "once a month, for a database of which country each IP address is in, to show peers' flags. Peers are looked up in it on your Mac, and never sent anywhere."],
+];
+---
+
+<Base
+  title="Privacy · OrbTorrent"
+  description="OrbTorrent collects nothing about you: no account, no analytics, no crash reporting. Here's everything the app and this website connect to, and why."
+  schema={schema}
+>
+  <PageHero label="Privacy" title="Your Mac's business" tone="stays on your Mac." dot={tints.finished}>
+    OrbTorrent collects nothing about you. This page lists everything the app and this website connect to, and why.
+  </PageHero>
+
+  <div class="rule"></div>
+
+  <div class="wrap inset layout">
+    <aside class="dossier glance reveal" aria-label="At a glance">
+      <p class="label">At a glance</p>
+      <dl class="facts mt-5">
+        <div><dt class="label">Account</dt><dd>None</dd></div>
+        <div><dt class="label">Analytics</dt><dd>None</dd></div>
+        <div><dt class="label">Crash reports</dt><dd>None</dd></div>
+        <div><dt class="label">Your library</dt><dd>On your Mac</dd></div>
+        <div><dt class="label">Cookies here</dt><dd>None</dd></div>
+        <div><dt class="label">Source code</dt><dd>Public</dd></div>
+      </dl>
+    </aside>
+
+    <article class="prose reveal">
+      <h2>The app</h2>
+      <p>OrbTorrent has no account, no analytics and no crash reporting. Your library, settings and extension passwords stay on your Mac. It connects only to:</p>
+      <ul>
+        {connections.map(([name, why]) => <li><strong>{name}</strong>, {why}</li>)}
+      </ul>
+      <p>Report a Problem, in the Help menu, only opens your own mail app with the report filled in, and nothing is sent until you send it.</p>
+      <p>The same note is in the app, under <strong>About OrbTorrent › Privacy</strong>.</p>
+
+      <h2>This website</h2>
+      <ul>
+        <li>It sets no cookies, shows no ads, and has no trackers.</li>
+        <li>It's served by Cloudflare. We count visits with Cloudflare Web Analytics, which uses no cookies and doesn't follow you from site to site: it counts pages, the site that sent you, and your country.</li>
+        <li>When you download OrbTorrent, we count it, with the page you clicked Download on, or the site that linked to it, and your country. Not your address.</li>
+        <li>The disk image itself comes from GitHub, where OrbTorrent's releases are kept, and GitHub's privacy statement applies there.</li>
+      </ul>
+
+      <h2>Writing to us</h2>
+      <p>If you write to <a href={`mailto:${site.email}`}>{site.email}</a>, we use your address only to reply.</p>
+
+      <p class="label mt-12">Last updated on 2 October 2026</p>
+    </article>
+  </div>
+</Base>
+
+<style>
+  .layout {
+    display: grid;
+    gap: 3rem;
+    padding-block: clamp(3rem, 7vw, 5rem);
+  }
+  .layout .prose > h2:first-child { margin-top: 0; }
+  .glance { padding: 1.6rem 1.75rem; align-self: start; }
+  @media (min-width: 1024px) {
+    .layout { grid-template-columns: minmax(0, 1fr) 19rem; gap: 6rem; }
+    .glance { position: sticky; top: 6rem; order: 2; }
+  }
+</style>

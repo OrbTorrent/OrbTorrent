@@ -1,0 +1,123 @@
+---
+import Base from "../layouts/Base.astro";
+import PageHero from "../components/PageHero.astro";
+import LiveOrb from "../components/LiveOrb.astro";
+import DownloadButton from "../components/DownloadButton.astro";
+import ArrowRight from "@lucide/astro/icons/arrow-right";
+import { site } from "../lib/site";
+import { application, breadcrumbs, graph, organization } from "../lib/schema";
+
+const schema = graph(organization, application, breadcrumbs([{ name: "Download", path: "/download" }]));
+const steps = [
+  { title: "Open the disk image", body: "Open the disk image you downloaded." },
+  { title: "Drag it to Applications", body: "Drag OrbTorrent into the Applications folder." },
+  { title: "Open OrbTorrent", body: "Click Open when macOS checks, the first time. It offers to bring your downloads over, and to open your magnet links and .torrent files." },
+];
+---
+
+<Base
+  title="Download OrbTorrent for Mac"
+  description="Download OrbTorrent, the free, open-source torrent app made for the Mac. One universal app for macOS 26 or later, on Apple silicon and Intel."
+  schema={schema}
+>
+  <PageHero label="Download" title="Get OrbTorrent" tone="for your Mac.">
+    One universal app for {site.requirements}, on Apple silicon and Intel. Free, with no account and no ads.
+  </PageHero>
+
+  <section class="wrap">
+    <div class="stage get reveal">
+      <div class="get-text">
+        <img src="/icon-192.png" alt="" width="72" height="72" class="app-icon" />
+        <p class="mt-6 text-2xl font-medium tracking-tight">OrbTorrent</p>
+        <p class="mt-1.5 text-[0.9375rem] text-[var(--ink-2)]">
+          Universal disk image for Apple silicon and Intel
+        </p>
+        <DownloadButton href={site.download} tone="light" class="mt-8" />
+        <p class="mt-5 text-sm text-[var(--ink-3)]">
+          Release notes and earlier versions are on <a class="underline underline-offset-3 decoration-white/30 hover:decoration-white" href={site.releases}>GitHub</a>.
+        </p>
+      </div>
+      <div class="get-orb" aria-hidden="true"><LiveOrb size="clamp(9rem, 22vw, 15rem)" /></div>
+    </div>
+  </section>
+
+  <div class="rule mt-20"></div>
+
+  <section class="wrap inset pt-16">
+    <h2 class="heading reveal">Install it</h2>
+  </section>
+  <ol class="wrap cells cells-3 mt-10 reveal">
+    {steps.map((step, index) => (
+      <li class="cell">
+        <span class="cell-number">{index + 1}</span>
+        <h3 class="mt-5 text-[1.0625rem] font-medium tracking-tight">{step.title}</h3>
+        <p class="mt-2 text-[0.9375rem] muted">{step.body}</p>
+      </li>
+    ))}
+  </ol>
+
+  <section class="wrap inset pt-16 grid gap-6 lg:grid-cols-2">
+    <div class="dossier p-7 sm:p-9 reveal">
+      <p class="label">What it needs</p>
+      <dl class="facts mt-6">
+        <div><dt class="label">macOS</dt><dd>26 (Tahoe) or later</dd></div>
+        <div><dt class="label">Mac</dt><dd>Apple silicon or Intel</dd></div>
+        <div><dt class="label">Price</dt><dd>Free and open source</dd></div>
+        <div><dt class="label">Updates</dt><dd>Signed, and installed when you quit</dd></div>
+      </dl>
+    </div>
+    <div class="grid gap-6 content-start reveal" style="--delay: 0.06s">
+      <div class="panel p-7">
+        <p class="label">Uninstall it</p>
+        <p class="mt-3 muted">
+          Quit OrbTorrent and drag it to the Trash. Your library and settings are in <code class="kbd">~/Library/Application Support/OrbTorrent</code>, if you'd like them gone too. Your downloaded files stay where they are.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <section class="wrap inset pt-16">
+    <a href="/switch" class="switch art art-peach reveal">
+      <span>
+        <span class="label">Switching</span>
+        <span class="block mt-3 text-xl font-medium tracking-tight">Coming from Transmission or qBittorrent?</span>
+        <span class="block mt-1 muted">Your downloads and settings come over in one step, progress and all.</span>
+      </span>
+      <span class="switch-arrow"><ArrowRight size={20} /></span>
+    </a>
+  </section>
+</Base>
+
+<style>
+  .get {
+    display: grid;
+    gap: 2rem;
+    padding: clamp(2rem, 5vw, 3.75rem);
+    min-height: 26rem;
+    align-items: center;
+  }
+  @media (min-width: 820px) {
+    .get { grid-template-columns: 1fr auto; padding-right: clamp(3rem, 8vw, 7rem); }
+  }
+  .get-orb { justify-self: center; }
+  .app-icon { filter: drop-shadow(0 10px 30px rgb(56 133 255 / 0.45)); }
+  .switch {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1.5rem;
+    padding: 1.75rem 2rem;
+  }
+  .switch-arrow {
+    display: grid;
+    place-items: center;
+    flex: none;
+    width: 2.75rem;
+    height: 2.75rem;
+    border-radius: 999px;
+    background: var(--ink);
+    color: var(--paper);
+    transition: translate 0.3s var(--ease-out-soft);
+  }
+  .switch:hover .switch-arrow { translate: 3px 0; }
+</style>

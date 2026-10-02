@@ -1,0 +1,18 @@
+---
+interface Props {
+  label?: string;
+  title: string;
+  /** The heading's second half, in pencil. */
+  tone?: string;
+  dot?: string;
+  center?: boolean;
+  class?: string;
+}
+const { label, title, tone, dot, center = false, class: className } = Astro.props;
+---
+
+<div class:list={["reveal max-w-3xl", center && "mx-auto text-center", className]}>
+  {label && <p class="label label-dot" style={dot ? `--dot: ${dot}` : undefined}>{label}</p>}
+  <h2 class="heading mt-5">{title}{tone && <> <span class="tone">{tone}</span></>}</h2>
+  {Astro.slots.has("default") && <div class:list={["serif mt-5 max-w-2xl", center && "mx-auto"]}><slot /></div>}
+</div>

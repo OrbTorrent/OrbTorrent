@@ -1,0 +1,149 @@
+---
+import Menu from "@lucide/astro/icons/menu";
+import X from "@lucide/astro/icons/x";
+import GitHubMark from "./GitHubMark.astro";
+import AppleMark from "./AppleMark.astro";
+import { site } from "../lib/site";
+
+const links = [
+  { href: "/#features", label: "Features" },
+  { href: "/extensions", label: "Extensions" },
+  { href: "/switch", label: "Switch" },
+  { href: "/faq", label: "FAQ" },
+  { href: site.docs, label: "Docs" },
+];
+const here = Astro.url.pathname.replace(/\.html$/, "");
+---
+
+<header class="nav" data-nav>
+  <nav class="wrap inset nav-inner" aria-label="Main">
+    <a href="/" class="brand" aria-label="OrbTorrent home">
+      <img src="/brand/orb-mark.webp" alt="" width="24" height="24" />
+      <span>OrbTorrent</span>
+    </a>
+    <ul class="links">
+      {links.map((link) => (
+        <li><a href={link.href} aria-current={here === link.href ? "page" : undefined}>{link.label}</a></li>
+      ))}
+    </ul>
+    <div class="actions">
+      <a href={site.repo} class="icon-link github" aria-label="OrbTorrent on GitHub"><GitHubMark /></a>
+      <a href="/download" class="btn btn-dark btn-sm download" data-download><AppleMark size={15} /> Download</a>
+      <button class="icon-link menu-button" popovertarget="menu" aria-label="Menu"><Menu size={20} /></button>
+    </div>
+  </nav>
+  <div id="menu" popover class="menu">
+    <button class="icon-link close" popovertarget="menu" popovertargetaction="hide" aria-label="Close menu"><X size={20} /></button>
+    <ul>
+      {links.map((link) => <li><a href={link.href}>{link.label}</a></li>)}
+      <li><a href={site.repo}>GitHub</a></li>
+      <li><a href="/download" class="btn btn-dark w-full mt-3 download" data-download><AppleMark size={17} /> Download for Mac</a></li>
+    </ul>
+  </div>
+</header>
+
+<style>
+  .nav {
+    position: fixed;
+    inset: 0 0 auto;
+    z-index: 50;
+    border-bottom: 1px solid transparent;
+    transition: background-color 0.3s, border-color 0.3s;
+  }
+  .nav[data-scrolled] {
+    background: color-mix(in srgb, var(--paper) 82%, transparent);
+    border-bottom-color: var(--line);
+    backdrop-filter: blur(16px) saturate(1.5);
+  }
+  .nav-inner {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    height: 4rem;
+  }
+  /* The Apple logo's leaf makes it look low; a touch higher sits it on the word. */
+  .download { gap: 0.4rem; }
+  .download :global(svg) { flex: none; translate: 0 -1px; }
+  .brand {
+    flex: none;
+    display: flex;
+    align-items: center;
+    gap: 0.55rem;
+    font-weight: 600;
+    letter-spacing: -0.03em;
+    font-size: 1.0625rem;
+  }
+  .links {
+    display: none;
+    gap: 0.15rem;
+    margin-inline: auto;
+  }
+  .links a {
+    display: block;
+    padding: 0.35rem 0.75rem;
+    border-radius: 999px;
+    font-size: 0.9375rem;
+    color: var(--ink-2);
+    transition: color 0.2s, background-color 0.2s;
+  }
+  .links a:hover,
+  .links a[aria-current] { color: var(--ink); background: var(--paper-2); }
+  .actions {
+    margin-left: auto;
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+  }
+  .icon-link {
+    display: grid;
+    place-items: center;
+    width: 2.25rem;
+    height: 2.25rem;
+    border-radius: 999px;
+    color: var(--ink-2);
+    transition: color 0.2s, background-color 0.2s;
+  }
+  .icon-link:hover { color: var(--ink); background: var(--paper-2); }
+  /* On the narrowest phones GitHub waits in the menu, so the bar still fits. */
+  /* The menu's icon, not its button, lines up with the page's edge. */
+  .menu-button { margin-right: -0.5rem; }
+  @media (max-width: 399px) {
+    .github { display: none; }
+    .nav-inner { gap: 0.75rem; }
+    .brand { font-size: 1rem; }
+  }
+  /* And on the very narrowest, the Download button is just the word. */
+  @media (max-width: 359px) {
+    .actions .download { padding-inline: 0.8rem; }
+    .actions .download :global(svg) { display: none; }
+  }
+  @media (min-width: 860px) {
+    .links { display: flex; }
+    /* The links, centred, keep the buttons at the end. */
+    .links + .actions { margin-left: 0; }
+    .menu-button { display: none; }
+  }
+  .menu {
+    inset: 0.75rem 0.75rem auto auto;
+    margin: 0;
+    width: min(20rem, calc(100vw - 1.5rem));
+    padding: 0.85rem;
+    border-radius: 1.25rem;
+    color: var(--ink);
+    background: var(--card);
+    border: 1px solid var(--line);
+    box-shadow: var(--shadow);
+  }
+  .menu::backdrop { background: rgb(19 19 22 / 0.18); }
+  .menu ul { display: grid; gap: 0.1rem; margin-top: 0.25rem; }
+  .menu a:not(.btn) { display: block; padding: 0.65rem 0.75rem; border-radius: 0.7rem; font-weight: 500; }
+  .menu a:not(.btn):hover { background: var(--paper-2); }
+  .close { margin-left: auto; }
+</style>
+
+<script>
+  const nav = document.querySelector<HTMLElement>("[data-nav]")!;
+  const update = () => nav.toggleAttribute("data-scrolled", window.scrollY > 8);
+  update();
+  addEventListener("scroll", update, { passive: true });
+</script>

@@ -1,0 +1,82 @@
+---
+// The start of the docs: the orb, lit, beside what the docs cover.
+import { LinkButton } from "@astrojs/starlight/components";
+import LiveOrb from "../LiveOrb.astro";
+
+const { data } = Astro.locals.starlightRoute.entry;
+const { title = data.title, tagline, actions = [] } = data.hero ?? {};
+---
+
+<div class="hero">
+  <div class="copy">
+    <p class="eyebrow">OrbTorrent Docs</p>
+    <h1 id="_top" data-page-title set:html={title} />
+    {tagline && <p class="tagline" set:html={tagline} />}
+    {actions.length > 0 && (
+      <div class="actions">
+        {actions.map(({ link: href, text, variant, attrs }) => (
+          <LinkButton href={href} variant={variant} {...attrs}>{text}</LinkButton>
+        ))}
+      </div>
+    )}
+  </div>
+  <div class="stage" aria-hidden="true">
+    <LiveOrb size="clamp(6.5rem, 16vw, 9.5rem)" state={{ kind: "downloading", progress: 0.7, energy: 0.8 }} eager />
+  </div>
+</div>
+
+<style>
+  .hero {
+    display: grid;
+    gap: 2rem;
+    align-items: center;
+    padding-block: 1.5rem 0.5rem;
+  }
+  @media (min-width: 50rem) {
+    .hero { grid-template-columns: 1fr auto; gap: 3rem; padding-block: 2.5rem 1rem; }
+  }
+  .eyebrow {
+    font-family: var(--__sl-font-mono);
+    font-size: 0.75rem;
+    font-weight: 500;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--sl-color-gray-3);
+  }
+  h1 {
+    margin-top: 0.75rem;
+    font-size: clamp(2.25rem, 1.4rem + 3vw, 3.25rem);
+    line-height: 1.02;
+    letter-spacing: -0.045em;
+    color: var(--sl-color-white);
+  }
+  .tagline {
+    margin-top: 1rem;
+    max-width: 34rem;
+    font-size: var(--sl-text-lg);
+    line-height: 1.55;
+    color: var(--sl-color-gray-2);
+  }
+  .actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem 1.25rem;
+    margin-top: 1.75rem;
+  }
+  /* The orb on a night tile, as the rest of the site lights it. */
+  .stage {
+    display: grid;
+    place-items: center;
+    justify-self: start;
+    width: clamp(10rem, 24vw, 14rem);
+    aspect-ratio: 1;
+    border-radius: 1.5rem;
+    background:
+      radial-gradient(70% 55% at 50% 108%, rgb(56 133 255 / 0.46), transparent 70%),
+      radial-gradient(120% 90% at 50% 100%, #0c1636 0%, #070b1c 45%, #05070f 80%);
+    box-shadow: inset 0 0 0 1px rgb(255 255 255 / 0.06);
+  }
+  @media (min-width: 50rem) {
+    .stage { justify-self: end; }
+  }
+</style>

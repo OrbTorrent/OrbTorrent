@@ -1,0 +1,130 @@
+---
+import Base from "../layouts/Base.astro";
+import PageHero from "../components/PageHero.astro";
+import Download from "@lucide/astro/icons/download";
+import { site } from "../lib/site";
+import { breadcrumbs, graph, organization } from "../lib/schema";
+
+const schema = graph(organization, breadcrumbs([{ name: "Press kit", path: "/press" }]));
+const facts = [
+  ["Name", "OrbTorrent"],
+  ["What it is", "A torrent app for the Mac"],
+  ["Developer", site.author],
+  ["Price", "Free, with no ads and no account"],
+  ["Licence", "GNU GPL 3.0 or later"],
+  ["Requirements", "macOS 26 or later, on Apple silicon or Intel"],
+  ["Built with", "Swift and SwiftUI, with qBittorrent's engine"],
+  ["Website", "orbtorrent.com"],
+  ["Source code", "github.com/sanjevirau/OrbTorrent"],
+  ["Contact", site.email],
+];
+const assets = [
+  { file: "/press/orbtorrent-icon.png", name: "App icon", detail: "PNG, 1024 × 1024", night: false, preview: [480, 480] },
+  { file: "/press/orbtorrent-orb.png", name: "The orb", detail: "PNG with transparency, 1440 × 1440", night: true, preview: [480, 480] },
+  { file: "/press/orbtorrent-overview.jpg", name: "OrbTorrent on a Mac, with its name", detail: "JPEG, 2400 × 1695", night: false, preview: [720, 508] },
+  { file: "/press/orbtorrent-overview-plain.jpg", name: "OrbTorrent on a Mac", detail: "JPEG, 2400 × 1695", night: false, preview: [720, 508] },
+  { file: "/press/orbtorrent-library.png", name: "The library window", detail: "PNG, 3104 × 2024", night: false, preview: [720, 469] },
+  { file: "/press/orbtorrent-menu-bar.png", name: "The menu bar panel", detail: "PNG, 852 × 972", night: false, preview: [480, 548] },
+  { file: "/press/orbtorrent-extensions.png", name: "The Extensions page", detail: "PNG, 3104 × 1768", night: false, preview: [720, 410] },
+];
+---
+
+<Base
+  title="Press kit · OrbTorrent"
+  description="Facts, descriptions, the icon and screenshots of OrbTorrent, the free, open-source torrent app for the Mac, for anyone writing about it."
+  schema={schema}
+>
+  <PageHero label="Press kit" title="Writing about" tone="OrbTorrent?">
+    Everything you need is here, free to use when you write about OrbTorrent. For anything else, or an early build, write to <a class="link" href={`mailto:${site.email}`}>{site.email}</a>.
+  </PageHero>
+
+  <div class="rule"></div>
+
+  <section class="wrap inset section grid gap-12 lg:grid-cols-[0.95fr_1.05fr]">
+    <div class="dossier p-7 sm:p-9 self-start reveal">
+      <p class="label">Fact sheet</p>
+      <dl class="facts mt-6">
+        {facts.map(([what, value]) => <div><dt class="label">{what}</dt><dd>{value}</dd></div>)}
+      </dl>
+    </div>
+    <div class="reveal" style="--delay: 0.06s">
+      <p class="label">In one sentence</p>
+      <p class="serif mt-4 text-[var(--ink)]">OrbTorrent is a free, open-source torrent app for the Mac that lives in the menu bar, keeps downloads on your VPN and holds fake downloads before they arrive, with qBittorrent's engine underneath.</p>
+      <p class="label mt-12">In a few more</p>
+      <div class="mt-4 grid gap-4 muted">
+        <p>OrbTorrent is a native Mac app, written in Swift and SwiftUI, that runs qBittorrent's engine. It lives in the menu bar, where a small orb fills as downloads progress, and has a full library window when you want one.</p>
+        <p>It can download only through a VPN, stopping if the VPN drops instead of carrying on over the normal connection, and keeps a VPN's forwarded port in step by itself. Its Fake Download Check holds a download that looks fake, such as a film that's really a program, before any of it arrives.</p>
+        <p>It brings downloads and settings over from Transmission or qBittorrent in one step. It's free and GPL-licensed, with no ads, no account and no analytics, and extensions written in TypeScript can add checks of their own.</p>
+      </div>
+    </div>
+  </section>
+
+  <div class="rule"></div>
+
+  <section class="wrap inset section">
+    <h2 class="heading reveal">Images</h2>
+    <ul class="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+      {assets.map((asset, index) => (
+        <li class="reveal" style={`--delay: ${(index % 3) * 0.05}s`}>
+          <a href={asset.file} download class="asset">
+            <span class:list={["preview", asset.night ? "stage" : "art art-blue"]}>
+              <img src={asset.file.replace("/press/", "/press/previews/").replace(/\.(png|jpg)$/, ".webp")} alt="" width={asset.preview[0]} height={asset.preview[1]} loading="lazy" decoding="async" />
+            </span>
+            <span class="caption">
+              <span>
+                <span class="block font-medium tracking-tight">{asset.name}</span>
+                <span class="block label mt-1">{asset.detail}</span>
+              </span>
+              <span class="get"><Download size={16} /></span>
+            </span>
+          </a>
+        </li>
+      ))}
+    </ul>
+    <p class="mt-10 muted max-w-2xl reveal">
+      Please write the name as one word, OrbTorrent, and show only legal downloads in any screenshots of your own, such as Linux images or open films.
+      The name and the orb icon belong to {site.author}; you're welcome to use them to write about OrbTorrent.
+    </p>
+  </section>
+</Base>
+
+<style>
+  .section { padding-block: clamp(4rem, 8vw, 6rem); }
+  .asset { display: block; }
+  .preview {
+    display: block;
+    position: relative;
+    aspect-ratio: 16 / 10;
+    border-radius: 1rem;
+    transition: translate 0.3s var(--ease-out-soft);
+  }
+  .asset:hover .preview { translate: 0 -3px; }
+  .preview img {
+    position: absolute;
+    inset: 1.1rem;
+    width: calc(100% - 2.2rem);
+    height: calc(100% - 2.2rem);
+    max-width: none;
+    object-fit: contain;
+    filter: drop-shadow(0 14px 24px rgb(30 40 90 / 0.25));
+  }
+  .caption {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 0.9rem 0.25rem 0;
+  }
+  .get {
+    display: grid;
+    place-items: center;
+    flex: none;
+    width: 2.25rem;
+    height: 2.25rem;
+    border-radius: 999px;
+    background: var(--paper-2);
+    box-shadow: inset 0 0 0 1px var(--line);
+    transition: background-color 0.2s, color 0.2s;
+  }
+  .asset:hover .get { background: var(--ink); color: var(--paper); }
+</style>

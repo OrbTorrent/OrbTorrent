@@ -1,0 +1,13 @@
+---
+title: Changelog
+description: What's changed in each version of @orbtorrent/api, the extension API and the orb command, and which OrbTorrent each needs.
+tableOfContents: false
+---
+
+import SdkChangelog from "../../../../../components/docs/SdkChangelog.astro";
+
+Each version of `@orbtorrent/api` and `@orbtorrent/create-extension`, newest first. They share a version, and are released together.
+
+The major and minor version are the extension API's: a patch version improves `orb` and fixes bugs, a minor version adds to the API, and a major version is for anything that would break an extension. [Versions](/docs/extensions/reference/api#versions) explains which OrbTorrent each needs. To update an extension, raise `@orbtorrent/api` in its `package.json`, run `npm install`, then test and build it again.
+
+<SdkChangelog />

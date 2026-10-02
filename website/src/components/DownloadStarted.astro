@@ -1,0 +1,119 @@
+---
+// On a Mac, a Download button starts the download straight away, without
+// leaving the page, and this note says what to do with it. On anything else,
+// and without JavaScript, the buttons open the download page. A button opts in
+// with data-download. Its colours are its own, for the site and the docs.
+import X from "@lucide/astro/icons/x";
+import { site } from "../lib/site";
+---
+
+<p class="download-started-status" role="status" data-download-status></p>
+<div class="download-started" hidden data-download-started data-href={site.download}>
+  <img src="/icon-192.png" alt="" width="44" height="44" />
+  <div>
+    <p class="download-started-title">Downloading OrbTorrent</p>
+    <p class="download-started-body">When it's done, open the disk image and drag OrbTorrent into Applications.</p>
+    <p class="download-started-links">
+      <a href={site.download} data-astro-prefetch="false">Download again</a>
+      <a href="/docs/get-started/install">Install help</a>
+    </p>
+  </div>
+  <button type="button" class="download-started-close" aria-label="Close" data-download-close><X size={16} /></button>
+</div>
+
+<script>
+  const note = document.querySelector<HTMLElement>("[data-download-started]");
+  const status = document.querySelector<HTMLElement>("[data-download-status]");
+  // A Mac, and not an iPad, which says it's a Mac too but has a touch screen.
+  const mac = /Macintosh/.test(navigator.userAgent) && navigator.maxTouchPoints === 0;
+
+  if (note && status && mac) {
+    const close = () => { note.hidden = true; };
+    document.addEventListener("click", (event) => {
+      const link = event.target instanceof Element ? event.target.closest("a[data-download]") : null;
+      if (!link || event.defaultPrevented || event.button !== 0) return;
+      // Command-click and the like keep their usual meaning.
+      if (event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
+      event.preventDefault();
+      link.closest<HTMLElement>("[popover]")?.hidePopover();
+      // The disk image comes as a download, so the page stays put.
+      location.assign(note.dataset.href!);
+      note.hidden = false;
+      status.textContent = "Downloading OrbTorrent. When it's done, open the disk image and drag OrbTorrent into Applications.";
+    });
+    note.querySelector("[data-download-close]")?.addEventListener("click", close);
+    document.addEventListener("keydown", (event) => { if (event.key === "Escape") close(); });
+  }
+</script>
+
+<style>
+  .download-started-status {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+  .download-started {
+    position: fixed;
+    right: max(1rem, env(safe-area-inset-right));
+    bottom: max(1rem, env(safe-area-inset-bottom));
+    z-index: 60;
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    align-items: start;
+    gap: 0.9rem;
+    width: min(23rem, calc(100vw - 2rem));
+    padding: 1rem;
+    border-radius: 1.25rem;
+    background: #131316;
+    color: #f6f5f1;
+    box-shadow: inset 0 0 0 1px rgb(255 255 255 / 0.08), 0 24px 60px -20px rgb(19 19 22 / 0.6);
+    font-size: 0.875rem;
+    line-height: 1.45;
+    animation: download-started-rise 0.45s cubic-bezier(0.22, 1, 0.36, 1);
+  }
+  .download-started[hidden] { display: none; }
+  .download-started img { width: 2.75rem; height: 2.75rem; }
+  .download-started-title {
+    margin: 0;
+    font-size: 0.9375rem;
+    font-weight: 500;
+    letter-spacing: -0.01em;
+    color: #fff;
+  }
+  .download-started-body { margin: 0.15rem 0 0; color: rgb(246 245 241 / 0.7); }
+  .download-started-links {
+    display: flex;
+    gap: 1rem;
+    margin: 0.6rem 0 0;
+  }
+  .download-started-links a {
+    color: #fff;
+    font-weight: 500;
+    text-decoration: underline;
+    text-decoration-color: rgb(255 255 255 / 0.3);
+    text-underline-offset: 3px;
+  }
+  .download-started-links a:hover { text-decoration-color: #fff; }
+  .download-started-close {
+    display: grid;
+    place-items: center;
+    width: 1.75rem;
+    height: 1.75rem;
+    margin: -0.25rem -0.25rem 0 0;
+    border: 0;
+    border-radius: 999px;
+    background: transparent;
+    color: rgb(246 245 241 / 0.6);
+    cursor: pointer;
+  }
+  .download-started-close:hover { background: rgb(255 255 255 / 0.08); color: #fff; }
+  @keyframes download-started-rise {
+    from { opacity: 0; translate: 0 0.75rem; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .download-started { animation: none; }
+  }
+</style>

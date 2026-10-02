@@ -1,0 +1,47 @@
+---
+import Plus from "@lucide/astro/icons/plus";
+import type { Faq } from "../lib/faqs";
+interface Props { items: Faq[] }
+const { items } = Astro.props;
+---
+
+<div class="faq reveal">
+  {items.map((item) => (
+    <details name="faq">
+      <summary>
+        <span>{item.question}</span>
+        <Plus size={18} class="sign" aria-hidden="true" />
+      </summary>
+      <p>{item.answer}</p>
+    </details>
+  ))}
+</div>
+
+<style>
+  .faq { border-top: 1px solid var(--line-2); }
+  details { border-bottom: 1px solid var(--line-2); interpolate-size: allow-keywords; }
+  summary {
+    list-style: none;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1.5rem;
+    padding: 1.2rem 0;
+    font-size: 1.0625rem;
+    font-weight: 500;
+    letter-spacing: -0.015em;
+    cursor: pointer;
+    transition: color 0.2s;
+  }
+  summary:hover { color: var(--accent); }
+  summary::-webkit-details-marker { display: none; }
+  summary :global(.sign) { flex: none; color: var(--ink-3); transition: rotate 0.35s var(--ease-out-soft); }
+  details[open] summary :global(.sign) { rotate: 45deg; color: var(--ink); }
+  details p { padding: 0 2.5rem 1.35rem 0; color: var(--ink-2); }
+  details::details-content {
+    block-size: 0;
+    overflow: clip;
+    transition: block-size 0.4s var(--ease-out-soft), content-visibility 0.4s allow-discrete;
+  }
+  details[open]::details-content { block-size: auto; }
+</style>

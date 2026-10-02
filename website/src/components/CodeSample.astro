@@ -1,0 +1,61 @@
+---
+// The extension `npm create @orbtorrent/extension` starts you with: a size
+// limit, checked before a download starts. Its lines are kept short enough
+// to show whole beside the text.
+import { Code } from "astro:components";
+
+const code = `import { Download, Result, getPreferenceValues } from "@orbtorrent/api";
+
+const gigabyte = 1_000_000_000;
+
+/** Runs when a download's files are known, before any of it downloads. */
+export default async function check(download: Download): Promise<Result> {
+  const { limit } = getPreferenceValues();
+  const size = (download.size / gigabyte).toFixed(1);
+  if (download.size > Number(limit) * gigabyte) {
+    // "failed" holds the download until you start it.
+    return { status: "failed", summary: \`It's \${size} GB, over your limit\` };
+  }
+  return { status: "passed", summary: \`\${size} GB, within your limit\` };
+}`;
+---
+
+<figure class="code">
+  <figcaption>
+    <span class="lights" aria-hidden="true"><i></i><i></i><i></i></span>
+    <span>src/check.ts</span>
+  </figcaption>
+  <Code code={code} lang="ts" theme="github-light-default" wrap={false} />
+</figure>
+
+<style>
+  .code {
+    border-radius: 1rem;
+    overflow: hidden;
+    background: var(--card);
+    box-shadow: inset 0 0 0 1px var(--line), var(--shadow);
+  }
+  figcaption {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 0.75rem 1.1rem;
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    color: var(--ink-3);
+    border-bottom: 1px solid var(--line);
+    background: var(--paper-2);
+  }
+  .lights { display: inline-flex; gap: 0.4rem; }
+  .lights i { width: 0.65rem; height: 0.65rem; border-radius: 999px; background: var(--line-2); }
+  .code :global(pre) {
+    margin: 0;
+    padding: 1.2rem 1.25rem 1.4rem;
+    background: transparent !important;
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    line-height: 1.75;
+    overflow-x: auto;
+    scrollbar-width: thin;
+  }
+</style>

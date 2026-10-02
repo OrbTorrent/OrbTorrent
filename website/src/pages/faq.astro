@@ -1,0 +1,51 @@
+---
+import Base from "../layouts/Base.astro";
+import PageHero from "../components/PageHero.astro";
+import Faq from "../components/Faq.astro";
+import GitHubMark from "../components/GitHubMark.astro";
+import Mail from "@lucide/astro/icons/mail";
+import ArrowRight from "@lucide/astro/icons/arrow-right";
+import { site } from "../lib/site";
+import { faqs } from "../lib/faqs";
+import { breadcrumbs, faqPage, graph, organization } from "../lib/schema";
+
+const schema = graph(organization, faqPage(faqs), breadcrumbs([{ name: "FAQ", path: "/faq" }]));
+---
+
+<Base
+  title="Questions and answers · OrbTorrent"
+  description="Is OrbTorrent free? Is it legal? Does it work with my VPN, and with private trackers? Answers to the questions people ask about OrbTorrent for Mac."
+  schema={schema}
+>
+  <PageHero label="Questions" title="Questions," tone="answered.">
+    Is it free, is it legal, and does it work with your VPN? The answers to what people ask most.
+  </PageHero>
+
+  <div class="rule"></div>
+
+  <section class="wrap inset layout">
+    <Faq items={faqs} />
+    <aside class="dossier ask reveal" style="--delay: 0.08s">
+      <p class="label">Still wondering?</p>
+      <p class="mt-3 muted">Ask by email, or report a problem on GitHub.</p>
+      <div class="mt-6 grid gap-2.5">
+        <a href={`mailto:${site.email}`} class="btn btn-dark btn-sm"><Mail size={15} /> {site.email}</a>
+        <a href={site.issues} class="btn btn-soft btn-sm"><GitHubMark size={15} /> Report a problem</a>
+      </div>
+      <a href="/switch" class="arrow-link mt-6 text-[0.9375rem]">Switching from another app <ArrowRight size={15} /></a>
+    </aside>
+  </section>
+</Base>
+
+<style>
+  .layout {
+    display: grid;
+    gap: 3rem;
+    padding-block: clamp(3rem, 7vw, 5rem);
+  }
+  .ask { padding: 1.6rem 1.75rem; align-self: start; }
+  @media (min-width: 1024px) {
+    .layout { grid-template-columns: minmax(0, 1fr) 19rem; gap: 6rem; }
+    .ask { position: sticky; top: 6rem; }
+  }
+</style>

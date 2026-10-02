@@ -1,0 +1,55 @@
+---
+// Moving in, drawn: from Transmission or qBittorrent to OrbTorrent, with
+// what comes along.
+import ArrowRight from "@lucide/astro/icons/arrow-right";
+import Check from "@lucide/astro/icons/check";
+---
+
+<div class="move" role="img" aria-label="From Transmission or qBittorrent to OrbTorrent: save locations, file choices, names and labels, limits and history, and progress come over">
+  <div class="from">
+    <span class="app">Transmission</span>
+    <span class="app">qBittorrent</span>
+  </div>
+  <span class="arrow"><ArrowRight size={20} /></span>
+  <div class="to">
+    <div class="head"><img src="/brand/orb-mark.webp" alt="" width="24" height="24" loading="lazy" /> OrbTorrent</div>
+    <ul>
+      {["Save locations", "File choices", "Names and labels", "Limits and history", "Progress"].map((item) => (
+        <li><Check size={15} /> {item}</li>
+      ))}
+    </ul>
+  </div>
+</div>
+
+<style>
+  .move {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: center;
+    gap: 1.25rem;
+    width: 100%;
+  }
+  .from { display: grid; gap: 0.6rem; }
+  .app {
+    padding: 0.7rem 1.1rem;
+    border-radius: 0.8rem;
+    font-weight: 600;
+    font-size: 0.9375rem;
+    background: rgb(255 255 255 / 0.55);
+    box-shadow: inset 0 0 0 1px rgb(19 19 22 / 0.08);
+    color: var(--ink-2);
+  }
+  .arrow { color: var(--ink-3); }
+  .to {
+    min-width: 15rem;
+    padding: 1.2rem 1.3rem;
+    border-radius: 1.1rem;
+    background: var(--card);
+    box-shadow: var(--shadow);
+  }
+  .head { display: flex; align-items: center; gap: 0.6rem; font-weight: 600; letter-spacing: -0.02em; }
+  ul { margin-top: 0.9rem; display: grid; gap: 0.45rem; font-size: 0.9375rem; color: var(--ink-2); }
+  li { display: flex; align-items: center; gap: 0.55rem; }
+  li :global(svg) { color: #16a061; }
+</style>

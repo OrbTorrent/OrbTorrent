@@ -1,0 +1,125 @@
+---
+import Laptop from "@lucide/astro/icons/laptop";
+import Lock from "@lucide/astro/icons/lock";
+import Users from "@lucide/astro/icons/users";
+// The VPN cut-off, drawn: downloads flow through the VPN, the VPN drops and
+// they stop rather than take your normal connection, then it's back.
+---
+
+<figure class="vpn glass" aria-label="Your Mac connects to peers only through the VPN. When the VPN drops, downloading stops instead of using your normal connection, and resumes when the VPN is back.">
+  <svg viewBox="0 0 440 236" class="w-full h-auto" aria-hidden="true">
+    <defs>
+      <linearGradient id="vpn-line" x1="0" x2="1">
+        <stop offset="0" stop-color="#6be5ff" />
+        <stop offset="1" stop-color="#4c8dff" />
+      </linearGradient>
+    </defs>
+    <!-- The normal connection, never used. -->
+    <path class="direct" d="M84 168 C 170 214, 270 214, 356 168" />
+    <g class="blocked" transform="translate(220 202)">
+      <circle r="11" />
+      <path d="M-4 -4 L4 4 M4 -4 L-4 4" />
+    </g>
+    <!-- Through the VPN. -->
+    <path class="tunnel" d="M84 120 C 130 70, 170 56, 220 56" />
+    <path class="tunnel" d="M220 56 C 270 56, 310 70, 356 120" />
+    <path class="flow" d="M84 120 C 130 70, 170 56, 220 56 C 270 56, 310 70, 356 120" />
+    <g class="break" transform="translate(152 76)"><path d="M-7 -7 L7 7" /></g>
+  </svg>
+  <div class="node mac"><span class="glyph"><Laptop size={18} /></span>Your Mac</div>
+  <div class="node vpnnode"><span class="glyph"><Lock size={18} /></span>VPN</div>
+  <div class="node peers"><span class="glyph"><Users size={18} /></span>Peers</div>
+  <p class="label direct-label">Normal connection · never used</p>
+  <p class="state">
+    <span class="on">Downloading through the VPN</span>
+    <span class="off">VPN dropped · downloading stopped</span>
+  </p>
+</figure>
+
+<style>
+  .vpn {
+    position: relative;
+    border-radius: 1.75rem;
+    padding: 1.5rem 1.5rem 1.25rem;
+    max-width: 30rem;
+    margin-inline: auto;
+    font-size: 0.8125rem;
+  }
+  svg { margin-top: 0.5rem; overflow: visible; }
+  .direct { fill: none; stroke: var(--line-strong); stroke-width: 2; stroke-dasharray: 3 7; stroke-linecap: round; }
+  .blocked circle { fill: color-mix(in srgb, var(--color-red) 16%, var(--bg)); stroke: color-mix(in srgb, var(--color-red) 70%, transparent); stroke-width: 1.5; }
+  .blocked path { stroke: var(--color-red); stroke-width: 2; stroke-linecap: round; }
+  .tunnel { fill: none; stroke: url(#vpn-line); stroke-width: 3; stroke-linecap: round; filter: drop-shadow(0 0 6px rgb(76 141 255 / 0.6)); }
+  .flow { fill: none; stroke: #e6f3ff; stroke-width: 3; stroke-linecap: round; stroke-dasharray: 2 22; animation: flow 1.1s linear infinite; }
+  .break { opacity: 0; }
+  .break path { stroke: var(--color-amber); stroke-width: 3; stroke-linecap: round; }
+  .node {
+    position: absolute;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.3rem;
+    font-weight: 600;
+    color: var(--ink);
+    translate: -50% -50%;
+  }
+  .glyph {
+    display: grid;
+    place-items: center;
+    width: 2.6rem;
+    height: 2.6rem;
+    border-radius: 999px;
+    font-size: 1rem;
+    background: var(--bg-raised);
+    border: 1px solid var(--line-strong);
+    box-shadow: 0 0 0 4px color-mix(in srgb, var(--bg) 60%, transparent);
+  }
+  /* Positions follow the drawing's 440 × 236 box, inside the padding. */
+  .mac { left: calc(1.5rem + (100% - 3rem) * 84 / 440); top: calc(2rem + (100% - 5.5rem) * 0.61); }
+  .peers { left: calc(1.5rem + (100% - 3rem) * 356 / 440); top: calc(2rem + (100% - 5.5rem) * 0.61); }
+  .vpnnode { left: 50%; top: calc(2rem + (100% - 5.5rem) * 0.22); }
+  .direct-label { text-align: center; margin-top: -0.25rem; color: var(--ink-3); }
+  .state {
+    position: relative;
+    margin-top: 1rem;
+    height: 2.1rem;
+    display: grid;
+    place-items: center;
+  }
+  .state span {
+    grid-area: 1 / 1;
+    padding: 0.35rem 0.85rem;
+    border-radius: 999px;
+    font-weight: 600;
+    transition: opacity 0.5s;
+  }
+  .on { background: color-mix(in srgb, var(--color-blue) 16%, transparent); color: color-mix(in srgb, var(--color-blue) 70%, var(--ink)); }
+  .off { background: color-mix(in srgb, var(--color-amber) 16%, transparent); color: color-mix(in srgb, var(--color-amber) 75%, var(--ink)); opacity: 0; }
+
+  /* Every eight seconds: connected, dropped, back again. */
+  @media (prefers-reduced-motion: no-preference) {
+    .tunnel, .flow, .break, .on, .off { animation-duration: 8s; animation-iteration-count: infinite; }
+    .tunnel { animation-name: tunnel; }
+    .flow { animation: flow 1.1s linear infinite, flowing 8s infinite; }
+    .break { animation-name: snap; }
+    .on { animation-name: on; }
+    .off { animation-name: off; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .tunnel { stroke: var(--color-amber); stroke-dasharray: 6 8; filter: none; }
+    .flow { display: none; }
+    .break { opacity: 1; }
+    .on { opacity: 0; }
+    .off { opacity: 1; }
+  }
+  @keyframes flow { to { stroke-dashoffset: -24; } }
+  @keyframes flowing { 0%, 40% { opacity: 1; } 45%, 82% { opacity: 0; } 88%, 100% { opacity: 1; } }
+  @keyframes tunnel {
+    0%, 40% { stroke: url(#vpn-line); stroke-dasharray: none; opacity: 1; }
+    45%, 82% { stroke: var(--color-amber); stroke-dasharray: 6 8; opacity: 0.7; }
+    88%, 100% { stroke: url(#vpn-line); stroke-dasharray: none; opacity: 1; }
+  }
+  @keyframes snap { 0%, 40% { opacity: 0; } 45%, 82% { opacity: 1; } 88%, 100% { opacity: 0; } }
+  @keyframes on { 0%, 40% { opacity: 1; } 45%, 82% { opacity: 0; } 88%, 100% { opacity: 1; } }
+  @keyframes off { 0%, 40% { opacity: 0; } 45%, 82% { opacity: 1; } 88%, 100% { opacity: 0; } }
+</style>

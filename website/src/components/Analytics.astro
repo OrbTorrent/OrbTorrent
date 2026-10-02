@@ -1,0 +1,17 @@
+---
+// Cloudflare Web Analytics, which counts pages without cookies: on
+// orbtorrent.com only, so previews and local builds aren't counted.
+import { site } from "../lib/site";
+
+const beacon = JSON.stringify({ token: site.analytics });
+---
+
+<script is:inline define:vars={{ beacon }}>
+  if (location.hostname === "orbtorrent.com") {
+    const script = document.createElement("script");
+    script.defer = true;
+    script.src = "https://static.cloudflareinsights.com/beacon.min.js";
+    script.dataset.cfBeacon = beacon;
+    document.head.append(script);
+  }
+</script>

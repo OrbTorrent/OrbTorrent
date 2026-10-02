@@ -1,0 +1,266 @@
+---
+title: Your first extension
+description: Build an extension that holds downloads containing Windows screensavers, test it, run it on a real download in OrbTorrent, and install it.
+---
+
+import { FileTree, Steps } from "@astrojs/starlight/components";
+
+In this tutorial you'll build **No Screensavers**, an extension that holds a download if it contains a Windows screensaver (`.scr`) file. Screensavers are programs, so a film or album that contains one is almost certainly a fake. It takes about ten minutes.
+
+You need:
+
+- **Node.js 22.13 or later.** Check with `node --version`. Install it from [nodejs.org](https://nodejs.org), or with `brew install node`.
+- **OrbTorrent,** open on your Mac.
+
+:::tip[Rather describe it than write it?]
+A coding agent can build this for you, tests and all. See [Build with a coding agent](/docs/extensions/coding-agents).
+:::
+
+## Make the extension
+
+<Steps>
+
+1. Make a new extension from the `before-start` template, and install what it needs:
+
+   ```sh
+   npm create @orbtorrent/extension@latest no-screensavers
+   cd no-screensavers
+   npm install
+   ```
+
+2. Look around. The new folder has:
+
+   <FileTree>
+   - no-screensavers/
+     - package.json the manifest: hooks, permissions, settings
+     - src/
+       - check.ts the hook, named after it
+     - tests/ JSON tests that run without OrbTorrent
+       - holds-a-big-download.json
+       - …
+     - assets/
+       - icon.png
+     - AGENTS.md everything in one file, for coding agents
+     - CLAUDE.md
+     - README.md
+     - CHANGELOG.md
+     - tsconfig.json
+   </FileTree>
+
+   The template already works: it holds downloads bigger than a size you choose. You'll change it into No Screensavers.
+
+</Steps>
+
+## Say what it does
+
+Open `package.json`. It's npm's manifest, with OrbTorrent's fields added. Change the description and the hook, and remove the template's setting:
+
+```json title="package.json" ins={4,11-12} del={17-24}
+{
+  "name": "no-screensavers",
+  "title": "No Screensavers",
+  "description": "Holds downloads that contain Windows screensaver (.scr) files, which are programs in disguise.",
+  "author": "you",
+  "icon": "icon.png",
+  "version": "1.0.0",
+  "hooks": [
+    {
+      "name": "check",
+      "title": "Look for screensavers",
+      "description": "Holds a download that contains a .scr file until you decide.",
+      "event": "beforeStart"
+    }
+  ],
+  "permissions": {},
+  "preferences": [
+    {
+      "name": "limit",
+      "type": "dropdown",
+      "title": "Hold downloads bigger than",
+      …
+    }
+  ],
+  …
+}
+```
+
+- **`"event": "beforeStart"`** runs the hook once a download's file list is known, before any of it downloads. That's when it can hold it.
+- **`"name": "check"`** means the hook is the default export of `src/check.ts`.
+- **`"permissions": {}`** asks for nothing beyond the names and sizes of the files, which every extension gets. Users see exactly what an extension can do before they install it, so ask only for what you need.
+
+Set `"author"` to your name. [Manifest](/docs/extensions/reference/manifest) has every field.
+
+## Write the hook
+
+Replace `src/check.ts` with:
+
+```ts title="src/check.ts"
+import { Download, Result } from "@orbtorrent/api";
+
+/** Runs when a download's files are known, before any of it downloads. */
+export default async function check(download: Download): Promise<Result> {
+  const screensavers = download.files.filter((file) => file.wanted && file.path.toLowerCase().endsWith(".scr"));
+  if (screensavers.length > 0) {
+    const names = screensavers.map((file) => file.path.split("/").pop()).join(", ");
+    return {
+      status: "failed",
+      summary: `Contains a screensaver, which is a Windows program: ${names}`,
+      details: "Windows runs a `.scr` file as a program when it's opened. Films, music and books never need one.",
+    };
+  }
+  return { status: "passed", summary: "No screensavers" };
+}
+```
+
+The hook gets the [download](/docs/extensions/hooks#what-a-hook-receives): its name, size and files, each with a `path`, a `size` and whether the user chose to download it, `wanted`. It returns a [result](/docs/extensions/results): a `status`, a one-line `summary` that says which file and why, and optional `details` in Markdown.
+
+A `failed` result from a `beforeStart` hook **holds** the download until the user decides. Files the user unticked are skipped here, since they won't arrive.
+
+## Test it
+
+Tests are JSON files in `tests/`, and run without OrbTorrent. Delete the template's tests, and add three of your own:
+
+```json title="tests/holds-a-screensaver.json"
+{
+  "name": "Holds a download with a screensaver in it",
+  "download": {
+    "name": "Ocean Life (2026) 1080p",
+    "files": [
+      { "path": "Ocean Life (2026) 1080p/Ocean Life.mp4", "size": 2400000000 },
+      { "path": "Ocean Life (2026) 1080p/Play Me.scr", "size": 480000 }
+    ]
+  },
+  "expect": { "status": "failed", "summaryIncludes": "Play Me.scr" }
+}
+```
+
+```json title="tests/lets-a-film-start.json"
+{
+  "name": "Lets a film without one start",
+  "download": {
+    "name": "Big Buck Bunny",
+    "files": [{ "path": "Big Buck Bunny/Big Buck Bunny.mp4", "size": 276000000 }]
+  },
+  "expect": { "status": "passed" }
+}
+```
+
+```json title="tests/ignores-a-skipped-screensaver.json"
+{
+  "name": "Ignores a screensaver the user isn't downloading",
+  "download": {
+    "name": "Screensavers Pack",
+    "files": [
+      { "path": "Screensavers Pack/Read Me.txt", "size": 1200 },
+      { "path": "Screensavers Pack/Aquarium.scr", "size": 900000, "wanted": false }
+    ]
+  },
+  "expect": { "status": "passed" }
+}
+```
+
+Test what must **pass**, not only what must fail: a false alarm that holds someone's download is worse than a missed one. Run them:
+
+```sh
+npm test
+```
+
+```txt title="Output"
+✓ Holds a download with a screensaver in it tests/holds-a-screensaver.json
+✓ Ignores a screensaver the user isn't downloading tests/ignores-a-skipped-screensaver.json
+✓ Lets a film without one start tests/lets-a-film-start.json
+
+3 passed
+```
+
+When a test fails, it says what it expected and what the hook returned:
+
+```txt title="Output"
+✗ Lets a film without one start tests/lets-a-film-start.json
+    expected status “failed”, got “passed” (No screensavers)
+    returned {"status":"passed","summary":"No screensavers"}
+```
+
+[Testing](/docs/extensions/testing) covers mocking the network, file fingerprints, storage and time.
+
+## Build and lint
+
+```sh
+npm run build
+npm run lint
+```
+
+```txt title="Output"
+✓ Built No Screensavers into dist/ (1 hook)
+No problems found.
+```
+
+`orb build` checks `package.json`, type-checks your code and bundles it into `dist/`, the way OrbTorrent loads it. It refuses Node.js modules such as `fs`, and says what to use instead. `orb lint` runs ESLint with OrbTorrent's rules.
+
+## Load it into OrbTorrent
+
+<Steps>
+
+1. In OrbTorrent, click **Extensions** at the bottom of the sidebar, then the **Develop** tab, and turn on **Allow development extensions**.
+
+2. Check everything's ready:
+
+   ```sh
+   npx orb doctor
+   ```
+
+   ```txt title="Output"
+   ✓ Node.js 24.11.1
+   ✓ No Screensavers (no-screensavers), with @orbtorrent/api 1.0.3
+   ✓ Built into dist/
+   ✓ OrbTorrent 1.0 is open and allows development extensions.
+   ✓ OrbTorrent supports extension API 1.0, which this extension needs.
+   · The first `orb run` or `orb dev` asks the user to allow this folder in OrbTorrent. Tell them to expect it.
+   · Not installed yet. `npx orb install` asks the user to install it.
+
+   Ready.
+   ```
+
+   Anything marked ✗ says how to fix it.
+
+3. Load it, and keep it up to date as you work:
+
+   ```sh
+   npm run dev
+   ```
+
+   The first time, OrbTorrent asks whether to load the folder. Allow it. `orb dev` then rebuilds and reloads the extension every time you save, and prints its checks and logs as they happen. It shows on the **Develop** tab under **In Development**, and runs on new downloads like any installed extension.
+
+</Steps>
+
+## Try it on a download
+
+In another Terminal window, in the same folder, list your downloads, then run the hook on one:
+
+```sh
+npx orb downloads
+npx orb run check --download "Big Buck Bunny"
+```
+
+```txt title="Output"
+✓ passed: No screensavers
+```
+
+`--download` takes a download's name or its info hash. `orb run` runs the hook inside OrbTorrent itself, on the real download, and prints what it returned. To see it hold something, add a torrent that contains a `.scr` file: OrbTorrent holds it before any of it arrives.
+
+## Install it
+
+When it does what you want, install it for good:
+
+```sh
+npx orb install
+```
+
+OrbTorrent shows what the extension does and what it can reach, and installs it when you confirm, replacing the copy loaded for development. `orb install` waits for your answer. Your extension now checks every new download, until you turn it off on the **Extensions** page.
+
+## Next
+
+- [Share it](/docs/extensions/sharing) as an `.orbext` file anyone can install.
+- Add a [setting](/docs/extensions/settings), such as a list of extensions to look for.
+- Reach a web service with [`fetch`](/docs/extensions/network), or check finished files with an [`afterFinish` hook](/docs/extensions/hooks).
+- Browse the [examples](/docs/extensions/examples).

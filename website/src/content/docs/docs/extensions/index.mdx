@@ -1,0 +1,66 @@
+---
+title: Build extensions
+description: Extensions are TypeScript hooks that check a download before it starts, and can hold it, or act on it once it finishes. How they work, and where to start.
+---
+
+import { CardGrid, LinkCard } from "@astrojs/starlight/components";
+
+Extensions hook into moments in a download's life, the way checks run on a pull request. An extension can look at a download **before it starts** and hold it until the user decides, or act on it **after it finishes**. Its result shows in the download's **Checks** tab.
+
+```ts title="src/check.ts"
+import { Download, Result } from "@orbtorrent/api";
+
+export default async function check(download: Download): Promise<Result> {
+  const program = download.files.find((file) => file.path.endsWith(".exe"));
+  if (program) {
+    return { status: "failed", summary: `Contains a Windows program: ${program.path}` };
+  }
+  return { status: "passed", summary: "No programs" };
+}
+```
+
+That's a whole extension, with a `package.json` that says when it runs. OrbTorrent's own [Fake Download Check](/docs/guides/checks#fake-download-check) and [VirusTotal Scan](/docs/guides/checks#virustotal-scan) are built the same way, with the same tools.
+
+## What you can build
+
+- **Checks before a download starts.** Hold downloads that contain certain kinds of file, are too big, or come from somewhere you don't trust. These see the names and sizes of a download's files before any of it arrives.
+- **Actions after a download finishes.** Scan files with a service, send a notification to your phone or a chat, or tell your media server there's something new.
+
+Extensions have settings that OrbTorrent draws for them, such as API keys kept in the Keychain, and can reach the web, but only the sites they list.
+
+## How it fits together
+
+| | |
+|---|---|
+| **TypeScript** | Each hook is the default export of a file in `src/`. |
+| **`@orbtorrent/api`** | The npm package with everything an extension can use: [`fetch`](/docs/extensions/network), [`files`](/docs/extensions/files), [`storage`](/docs/extensions/storage), [`progress`](/docs/extensions/storage#show-progress) and [settings](/docs/extensions/settings). |
+| **`orb`** | The command-line tool in the same package, which [makes, tests, builds, runs and shares](/docs/extensions/reference/cli) extensions. |
+| **`package.json`** | The [manifest](/docs/extensions/reference/manifest): its hooks, permissions and settings. |
+| **The sandbox** | Each hook runs in a fresh, sandboxed process with JavaScriptCore, not Node.js or a browser. It can only reach what its manifest lists, and OrbTorrent enforces that. [Security model](/docs/extensions/security) explains. |
+
+## Start here
+
+<CardGrid>
+  <LinkCard title="Your first extension" href="/docs/extensions/getting-started" description="Make one from a template, test it, load it into OrbTorrent and run it on a download." />
+  <LinkCard title="Build with a coding agent" href="/docs/extensions/coding-agents" description="Describe it, and Claude Code, Codex, Cursor or Gemini CLI builds, tests and installs it with you." />
+  <LinkCard title="Hooks" href="/docs/extensions/hooks" description="When beforeStart and afterFinish run, what they receive, and their limits." />
+  <LinkCard title="Examples" href="/docs/extensions/examples" description="The templates, the official extensions, and ideas to build." />
+</CardGrid>
+
+## In OrbTorrent
+
+Extensions have their own page in OrbTorrent's main window: **Extensions**, at the bottom of the sidebar.
+
+- **Installed** shows which extensions check downloads at each point, with each one's settings.
+- **Activity** lists every check on every download, and any download a check is holding.
+- **Develop** has the switch that `orb dev` needs, and the steps to build your own, yourself or with a coding agent.
+
+A switch at the top of **Installed** turns every extension off, for using OrbTorrent as a plain torrent client. Nothing runs and no checks show until it's back on, and each extension keeps its settings.
+
+## Requirements
+
+- **Node.js 22.13 or later,** for `orb`.
+- **OrbTorrent,** to load and run what you build.
+- **macOS 26 or later.** `orb test` runs anywhere Node.js does, but loading an extension into OrbTorrent needs a Mac.
+
+`@orbtorrent/api` is MIT licensed, so your extension can use any licence you like.

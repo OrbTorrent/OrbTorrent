@@ -1,0 +1,27 @@
+---
+import Base from "../layouts/Base.astro";
+import LiveOrb from "../components/LiveOrb.astro";
+---
+
+<Base title="Not found · OrbTorrent" description="This page isn't here." noindex>
+  <section class="wrap pt-28">
+    <div class="stage lost">
+      <LiveOrb size="clamp(7rem, 16vw, 9.5rem)" state={{ kind: "failed", progress: 0.35 }} />
+      <p class="label mt-12 text-[var(--ink-3)]">404</p>
+      <h1 class="heading mt-3">This page isn't here.</h1>
+      <p class="serif mt-3">It may have moved, or the link may be wrong.</p>
+      <a href="/" class="btn btn-light mt-9">Go to OrbTorrent</a>
+    </div>
+  </section>
+</Base>
+
+<style>
+  .lost {
+    --tint: #ff4040;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    padding: clamp(4rem, 9vw, 6.5rem) 1.5rem;
+  }
+</style>

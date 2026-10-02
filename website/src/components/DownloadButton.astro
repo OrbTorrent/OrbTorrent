@@ -1,0 +1,56 @@
+---
+// The big Download for Mac button, with the Apple logo. On a Mac it starts
+// the download straight away (DownloadStarted.astro). Its classes are named
+// for it alone: a page's own styles reach a component given a class.
+import AppleMark from "./AppleMark.astro";
+import { site } from "../lib/site";
+
+interface Props {
+  /** The download page, or on it, the disk image itself. */
+  href?: string;
+  /** Dark on the paper, light on a night stage. */
+  tone?: "dark" | "light";
+  class?: string;
+}
+const { href = "/download", tone = "dark", class: className } = Astro.props;
+// Hovering over a link fetches it ahead of time, which would count a download.
+const prefetch = href === site.download ? "false" : undefined;
+---
+
+<a href={href} class:list={["download-button", `download-button-${tone}`, className]} data-download data-astro-prefetch={prefetch}>
+  <AppleMark size={20} />
+  Download for Mac
+</a>
+
+<style>
+  .download-button {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.6rem;
+    height: 3.5rem;
+    padding-inline: 1.6rem 1.75rem;
+    border-radius: 999px;
+    font-size: 1.0625rem;
+    font-weight: 500;
+    letter-spacing: -0.015em;
+    white-space: nowrap;
+    transition: background-color 0.2s, transform 0.2s var(--ease-out-soft);
+  }
+  .download-button:active { transform: scale(0.98); }
+  /* The logo's leaf makes it look low; a touch higher sits it on the words. */
+  .download-button :global(svg) { flex: none; translate: 0 -1px; }
+
+  .download-button-dark {
+    background: var(--ink);
+    color: var(--paper);
+    box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.12), 0 10px 26px -14px rgb(19 19 22 / 0.6);
+  }
+  .download-button-dark:hover { background: #222228; }
+
+  .download-button-light {
+    background: #fff;
+    color: #131316;
+    box-shadow: 0 12px 34px -14px rgb(120 160 255 / 0.7);
+  }
+  .download-button-light:hover { background: #eef1fa; }
+</style>

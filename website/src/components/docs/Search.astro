@@ -1,0 +1,24 @@
+---
+// Starlight's search, with results linking to each page's clean address.
+// Pagefind indexes the built files, docs/hooks.html, but the site serves
+// them as /docs/hooks.
+import Default from "@astrojs/starlight/components/Search.astro";
+---
+
+<Default {...Astro.props} />
+
+<script>
+  const results = document.getElementById("starlight__search");
+  const clean = (link: HTMLAnchorElement) => {
+    const href = link.getAttribute("href");
+    if (href && /\.html(#|$)/.test(href)) link.setAttribute("href", href.replace(/\.html(?=#|$)/, ""));
+  };
+  if (results) {
+    new MutationObserver(() => results.querySelectorAll("a").forEach(clean)).observe(results, {
+      subtree: true,
+      childList: true,
+      attributes: true,
+      attributeFilter: ["href"],
+    });
+  }
+</script>

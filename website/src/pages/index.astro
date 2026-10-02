@@ -1,0 +1,813 @@
+---
+import Base from "../layouts/Base.astro";
+import LiveOrb from "../components/LiveOrb.astro";
+import SectionHeader from "../components/SectionHeader.astro";
+import Shot from "../components/Shot.astro";
+import GitHubMark from "../components/GitHubMark.astro";
+import DownloadButton from "../components/DownloadButton.astro";
+import VpnDiagram from "../components/VpnDiagram.astro";
+import CodeSample from "../components/CodeSample.astro";
+import Faq from "../components/Faq.astro";
+import Move from "../components/Move.astro";
+import ArrowRight from "@lucide/astro/icons/arrow-right";
+import Wifi from "@lucide/astro/icons/wifi";
+import BatteryFull from "@lucide/astro/icons/battery-full";
+import HardDrive from "@lucide/astro/icons/hard-drive";
+import ListOrdered from "@lucide/astro/icons/list-ordered";
+import Users from "@lucide/astro/icons/users";
+import Trash from "@lucide/astro/icons/trash";
+import Bell from "@lucide/astro/icons/bell";
+import Coffee from "@lucide/astro/icons/coffee";
+import RefreshCw from "@lucide/astro/icons/refresh-cw";
+import Plug from "@lucide/astro/icons/plug";
+import Gauge from "@lucide/astro/icons/gauge";
+import { site, tints } from "../lib/site";
+import { faqs } from "../lib/faqs";
+import { application, graph, organization, website } from "../lib/schema";
+import held from "../assets/shots/held.png";
+import finished from "../assets/shots/finished.png";
+import library from "../assets/shots/library.png";
+import overview from "../assets/shots/overview-screen.png";
+import overviewPhone from "../assets/shots/overview-phone.png";
+import { getImage } from "astro:assets";
+import extensionsPage from "../assets/shots/extensions-page.png";
+
+// The opening's picture, and on a phone just the part around the panel.
+const overviewAlt = "OrbTorrent on a Mac: the library window, with a download's files and its checks, and the panel opened from the orb in the menu bar, with live speeds and downloads";
+const overviewSet = async (src: ImageMetadata, widths: number[]) => {
+  const [avif, webp] = await Promise.all(["avif", "webp"].map((format) => getImage({ src, widths, format: format as "avif" | "webp", quality: 82 })));
+  return { avif: avif.srcSet.attribute, webp: webp.srcSet.attribute };
+};
+const overviewDesk = await overviewSet(overview, [640, 960, 1280, 1600, 2000, 2400]);
+const overviewSmall = await overviewSet(overviewPhone, [320, 480, 630]);
+const overviewFallback = await getImage({ src: overview, width: 1280, format: "jpg", quality: 82 });
+const schema = graph(organization, website, application);
+
+const states = [
+  {
+    key: "downloading",
+    state: { kind: "downloading", progress: 0.2, energy: 0.9 },
+    tint: tints.active,
+    status: "Downloading",
+    title: "Click a magnet link. It's downloading.",
+    body: "Magnet links and .torrent files open straight from your browser or Finder. Choose the files and the folder first, or let it start right away.",
+  },
+  {
+    key: "waiting",
+    state: { kind: "waiting", progress: 0.62 },
+    tint: tints.waiting,
+    status: "Waiting for the VPN",
+    title: "Your VPN drops. So does downloading.",
+    body: "With Only download through a VPN on, OrbTorrent uses nothing but the VPN's connection. If it drops, downloading stops, and picks up the moment it's back.",
+  },
+  {
+    key: "held",
+    state: { kind: "paused", progress: 0.05 },
+    tint: tints.paused,
+    status: "Held until you decide",
+    title: "A fake download, stopped before it starts.",
+    body: "The Fake Download Check looks at a download's files before any of them arrive. A film that's really a program waits for you to decide.",
+  },
+  {
+    key: "finished",
+    state: { kind: "finished" },
+    tint: tints.finished,
+    status: "Finished",
+    title: "Done, and shared back.",
+    body: "A notification lets you open it or show it in Finder, and OrbTorrent keeps sharing until the ratio you choose.",
+  },
+];
+
+const worksWith = ["WireGuard", "Tunnelblick", "AirVPN", "Windscribe", "Private Internet Access", "Transmission", "qBittorrent", "VirusTotal"];
+
+const features = [
+  { icon: HardDrive, title: "Room for your Mac", body: "You're warned when a download won't fit. Downloads pause before your disk fills up, and carry on once there's room.", disk: true },
+  { icon: ListOrdered, title: "Download in order", body: "Drag files into the order you want. The next one gets top priority, so you can start watching sooner." },
+  { icon: Users, title: "More peers for public torrents", body: "Trackers from a public list, tested every day, help slow downloads find people. Private trackers are never touched." },
+  { icon: Trash, title: "Safe deleting", body: "A deleted download's files go to the Trash, so you can put them back." },
+  { icon: Bell, title: "Notifications", body: "When a download finishes, open it or show it in Finder from the notification." },
+  { icon: Coffee, title: "Stays awake", body: "Keeps your Mac from sleeping while it's downloading, if you like." },
+  { icon: Gauge, title: "Speed limits", body: "Cap downloading and sharing, and stop sharing at a ratio, so everything else stays quick." },
+  { icon: RefreshCw, title: "Updates itself", body: "Signed updates install when you quit, and What's New shows what changed." },
+  { icon: Plug, title: "Your default", body: "Make it your Mac's app for magnet links and .torrent files, and open it at login." },
+];
+---
+
+<Base
+  title="OrbTorrent: a fast, native torrent app for Mac"
+  description={site.description}
+  schema={schema}
+  imageAlt="The OrbTorrent orb, with the words: the torrent app made for your Mac"
+>
+  <!-- The opening: the words, then the orb on its night stage, under a Mac's menu bar. -->
+  <section class="hero" data-hero>
+    <div class="wrap inset hero-head">
+      <div>
+        <a href={site.repo} class="note hero-step" style="--at: 0s">
+          <span class="note-tag">Open source</span>
+          <span>Free, no account, no ads</span>
+          <ArrowRight size={14} />
+        </a>
+        <!-- The orb is the o of "torrent", and the menu bar's orb in the picture below.
+             It's drawn over the o from outside the headline, so the words stay
+             whole when they're selected, copied or read aloud. -->
+        <div class="title hero-step" style="--at: 0.08s">
+          <h1 class="display mt-7">The t<span class="title-o">o</span>rrent app <span class="tone">made for your&nbsp;Mac.</span></h1>
+          <span class="title-orb"><LiveOrb size="0.6em" small eager state={{ kind: "downloading", progress: 0.7, energy: 0.8 }} id="title-orb" /></span>
+        </div>
+      </div>
+      <div class="hero-aside hero-step" style="--at: 0.2s">
+        <p class="serif">
+          OrbTorrent lives in your menu bar, keeps your downloads on your VPN, and stops fake downloads before they arrive.
+          Underneath, qBittorrent's engine does the downloading.
+        </p>
+        <DownloadButton class="mt-8" />
+        <p class="mt-4 text-sm faint">{site.requirements} · Apple silicon and Intel</p>
+      </div>
+    </div>
+
+    <!-- The overview: the README's picture of OrbTorrent on a Mac, real Liquid
+         Glass and all, with a menu bar drawn over its top, where the real one
+         was, and the live orb above the panel it opened. -->
+    <div class="wrap mt-12 sm:mt-16 hero-step" style="--at: 0.3s">
+      <figure class="desk">
+        <div class="desk-frame">
+          <div class="desk-shot">
+            <picture>
+              <source media="(max-width: 791px)" type="image/avif" srcset={overviewSmall.avif} sizes="calc(100vw - 2rem)" width="630" height="834" />
+              <source media="(max-width: 791px)" type="image/webp" srcset={overviewSmall.webp} sizes="calc(100vw - 2rem)" width="630" height="834" />
+              <source type="image/avif" srcset={overviewDesk.avif} sizes="min(100vw - 2rem, 1280px)" />
+              <source type="image/webp" srcset={overviewDesk.webp} sizes="min(100vw - 2rem, 1280px)" />
+              <img src={overviewFallback.src} alt={overviewAlt} width="2400" height="1629" loading="eager" fetchpriority="high" decoding="async" class="w-full h-auto" />
+            </picture>
+            <div class="menubar" aria-hidden="true">
+              <span class="menus"><b>OrbTorrent</b><span>File</span><span>Edit</span><span>View</span><span>Window</span><span>Help</span></span>
+              <span class="menubar-orb"><LiveOrb size="0.94cqw" small state={{ kind: "downloading", progress: 0.7, energy: 0.8 }} id="menubar-orb" /></span>
+              <span class="status"><Wifi /><BatteryFull /><span>9:41</span></span>
+            </div>
+          </div>
+        </div>
+      </figure>
+    </div>
+  </section>
+
+  <!-- What it works with. -->
+  <section class="wrap inset py-14">
+    <p class="label text-center reveal">Works with what you already use</p>
+    <ul class="works mt-7 reveal">
+      {worksWith.map((name) => <li>{name}</li>)}
+    </ul>
+  </section>
+
+  <div class="rule"></div>
+
+  <!-- The orb's states, as tabs. -->
+  <section id="orb" class="section" data-states>
+    <div class="wrap inset">
+      <SectionHeader label="The orb" title="One look tells you" tone="how your downloads are doing.">
+        The orb in your menu bar fills as your downloads progress, and changes colour when something needs you.
+      </SectionHeader>
+    </div>
+    <div class="wrap inset mt-14 states">
+      <div role="tablist" aria-label="What the orb shows" aria-orientation="vertical" class="tabs reveal">
+        {states.map((item, index) => (
+          <button
+            role="tab"
+            id={`tab-${item.key}`}
+            aria-controls="state-stage"
+            aria-selected={index === 0 ? "true" : "false"}
+            tabindex={index === 0 ? 0 : -1}
+            class="tab"
+            data-key={item.key}
+            data-tint={item.tint}
+            data-status-text={item.status}
+            data-state={JSON.stringify(item.state)}
+            style={`--dot: ${item.tint}`}
+          >
+            <span class="tab-head">
+              <span class="label">0{index + 1}</span>
+              <span class="tab-title">{item.title}</span>
+            </span>
+            <span class="tab-body">{item.body}</span>
+            <span class="tab-bar"><span data-bar></span></span>
+          </button>
+        ))}
+      </div>
+
+      <div id="state-stage" role="tabpanel" aria-label="The orb" class="stage state-stage reveal" data-stage data-show="downloading" style="--delay: 0.08s">
+        <div class="state-orb">
+          <LiveOrb size="clamp(7.5rem, 16vw, 12rem)" state={states[0].state} id="state-orb" />
+          <p class="state-status" aria-live="polite"><span data-status>Downloading</span></p>
+        </div>
+        <div class="state-visuals">
+          <div class="visual" data-for="downloading">
+            <div class="meter glass" data-meter>
+              <p class="meter-name">ubuntu-26.04.1-desktop-amd64.iso</p>
+              <div class="meter-track"><span></span></div>
+              <p class="meter-text" data-meter-text>1.30 GB of 6.48 GB · ↓ 2.3 MB/s</p>
+            </div>
+          </div>
+          <div class="visual" data-for="waiting"><VpnDiagram /></div>
+          <div class="visual" data-for="held">
+            <Shot src={held} alt="OrbTorrent asking about a new download. The Fake Download Check says it contains a program disguised as a video, and the buttons read Cancel and Download Anyway" width={380} class="shot-float w-full h-auto" />
+          </div>
+          <div class="visual" data-for="finished">
+            <Shot src={finished} alt="OrbTorrent's Completed list: finished downloads such as Sintel and Tears of Steel, each sharing back" width={620} class="shot-crop h-auto" />
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <div class="rule"></div>
+
+  <!-- The big things, side by side with the app. -->
+  <section class="section">
+    <div class="wrap inset grid gap-[clamp(4rem,9vw,7rem)]">
+      <article class="split">
+        <div class="split-text reveal">
+          <p class="label label-dot">The library</p>
+          <h2 class="subheading mt-4">A full Mac window, when you want one. <span class="tone">Search, sort and group every download, select several at once, and look inside any of them.</span></h2>
+          <a href="/#features" class="arrow-link mt-6">Everything it does <ArrowRight size={16} /></a>
+        </div>
+        <figure class="split-media inspect art art-blue reveal" style="--delay: 0.06s">
+          <div class="inspect-shot">
+            <Shot src={library} alt="A close-up of the library window: the search field and toolbar, the list of downloads, and the inspector showing the files of Tears of Steel, each checked" width={1400} sizes="(max-width: 1023px) 200vw, 1400px" class="h-auto" />
+          </div>
+        </figure>
+      </article>
+
+      <article class="split split-flip">
+        <div class="split-text reveal">
+          <p class="label label-dot" style={`--dot: ${tints.finished}`}>Extensions</p>
+          <h2 class="subheading mt-4">Checks on every download. <span class="tone">The Fake Download Check holds fakes before they arrive, and VirusTotal Scan looks at what finishes.</span></h2>
+          <a href="/extensions" class="arrow-link mt-6">About extensions <ArrowRight size={16} /></a>
+        </div>
+        <figure class="split-media bleed art art-violet reveal" style="--delay: 0.06s">
+          <Shot src={extensionsPage} alt="OrbTorrent's Extensions page: the Fake Download Check before a download starts and VirusTotal Scan after it finishes, with their switches" width={1000} class="h-auto" />
+        </figure>
+      </article>
+
+      <article class="split">
+        <div class="split-text reveal">
+          <p class="label label-dot" style={`--dot: ${tints.waiting}`}>Switching</p>
+          <h2 class="subheading mt-4">Moving in takes a minute. <span class="tone">Your downloads and settings come over from Transmission or qBittorrent, progress and all.</span></h2>
+          <a href="/switch" class="arrow-link mt-6">How switching works <ArrowRight size={16} /></a>
+        </div>
+        <figure class="split-media art art-peach reveal" style="--delay: 0.06s">
+          <Move />
+        </figure>
+      </article>
+    </div>
+  </section>
+
+  <div class="rule"></div>
+
+  <!-- The rest, in a grid of cells. -->
+  <section id="features" class="section pb-0">
+    <div class="wrap inset">
+      <SectionHeader label="Features" title="Thoughtful," tone="all the way through.">
+        The things you notice after a week of using it.
+      </SectionHeader>
+    </div>
+    <ul class="wrap cells cells-3 mt-14 reveal">
+      {features.map((item) => (
+        <li class="cell">
+          <span class="cell-icon"><item.icon size={18} /></span>
+          <h3 class="mt-5 text-[1.0625rem] font-medium tracking-tight">{item.title}</h3>
+          <p class="mt-2 text-[0.9375rem] muted">{item.body}</p>
+          {item.disk && (
+            <div class="disk" aria-hidden="true">
+              <div class="disk-bar"><span></span><span class="reserve"></span></div>
+              <div class="disk-labels"><span>412 GB used</span><span>Kept free</span></div>
+            </div>
+          )}
+        </li>
+      ))}
+    </ul>
+  </section>
+
+  <div class="rule"></div>
+
+  <!-- The engine. -->
+  <section id="engine" class="section">
+    <div class="wrap inset grid gap-12 lg:grid-cols-[1fr_0.95fr] lg:items-center">
+      <div>
+        <SectionHeader label="Under the hood" title="qBittorrent's engine," tone="inside a native app.">
+          OrbTorrent is written in Swift and SwiftUI. It bundles qBittorrent's engine, built from its released source and checked against its signature, and runs it in the background, where it only answers to your Mac.
+        </SectionHeader>
+        <ul class="mt-8 flex flex-wrap gap-2 reveal">
+          {["µTP", "DHT", "Peer exchange", "Local peer discovery", "Web seeds", "Encryption", "UPnP and NAT-PMP"].map((name) => <li class="chip">{name}</li>)}
+        </ul>
+      </div>
+      <div class="dossier p-7 sm:p-9 reveal" style="--delay: 0.06s">
+        <p class="label">How it's built</p>
+        <dl class="facts mt-6">
+          <div><dt class="label">App</dt><dd>Swift, SwiftUI, Liquid Glass</dd></div>
+          <div><dt class="label">Engine</dt><dd>qBittorrent {site.engine.qbittorrent}</dd></div>
+          <div><dt class="label">libtorrent</dt><dd>{site.engine.libtorrent}</dd></div>
+          <div><dt class="label">Qt · OpenSSL · Boost</dt><dd>{site.engine.qt} · {site.engine.openssl} · {site.engine.boost}</dd></div>
+          <div><dt class="label">Between them</dt><dd>Web API on this Mac only</dd></div>
+          <div><dt class="label">Extensions</dt><dd>A sandboxed host</dd></div>
+        </dl>
+      </div>
+    </div>
+  </section>
+
+  <div class="rule"></div>
+
+  <!-- Extensions, for people who build. -->
+  <section id="extensions" class="section">
+    <div class="wrap inset grid gap-12 lg:grid-cols-[0.9fr_1.1fr] lg:items-start">
+      <div>
+        <SectionHeader label="Build your own" title="Write an extension in TypeScript," tone="or in a sentence." dot="#a875ff">
+          Extensions look at a download before it starts, or act on it when it finishes. Each runs in a sandbox, and can only reach the files and sites it lists.
+        </SectionHeader>
+        <pre class="terminal mt-8 reveal"><code><span class="prompt">$</span> npm create @orbtorrent/extension@latest size-guard
+<span class="prompt">$</span> npm test
+<span class="prompt">$</span> npm run dev</code></pre>
+        <p class="mt-6 muted reveal">Or describe what you want, and a coding agent such as Claude Code, Codex or Cursor writes it, tests it and tries it on your downloads. Nothing runs until you allow it.</p>
+        <div class="mt-7 flex flex-wrap gap-2.5 reveal">
+          <a href={site.extensionDocs} class="btn btn-dark btn-sm">Read the docs <ArrowRight size={15} /></a>
+          <a href="/extensions" class="btn btn-soft btn-sm">About extensions</a>
+        </div>
+      </div>
+      <div class="reveal" style="--delay: 0.08s"><CodeSample /></div>
+    </div>
+  </section>
+
+  <div class="rule"></div>
+
+  <!-- Privacy and open source. -->
+  <section id="privacy" class="section">
+    <div class="wrap inset grid gap-5 lg:grid-cols-2">
+      <article class="dossier p-7 sm:p-10 flex flex-col reveal">
+        <p class="label label-dot" style={`--dot: ${tints.finished}`}>Privacy</p>
+        <h2 class="heading mt-5">It collects nothing.</h2>
+        <p class="mt-4 muted">Your library, settings and passwords stay on your Mac. It connects only to the peers and trackers of what you download, and to a few addresses it tells you about.</p>
+        <dl class="facts mt-8">
+          <div><dt class="label">Account</dt><dd>None</dd></div>
+          <div><dt class="label">Analytics</dt><dd>None</dd></div>
+          <div><dt class="label">Crash reports</dt><dd>None</dd></div>
+        </dl>
+        <a href="/privacy" class="arrow-link mt-8">Everything it connects to <ArrowRight size={16} /></a>
+      </article>
+      <article class="dossier p-7 sm:p-10 flex flex-col reveal" style="--delay: 0.06s">
+        <p class="label label-dot" style="--dot: #a875ff">Open source</p>
+        <h2 class="heading mt-5">Free. No ads. Ever.</h2>
+        <p class="mt-4 muted">OrbTorrent is free software. Read every line, build it yourself, or help make it better. There's nothing to buy and nothing to sign up for.</p>
+        <dl class="facts mt-8">
+          <div><dt class="label">Price</dt><dd>Free</dd></div>
+          <div><dt class="label">Licence</dt><dd>GNU GPL 3.0 or later</dd></div>
+          <div><dt class="label">Extension SDK</dt><dd>MIT</dd></div>
+        </dl>
+        <div class="mt-8 flex flex-wrap gap-2.5">
+          <a href={site.repo} class="btn btn-dark btn-sm"><GitHubMark size={15} /> Source code</a>
+          <a href={site.contributing} class="btn btn-soft btn-sm">Contribute</a>
+        </div>
+      </article>
+    </div>
+  </section>
+
+  <div class="rule"></div>
+
+  <!-- Questions. -->
+  <section id="faq" class="section">
+    <div class="wrap inset grid gap-10 lg:grid-cols-[0.75fr_1.25fr]">
+      <div>
+        <SectionHeader label="Questions" title="Good questions." />
+        <p class="mt-5 muted reveal">More in the <a href="/faq" class="link">full FAQ</a>, or write to <a href={`mailto:${site.email}`} class="link">{site.email}</a>.</p>
+      </div>
+      <Faq items={faqs.slice(0, 6)} />
+    </div>
+  </section>
+
+  <!-- The end: the orb rises like the sun. -->
+  <section class="wrap">
+    <div class="stage finale reveal">
+      <h2 class="display finale-title">Get OrbTorrent.</h2>
+      <p class="serif finale-text">Free for {site.requirements}, on Apple silicon and Intel.</p>
+      <div class="mt-8 flex flex-wrap items-center justify-center gap-2.5">
+        <DownloadButton tone="light" />
+        <a href="/switch" class="btn btn-lg btn-ghost-night">Switching from another app?</a>
+      </div>
+      <div class="sunrise"><LiveOrb size="clamp(14rem, 36vw, 24rem)" id="finale-orb" /></div>
+    </div>
+  </section>
+</Base>
+
+<style>
+  /* The opening. */
+  .hero { padding-top: clamp(7rem, 15vh, 9.5rem); }
+  .hero-head {
+    display: grid;
+    gap: 2rem;
+  }
+  @media (min-width: 1024px) {
+    .hero-head { grid-template-columns: 1.2fr 0.8fr; align-items: start; gap: 4rem; }
+  }
+  /* "The torrent app", then the rest on its own line, sized so each line
+     fits: the width of the page on phones, of its column beside the words. */
+  .hero h1 { text-wrap: wrap; }
+  .hero h1, .title-orb { font-size: min(5rem, 9.4vw); }
+  .hero h1 .tone { display: block; }
+  @media (min-width: 1024px) {
+    .hero h1, .title-orb { font-size: min(5rem, 5.5vw); }
+  }
+  .hero-aside .serif { max-width: 32rem; }
+  /* The orb, in place of the o. The letter stays, unseen, so the word still
+     reads, and is found, as "torrent", and it's spaced a little wider to fit
+     the orb, which is a touch bigger than the letter. The orb is pinned to it
+     where the o's ink is, measured in Geist: its middle 0.294em in and
+     0.266em up from the baseline, which is 1em down from the letter's top. */
+  /* Sized and placed in the headline's own ems; it rises in with it. */
+  .title { position: relative; }
+  .title-orb { display: none; }
+  @supports (anchor-name: --a) {
+    /* A little more room on the t's side, whose crossbar reaches towards
+       the orb. */
+    .title-o {
+      anchor-name: --title-o;
+      margin-inline: 0.05em 0.035em;
+      color: transparent;
+    }
+    .title-orb {
+      display: block;
+      position: absolute;
+      position-anchor: --title-o;
+      left: calc(anchor(left) + 0.294em);
+      top: calc(anchor(top) + 0.734em);
+      translate: -50% -50%;
+    }
+  }
+  .hero-step { animation: rise 0.9s var(--ease-out-soft) var(--at, 0s) both; }
+  @keyframes rise { from { opacity: 0; translate: 0 12px; } }
+
+  .note {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.6rem;
+    padding: 0.3rem 0.75rem 0.3rem 0.3rem;
+    border-radius: 999px;
+    font-size: 0.8125rem;
+    color: var(--ink-2);
+    background: var(--card);
+    box-shadow: inset 0 0 0 1px var(--line);
+    transition: box-shadow 0.2s;
+  }
+  .note:hover { box-shadow: inset 0 0 0 1px var(--line-2); }
+  .note-tag {
+    white-space: nowrap;
+    font-family: var(--font-mono);
+    font-size: 0.6875rem;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    padding: 0.2rem 0.55rem;
+    border-radius: 999px;
+    color: var(--paper);
+    background: var(--ink);
+  }
+
+  /* The overview. Inside the picture, sizes are in cqw of the picture's own
+     width, so 1cqw is 24 of its 2400 pixels: the menu bar is measured from
+     the screenshot (41 px tall, 13 pt type, the panel's middle at 2015 px)
+     and stays in proportion at any size. */
+  .desk {
+    border-radius: 1.5rem;
+    overflow: hidden;
+    background: #0b1638;
+  }
+  .desk-shot {
+    container: shot / inline-size;
+    position: relative;
+  }
+  .desk-shot :global(img) { display: block; }
+  .menubar {
+    position: absolute;
+    inset: 0 0 auto;
+    height: 1.71cqw;
+    display: flex;
+    align-items: center;
+    padding-left: 1.4cqw;
+    font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", system-ui, sans-serif;
+    font-size: 0.72cqw;
+    font-weight: 500;
+    color: #fff;
+    text-shadow: 0 0 0.3cqw rgb(0 0 0 / 0.25);
+  }
+  .menus { display: flex; gap: 1.05cqw; white-space: nowrap; }
+  .menus b { font-weight: 700; }
+  /* The orb's status item, highlighted while its panel is open. */
+  .menubar-orb {
+    position: absolute;
+    left: 83.94cqw;
+    top: 50%;
+    translate: -50% -50%;
+    display: grid;
+    place-items: center;
+    width: 1.75cqw;
+    height: 1.25cqw;
+    border-radius: 0.4cqw;
+    background: rgb(255 255 255 / 0.2);
+  }
+  .status {
+    position: absolute;
+    left: 85.9cqw;
+    top: 50%;
+    translate: 0 -50%;
+    display: flex;
+    align-items: center;
+    gap: 1.05cqw;
+    white-space: nowrap;
+  }
+  .status :global(svg) { width: 0.8cqw; height: 0.8cqw; }
+  .status :global(svg:nth-child(2)) { width: 1cqw; height: 1cqw; }
+  /* On a phone, the picture is its own crop around the panel (x 1700 to
+     2330, 834 tall), placed where it sits in the whole, so the menu bar's
+     measurements still hold. */
+  @media (max-width: 791px) {
+    .desk-frame { aspect-ratio: 630 / 834; overflow: hidden; }
+    .desk-shot { width: 380.952%; margin-left: -269.841%; height: 100%; }
+    .desk-shot img { position: absolute; left: 70.833%; top: 0; width: 26.25%; }
+  }
+
+  /* What it works with: names in grey tiles. */
+  .works {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.5rem;
+  }
+  @media (min-width: 640px) { .works { grid-template-columns: repeat(4, minmax(0, 1fr)); } }
+  @media (min-width: 1100px) { .works { grid-template-columns: repeat(8, minmax(0, 1fr)); } }
+  .works li {
+    display: grid;
+    place-items: center;
+    min-height: 3.75rem;
+    padding: 0.5rem;
+    border-radius: 0.75rem;
+    background: var(--paper-2);
+    text-align: center;
+    font-size: 0.875rem;
+    font-weight: 600;
+    letter-spacing: -0.02em;
+    line-height: 1.2;
+    color: var(--ink-2);
+  }
+
+  .section { padding-block: clamp(4.5rem, 9vw, 7.5rem); }
+
+  /* The states, as tabs beside the stage. */
+  .states { display: grid; gap: 1.5rem; }
+  @media (min-width: 1024px) {
+    .states { grid-template-columns: 0.8fr 1.2fr; gap: 2.5rem; align-items: stretch; }
+  }
+  .tabs { display: grid; align-content: start; border-top: 1px solid var(--line-2); }
+  /* On phones the stage comes first, so opening a tab never moves it. */
+  @media (max-width: 1023px) {
+    .state-stage { order: -1; }
+  }
+  .tab {
+    display: grid;
+    gap: 0.5rem;
+    padding: 1.15rem 0 1.25rem;
+    text-align: left;
+    border-bottom: 1px solid var(--line-2);
+    cursor: pointer;
+    position: relative;
+  }
+  .tab-head { display: flex; gap: 1rem; align-items: baseline; }
+  .tab-title {
+    font-size: 1.0625rem;
+    font-weight: 500;
+    letter-spacing: -0.02em;
+    color: var(--ink-3);
+    transition: color 0.3s;
+  }
+  .tab:hover .tab-title,
+  .tab[aria-selected="true"] .tab-title { color: var(--ink); }
+  .tab-body {
+    display: none;
+    padding-left: 2.15rem;
+    font-size: 0.9375rem;
+    color: var(--ink-2);
+  }
+  .tab[aria-selected="true"] .tab-body { display: block; }
+  .tab-bar {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: -1px;
+    height: 2px;
+    overflow: hidden;
+  }
+  .tab-bar span {
+    display: block;
+    height: 100%;
+    width: 100%;
+    background: var(--dot);
+    transform-origin: left;
+    transform: scaleX(0);
+  }
+  .tab[aria-selected="true"] .tab-bar span { animation: timer 7s linear forwards; }
+  [data-paused] .tab[aria-selected="true"] .tab-bar span { animation-play-state: paused; }
+  @keyframes timer { to { transform: scaleX(1); } }
+  @media (prefers-reduced-motion: reduce) {
+    .tab[aria-selected="true"] .tab-bar span { animation: none; transform: scaleX(1); }
+  }
+
+  .state-stage {
+    display: grid;
+    gap: 1.5rem;
+    padding: clamp(1.5rem, 4vw, 2.75rem);
+    min-height: 30rem;
+    align-items: center;
+  }
+  @media (min-width: 720px) {
+    .state-stage { grid-template-columns: auto minmax(0, 1fr); gap: clamp(1.5rem, 4vw, 3.5rem); }
+  }
+  .state-orb {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2.25rem;
+    padding-top: 0.5rem;
+  }
+  .state-status {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.55rem;
+    padding: 0.35rem 0.8rem;
+    border-radius: 999px;
+    font-size: 0.875rem;
+    font-weight: 500;
+    background: rgb(255 255 255 / 0.07);
+    box-shadow: inset 0 0 0 1px rgb(255 255 255 / 0.1);
+    white-space: nowrap;
+  }
+  .state-status::before {
+    content: "";
+    width: 0.5rem;
+    height: 0.5rem;
+    border-radius: 999px;
+    background: var(--dot, var(--color-blue));
+    box-shadow: 0 0 12px var(--dot, var(--color-blue));
+    transition: background-color 0.5s, box-shadow 0.5s;
+  }
+  .state-visuals { display: grid; }
+  .visual {
+    grid-area: 1 / 1;
+    display: grid;
+    place-items: center;
+    opacity: 0;
+    scale: 0.97;
+    visibility: hidden;
+    transition: opacity 0.5s var(--ease-out-soft), scale 0.6s var(--ease-out-soft), visibility 0s 0.5s;
+  }
+  [data-show="downloading"] [data-for="downloading"],
+  [data-show="waiting"] [data-for="waiting"],
+  [data-show="held"] [data-for="held"],
+  [data-show="finished"] [data-for="finished"] {
+    opacity: 1;
+    scale: 1;
+    visibility: visible;
+    transition: opacity 0.6s var(--ease-out-soft) 0.1s, scale 0.7s var(--ease-out-soft) 0.1s, visibility 0s;
+  }
+  .visual :global(.shot-float) { max-width: 23rem; filter: drop-shadow(0 30px 50px rgb(0 0 0 / 0.5)); }
+  .visual :global(.vpn) { width: 100%; }
+  /* The finished list runs off the stage's edge, fading where it's cut. */
+  .visual[data-for="finished"] { justify-items: start; }
+  .visual :global(.shot-crop) {
+    width: 150%;
+    max-width: none;
+    mask-image: linear-gradient(to right, #000 60%, transparent 92%), linear-gradient(to bottom, #000 62%, transparent);
+    mask-composite: intersect;
+  }
+  .meter {
+    width: min(100%, 24rem);
+    border-radius: 1.1rem;
+    padding: 1.2rem 1.3rem;
+    --progress: 0.2;
+  }
+  .meter-name { font-weight: 600; font-size: 0.9375rem; letter-spacing: -0.01em; }
+  .meter-track {
+    margin-top: 0.85rem;
+    height: 0.4rem;
+    border-radius: 999px;
+    background: rgb(255 255 255 / 0.1);
+    overflow: hidden;
+  }
+  .meter-track span {
+    display: block;
+    height: 100%;
+    width: calc(var(--progress) * 100%);
+    border-radius: inherit;
+    background: linear-gradient(to right, #3885ff, #6be5ff);
+    box-shadow: 0 0 12px rgb(56 133 255 / 0.8);
+  }
+  .meter-text { margin-top: 0.7rem; font-family: var(--font-mono); font-size: 0.75rem; color: var(--ink-2); }
+
+  /* The big things: words on one side, the app on painted card on the other. */
+  .split { display: grid; gap: 2rem; }
+  .split > * { min-width: 0; }
+  @media (min-width: 1024px) {
+    .split { grid-template-columns: 0.75fr 1.25fr; gap: 4rem; align-items: center; }
+    .split-flip .split-text { order: 2; }
+  }
+  @media (min-width: 1024px) {
+    .split-flip { grid-template-columns: 1.25fr 0.75fr; }
+  }
+  .split-text .subheading { max-width: 26rem; }
+  .split-media {
+    display: grid;
+    place-items: center;
+    padding: clamp(1.25rem, 5vw, 3.5rem);
+    min-height: 18rem;
+  }
+  /* A window that runs off the painting's edge, as if the canvas were cut. */
+  .split-media.bleed {
+    display: block;
+    min-height: 0;
+    padding: clamp(1.5rem, 4vw, 3rem) 0 0 clamp(1.5rem, 4vw, 3rem);
+    aspect-ratio: 4 / 3;
+  }
+  .split-media.bleed :global(picture),
+  .split-media.bleed :global(img) { width: 125%; max-width: none; }
+  /* A close-up of the inspector, the list fading into the painting on the left. */
+  .split-media.inspect {
+    display: block;
+    min-height: 0;
+    padding: clamp(1.5rem, 4vw, 3rem) clamp(1.25rem, 3vw, 2.5rem) 0 0;
+    aspect-ratio: 4 / 3;
+  }
+  .inspect-shot {
+    width: 205%;
+    margin-left: -103%;
+  }
+  .inspect-shot :global(picture) {
+    display: block;
+    mask-image: linear-gradient(to right, transparent 50%, #000 70%);
+  }
+  .split-media.inspect :global(img) { width: 100%; max-width: none; }
+  .split-media :global(img) { filter: drop-shadow(0 24px 40px rgb(30 40 90 / 0.28)); }
+
+  .disk { margin-top: 1.25rem; }
+  .disk-bar {
+    position: relative;
+    height: 0.55rem;
+    border-radius: 999px;
+    background: var(--paper-2);
+    box-shadow: inset 0 0 0 1px var(--line);
+    overflow: hidden;
+  }
+  .disk-bar span:first-child {
+    position: absolute;
+    inset: 0 auto 0 0;
+    width: 82%;
+    border-radius: 999px;
+    background: linear-gradient(to right, #2453e6, #3885ff);
+  }
+  .disk-bar .reserve {
+    position: absolute;
+    inset: 0 0 0 auto;
+    width: 10%;
+    background: repeating-linear-gradient(135deg, rgb(255 153 38 / 0.6) 0 3px, transparent 3px 6px);
+  }
+  .disk-labels {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 0.5rem;
+    font-family: var(--font-mono);
+    font-size: 0.6875rem;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: var(--ink-3);
+  }
+
+
+  /* The end, with the orb rising out of the stage's floor. */
+  .finale {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    padding: clamp(4.5rem, 10vw, 7.5rem) 1.5rem 0;
+    margin-top: 1rem;
+  }
+  .finale-title { color: #fff; }
+  .finale-text { margin-top: 1rem; color: rgb(222 228 255 / 0.75); }
+  /* Half the orb sits below the stage's floor; a negative margin, unlike a
+     translate, leaves no empty room above it. */
+  .sunrise {
+    margin-top: auto;
+    padding-top: 3.5rem;
+    margin-bottom: calc(clamp(14rem, 36vw, 24rem) * -0.5);
+  }
+</style>
+
+<script>
+  import type { Orb } from "../scripts/orb";
+  import { playStates } from "../scripts/states";
+
+  type OrbElement = HTMLElement & { orb?: Orb };
+  playStates(document.querySelector("[data-states]")!, document.querySelector<OrbElement>("#state-orb")!);
+</script>

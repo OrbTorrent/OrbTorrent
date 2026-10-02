@@ -1,0 +1,85 @@
+---
+// The app's orb, live. Without WebGL or JavaScript, a still picture of it
+// stands in.
+interface Props {
+  /** The orb's diameter, as any CSS length. */
+  size: string;
+  state?: object;
+  /** Stands in with a small picture, of the orb part-filled as in a menu bar, for orbs up to about 3rem; those sized in rem are found by themselves. */
+  small?: boolean;
+  id?: string;
+  class?: string;
+  turnSpeed?: number;
+  /** For an orb in the first view, that should never be missing: its picture loads right away. */
+  eager?: boolean;
+}
+const { size, state = { kind: "idle" }, id, class: className, turnSpeed = 1, eager = false } = Astro.props;
+// A menu-bar-sized orb stands in with a small picture, not the full one.
+const small = Astro.props.small ?? (/^[\d.]+rem$/.test(size) && parseFloat(size) <= 3);
+---
+
+<!-- A span, so an orb can sit in a line of text too. -->
+<span
+  class:list={["orb", className]}
+  id={id}
+  style={`--orb: ${size}`}
+  data-orb={JSON.stringify(state)}
+  data-turn={turnSpeed}
+  aria-hidden="true"
+>
+  <img class="orb-poster" src={small ? "/brand/orb-192.webp" : "/brand/orb.webp"} alt="" width={small ? 192 : 768} height={small ? 192 : 768} loading={eager ? "eager" : "lazy"} decoding="async" />
+  <canvas class="orb-canvas" />
+</span>
+
+<style>
+  .orb {
+    display: block;
+    position: relative;
+    width: var(--orb);
+    height: var(--orb);
+    flex: none;
+  }
+  /* The canvas reaches past the orb for its glow. */
+  .orb-canvas,
+  .orb-poster {
+    position: absolute;
+    width: calc(var(--orb) * 1.6);
+    height: calc(var(--orb) * 1.6);
+    left: calc(var(--orb) * -0.3);
+    top: calc(var(--orb) * -0.3);
+    max-width: none;
+    pointer-events: none;
+  }
+  .orb-canvas { opacity: 0; transition: opacity 0.6s ease; }
+  .orb-canvas[data-ready] { opacity: 1; }
+  .orb-poster { transition: opacity 0.6s ease; }
+  .orb:has(.orb-canvas[data-ready]) .orb-poster { opacity: 0; }
+</style>
+
+<script>
+  import { Orb, type OrbState } from "../scripts/orb";
+
+  const start = (element: HTMLElement) => {
+    const canvas = element.querySelector<HTMLCanvasElement>(".orb-canvas")!;
+    const state = JSON.parse(element.dataset.orb!) as OrbState;
+    const orb = new Orb(canvas, { state, turnSpeed: Number(element.dataset.turn) });
+    (element as HTMLElement & { orb?: Orb }).orb = orb;
+    element.dispatchEvent(new CustomEvent("orb:ready", { detail: orb }));
+  };
+
+  // Each orb starts as it comes near the screen, so a page with several
+  // doesn't prepare them all at once, and when the browser has a moment, so
+  // the page opens without waiting on it. Its picture stands in meanwhile.
+  const whenIdle = (run: () => void) =>
+    "requestIdleCallback" in window ? requestIdleCallback(run, { timeout: 1500 }) : setTimeout(run, 100);
+  if (Orb.supported()) {
+    const near = new IntersectionObserver((entries) => {
+      for (const entry of entries) {
+        if (!entry.isIntersecting) continue;
+        near.unobserve(entry.target);
+        whenIdle(() => start(entry.target as HTMLElement));
+      }
+    }, { rootMargin: "400px 0px" });
+    for (const element of document.querySelectorAll<HTMLElement>("[data-orb]")) near.observe(element);
+  }
+</script>

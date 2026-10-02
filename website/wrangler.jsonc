@@ -1,0 +1,25 @@
+{
+	"$schema": "./node_modules/wrangler/config-schema.json",
+	"compatibility_date": "2026-09-30",
+	"compatibility_flags": ["global_fetch_strictly_public"],
+	"name": "orbtorrent-website",
+	// The site answers at orbtorrent.com once deployed.
+	"routes": [{ "pattern": "orbtorrent.com", "custom_domain": true }],
+	// Answers /download/mac; every other page is a file from the build.
+	"main": "src/worker.ts",
+	"assets": {
+		"directory": "./dist",
+		"binding": "ASSETS",
+		// /docs/hooks is served from docs/hooks.html, and unknown
+		// addresses get the site's own not-found page.
+		"html_handling": "auto-trailing-slash",
+		"not_found_handling": "404-page"
+	},
+	// Downloads, counted by the Worker; stats.sh shows them.
+	"analytics_engine_datasets": [{ "binding": "DOWNLOADS", "dataset": "orbtorrent_downloads" }],
+	// Keeps what the Worker logs, but no log of each request and who made it.
+	"observability": {
+		"enabled": true,
+		"logs": { "invocation_logs": false }
+	}
+}

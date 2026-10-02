@@ -1,0 +1,44 @@
+---
+// The docs' name in the bar: the orb and OrbTorrent, back to the site, then
+// Docs, back to the start of the docs.
+import { site } from "../../lib/site";
+---
+
+<span class="site-title">
+  <a href="/" class="brand" translate="no">
+    <img src="/brand/orb-mark.webp" alt="" width="24" height="24" />
+    <span>OrbTorrent</span>
+  </a>
+  <span class="slash" aria-hidden="true">/</span>
+  <a href={site.docs} class="docs">Docs</a>
+</span>
+
+<style>
+  .site-title {
+    display: flex;
+    align-items: center;
+    gap: 0.55rem;
+    min-width: 0;
+    font-size: 1.0625rem;
+    white-space: nowrap;
+  }
+  .brand {
+    display: flex;
+    align-items: center;
+    gap: 0.55rem;
+    font-weight: 600;
+    letter-spacing: -0.03em;
+    color: var(--sl-color-white);
+    text-decoration: none;
+  }
+  .brand img { flex: none; }
+  .slash { color: var(--sl-color-gray-4); font-weight: 300; }
+  .docs {
+    font-weight: 500;
+    letter-spacing: -0.02em;
+    color: var(--sl-color-gray-2);
+    text-decoration: none;
+  }
+  .docs:hover,
+  .brand:hover span { color: var(--sl-color-text-accent); }
+</style>

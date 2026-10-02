@@ -1,0 +1,155 @@
+---
+// Under a page's title: copy the page as Markdown, see it as Markdown, or
+// open it in Claude or ChatGPT to ask about it.
+import Copy from "@lucide/astro/icons/copy";
+import Check from "@lucide/astro/icons/check";
+import ChevronDown from "@lucide/astro/icons/chevron-down";
+import FileText from "@lucide/astro/icons/file-text";
+import ExternalLink from "@lucide/astro/icons/external-link";
+import { markdownPath } from "../../lib/docs";
+
+const { entry } = Astro.locals.starlightRoute;
+const markdown = markdownPath(entry.id);
+const prompt = `Read ${new URL(markdown, Astro.site).href}, a page of OrbTorrent's docs, so I can ask you about it.`;
+const assistants = [
+  { name: "Claude", href: `https://claude.ai/new?q=${encodeURIComponent(prompt)}` },
+  { name: "ChatGPT", href: `https://chatgpt.com/?q=${encodeURIComponent(prompt)}` },
+];
+---
+
+<page-actions class="not-content" data-markdown={markdown}>
+  <div class="split">
+    <button type="button" class="copy">
+      <span class="icon idle"><Copy size={15} /></span>
+      <span class="icon done"><Check size={15} /></span>
+      <span class="label">Copy page</span>
+    </button>
+    <button type="button" class="toggle" aria-expanded="false" aria-controls="page-actions-menu" aria-label="More ways to use this page">
+      <ChevronDown size={15} />
+    </button>
+  </div>
+  <ul id="page-actions-menu" class="menu" hidden>
+    <li>
+      <a href={markdown}>
+        <FileText size={16} />
+        <span><strong>View as Markdown</strong><small>This page as plain text</small></span>
+      </a>
+    </li>
+    {assistants.map((assistant) => (
+      <li>
+        <a href={assistant.href} target="_blank" rel="noopener">
+          <ExternalLink size={16} />
+          <span><strong>Open in {assistant.name}</strong><small>Ask questions about this page</small></span>
+        </a>
+      </li>
+    ))}
+  </ul>
+  <span class="sr-only" role="status" aria-live="polite"></span>
+</page-actions>
+
+<style>
+  page-actions {
+    position: relative;
+    display: inline-block;
+    margin-top: 1rem;
+  }
+  .split {
+    display: inline-flex;
+    border-radius: 999px;
+    box-shadow: inset 0 0 0 1px var(--sl-color-hairline-light);
+    background: var(--docs-card);
+  }
+  button {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    height: 2rem;
+    border: 0;
+    background: none;
+    color: var(--sl-color-gray-2);
+    font: inherit;
+    font-size: 0.8125rem;
+    font-weight: 500;
+    cursor: pointer;
+  }
+  button:hover { color: var(--sl-color-white); }
+  .copy { padding-inline: 0.8rem 0.7rem; border-radius: 999px 0 0 999px; }
+  .toggle { padding-inline: 0.5rem 0.65rem; border-radius: 0 999px 999px 0; border-inline-start: 1px solid var(--sl-color-hairline-light); }
+  .toggle[aria-expanded="true"] :global(svg) { rotate: 180deg; }
+  .icon { display: flex; }
+  .done { display: none; color: var(--sl-color-green); }
+  page-actions[data-copied] .idle { display: none; }
+  page-actions[data-copied] .done { display: flex; }
+  .menu {
+    position: absolute;
+    z-index: 20;
+    inset-inline-start: 0;
+    top: calc(100% + 0.4rem);
+    width: max-content;
+    min-width: 16rem;
+    margin: 0;
+    padding: 0.35rem;
+    list-style: none;
+    border-radius: 0.9rem;
+    background: var(--docs-card);
+    box-shadow: inset 0 0 0 1px var(--sl-color-hairline-light), var(--sl-shadow-lg);
+  }
+  .menu a {
+    display: flex;
+    gap: 0.65rem;
+    align-items: flex-start;
+    padding: 0.55rem 0.7rem;
+    border-radius: 0.6rem;
+    color: var(--sl-color-gray-2);
+    text-decoration: none;
+    font-size: 0.875rem;
+    line-height: 1.35;
+  }
+  .menu a :global(svg) { flex: none; margin-top: 0.1rem; }
+  .menu a:hover,
+  .menu a:focus-visible { background: var(--sl-color-gray-6); color: var(--sl-color-white); }
+  .menu strong { display: block; font-weight: 500; color: var(--sl-color-white); }
+  .menu small { display: block; font-size: 0.75rem; color: var(--sl-color-gray-3); }
+</style>
+
+<script>
+  class PageActions extends HTMLElement {
+    connectedCallback() {
+      const toggle = this.querySelector<HTMLButtonElement>(".toggle")!;
+      const menu = this.querySelector<HTMLElement>(".menu")!;
+      const status = this.querySelector<HTMLElement>("[role=status]")!;
+      const setOpen = (open: boolean) => {
+        menu.hidden = !open;
+        toggle.setAttribute("aria-expanded", String(open));
+      };
+      toggle.addEventListener("click", () => setOpen(menu.hidden === true));
+      document.addEventListener("click", (event) => {
+        if (!this.contains(event.target as Node)) setOpen(false);
+      });
+      this.addEventListener("keydown", (event) => {
+        if (event.key === "Escape" && !menu.hidden) {
+          setOpen(false);
+          toggle.focus();
+        }
+      });
+
+      // Copies the page's Markdown, fetched as it's asked for, so pages
+      // carry no second copy of themselves.
+      this.querySelector(".copy")!.addEventListener("click", async () => {
+        try {
+          const text = fetch(this.dataset.markdown!).then((response) => {
+            if (!response.ok) throw new Error(String(response.status));
+            return response.text();
+          });
+          await navigator.clipboard.write([new ClipboardItem({ "text/plain": text.then((value) => new Blob([value], { type: "text/plain" })) })]);
+          this.toggleAttribute("data-copied", true);
+          status.textContent = "Copied this page as Markdown";
+          setTimeout(() => this.removeAttribute("data-copied"), 1600);
+        } catch {
+          location.href = this.dataset.markdown!;
+        }
+      });
+    }
+  }
+  customElements.define("page-actions", PageActions);
+</script>

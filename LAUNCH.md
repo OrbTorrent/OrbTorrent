@@ -100,8 +100,8 @@ None of the loud launch happens until all of these are true:
 
 ## 3. What to make
 
-- [ ] **The website, orbtorrent.com,** on Cloudflare Pages with Cloudflare Web
-  Analytics (no cookies):
+- [ ] **The website, orbtorrent.com,** on Cloudflare (Workers static assets)
+  with Cloudflare Web Analytics (no cookies):
   - the one-line pitch, a 30 to 60 second video, and Download next to
     `brew install orbtorrent/tap/orbtorrent`;
   - screenshots in light and dark, the features, requirements (macOS 26), and
@@ -417,7 +417,10 @@ engine, free and open source`, in their PCP template, saying you made it.
 
 - **Macs using it each day,** by version: the update checks
   (`updates/stats.sh`). The number that matters most.
-- **Downloads:** GitHub's download counts for each release.
+- **Downloads:** from the website, by day, the page they started on or the
+  site that linked there, and country (`website/stats.sh`). GitHub's download
+  counts for each release add the downloads straight from GitHub, and every
+  update, since updates download the same disk image.
 - **Stars:** towards the Homebrew cask (225) and GitHub Trending.
 - **The website:** visits and where they came from (Cloudflare Web Analytics),
   and email sign-ups.

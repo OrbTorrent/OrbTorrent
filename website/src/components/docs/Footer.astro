@@ -1,0 +1,69 @@
+---
+// Under each page: edit it, report a mistake in it, when it last changed,
+// and the pages before and after it. And the note the Download button shows.
+import EditLink from "@astrojs/starlight/components/EditLink.astro";
+import LastUpdated from "@astrojs/starlight/components/LastUpdated.astro";
+import Pagination from "@astrojs/starlight/components/Pagination.astro";
+import DownloadStarted from "../DownloadStarted.astro";
+import { site } from "../../lib/site";
+
+const { entry } = Astro.locals.starlightRoute;
+const issue = new URL(`${site.repo}/issues/new`);
+issue.searchParams.set("title", `Docs: ${entry.data.title}`);
+issue.searchParams.set("body", `Page: ${new URL(Astro.url.pathname, Astro.site).href}\n\nWhat's wrong or missing:\n`);
+---
+
+<footer class="docs-footer">
+  <div class="meta">
+    <div class="links">
+      <EditLink />
+      <a href={issue.href} class="issue">Report a problem with this page</a>
+    </div>
+    <LastUpdated />
+  </div>
+  <Pagination />
+  <p class="site-line">
+    <a href="/">OrbTorrent</a> · <a href="/download">Download</a> · <a href="/privacy">Privacy</a> · <a href={site.repo}>Source code</a> · Free and open source
+  </p>
+  <DownloadStarted />
+</footer>
+
+<style>
+  .docs-footer {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+  }
+  .meta {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    gap: 0.75rem 3rem;
+    margin-top: 3rem;
+    font-size: var(--sl-text-sm);
+    color: var(--sl-color-gray-3);
+  }
+  .links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem 1.5rem;
+  }
+  .issue {
+    color: var(--sl-color-gray-3);
+    text-decoration: none;
+  }
+  .issue:hover { color: var(--sl-color-white); }
+  .meta :global(a) { font-size: var(--sl-text-sm); }
+  .site-line {
+    margin-top: 1rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid var(--sl-color-hairline-light);
+    font-size: var(--sl-text-xs);
+    color: var(--sl-color-gray-3);
+  }
+  .site-line a {
+    color: var(--sl-color-gray-3);
+    text-decoration: none;
+  }
+  .site-line a:hover { color: var(--sl-color-white); }
+</style>

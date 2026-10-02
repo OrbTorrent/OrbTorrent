@@ -1,0 +1,62 @@
+// The questions people ask, for the FAQ page, the home page and their
+// structured data. Answers are plain text, as search engines show them.
+
+export interface Faq {
+  question: string;
+  answer: string;
+}
+
+export const faqs: Faq[] = [
+  {
+    question: "Is OrbTorrent free?",
+    answer: "Yes. OrbTorrent is free and open source, under the GNU General Public License. There are no ads, no account and nothing to buy.",
+  },
+  {
+    question: "Is it legal to use?",
+    answer: "Using BitTorrent is legal. It's how Linux, open films and large public datasets are shared. What you download is up to you: download and share only what you have the right to.",
+  },
+  {
+    question: "How does it use qBittorrent?",
+    answer: "OrbTorrent bundles qBittorrent's engine, built from its released source, and runs it in the background. It talks to the engine through qBittorrent's Web API, which only accepts connections from your Mac. OrbTorrent isn't affiliated with or endorsed by the qBittorrent project.",
+  },
+  {
+    question: "Which Macs does it run on?",
+    answer: "Any Mac with macOS 26 (Tahoe) or later, with Apple silicon or Intel. It's one universal app.",
+  },
+  {
+    question: "Does it work with my VPN?",
+    answer: "Yes. Turn on Only download through a VPN, and OrbTorrent uses only the VPN's connection, stopping if the VPN drops. It finds VPN apps and tunnels such as Tunnelblick and WireGuard, picks up forwarded ports from VPNs that use NAT-PMP and from Private Internet Access, and uses a reserved port, as AirVPN and Windscribe give you, once you enter it.",
+  },
+  {
+    question: "Does OrbTorrent collect any data?",
+    answer: "No. There's no account, no analytics and no crash reporting. Once a day it checks for updates, sending only its version and build number, and you can turn that off. Everything it connects to is listed on the privacy page.",
+  },
+  {
+    question: "Can I bring my downloads over from Transmission or qBittorrent?",
+    answer: "Yes. OrbTorrent offers to when you first open it, or later from File › Import From. Downloads keep their folders, file choices, names, labels, limits and history, and you choose which of the app's settings come over.",
+  },
+  {
+    question: "Does it work with private trackers?",
+    answer: "Yes. OrbTorrent never adds trackers to a private torrent, and leaves it exactly as it came.",
+  },
+  {
+    question: "Why only macOS 26?",
+    answer: "It's built with this year's SwiftUI and Liquid Glass, so it fits in with the rest of your Mac. One app done well, rather than two done halfway.",
+  },
+  {
+    question: "Is it an Electron app?",
+    answer: "No. It's written in Swift and SwiftUI, and its engine is qBittorrent's, built from source.",
+  },
+  {
+    question: "How do I uninstall it?",
+    answer: "Quit OrbTorrent and drag it to the Trash. Your library and settings are in ~/Library/Application Support/OrbTorrent, if you'd like them gone too. Your downloaded files stay where they are.",
+  },
+  {
+    question: "What's coming next?",
+    answer: "Playing videos while they download, and remote access. The roadmap on GitHub lists what's planned, and what's been put off and why.",
+  },
+  {
+    question: "How do I report a problem?",
+    answer: "Choose Help › Report a Problem in the app, which fills in the details that help, or open an issue on GitHub. Please report security problems privately, to help@orbtorrent.com.",
+  },
+];

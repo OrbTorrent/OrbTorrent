@@ -1,0 +1,189 @@
+---
+import Base from "../layouts/Base.astro";
+import PageHero from "../components/PageHero.astro";
+import SectionHeader from "../components/SectionHeader.astro";
+import CodeSample from "../components/CodeSample.astro";
+import Shot from "../components/Shot.astro";
+import extensionsPage from "../assets/shots/extensions-page.png";
+import develop from "../assets/shots/develop.png";
+import ArrowRight from "@lucide/astro/icons/arrow-right";
+import ShieldCheck from "@lucide/astro/icons/shield-check";
+import Lock from "@lucide/astro/icons/lock";
+import Timer from "@lucide/astro/icons/timer";
+import KeyRound from "@lucide/astro/icons/key-round";
+import Power from "@lucide/astro/icons/power";
+import Package from "@lucide/astro/icons/package";
+import Hand from "@lucide/astro/icons/hand";
+import Flag from "@lucide/astro/icons/flag";
+import { site, tints } from "../lib/site";
+import { breadcrumbs, graph, organization } from "../lib/schema";
+
+const schema = graph(organization, breadcrumbs([{ name: "Extensions", path: "/extensions" }]));
+const safety = [
+  { icon: Lock, title: "A strict sandbox", body: "Each run gets its own process that can't read files, reach the network or even look up a host name by itself." },
+  { icon: ShieldCheck, title: "Only what it lists", body: "Every request goes through OrbTorrent, which checks it against the sites and files the extension listed when you installed it." },
+  { icon: Timer, title: "Time and memory limits", body: "A check gets 15 seconds before a download starts, and 512 MB of memory. Go over, and it's stopped." },
+  { icon: KeyRound, title: "Passwords in the Keychain", body: "An extension's passwords and keys go in your Mac's Keychain, and it only sees its own settings." },
+  { icon: Package, title: "You see it first", body: "Installing shows what an extension does and what it can reach, and asks before anything runs." },
+  { icon: Power, title: "One switch", body: "Turn every extension off to use OrbTorrent as a plain torrent client. Their settings wait for you." },
+];
+---
+
+<Base
+  title="Extensions · OrbTorrent"
+  description="Extensions check every download: the Fake Download Check holds fakes before they arrive, and VirusTotal Scan checks what finishes. You can build your own, too."
+  schema={schema}
+>
+  <PageHero label="Extensions" title="Every download," tone="checked." dot={tints.finished}>
+    Extensions run at two moments in a download's life: before it starts, when they can hold it until you decide, and after it finishes. Their results show in each download's Checks tab.
+  </PageHero>
+
+  <section class="wrap">
+    <figure class="art art-violet showcase reveal">
+      <Shot src={extensionsPage} alt="OrbTorrent's Extensions page: a switch for all extensions, the Fake Download Check before a download starts and VirusTotal Scan after it finishes, and the official extensions with their switches" width={1040} class="w-full h-auto" />
+    </figure>
+  </section>
+
+  <ul class="wrap cells cells-2 mt-20 reveal">
+    <li class="cell">
+      <span class="cell-icon"><Hand size={18} /></span>
+      <p class="label mt-5">Before it starts</p>
+      <h2 class="subheading mt-2">As soon as its files are known</h2>
+      <p class="mt-3 muted">Before any of a download arrives. A check that fails holds it, and the button reads Download Anyway, so nothing reaches your Mac until you choose.</p>
+    </li>
+    <li class="cell">
+      <span class="cell-icon"><Flag size={18} /></span>
+      <p class="label mt-5">After it finishes</p>
+      <h2 class="subheading mt-2">When it's all on your Mac</h2>
+      <p class="mt-3 muted">Scan its files, tidy them away, or send yourself a notification. Each check's result shows with the download.</p>
+    </li>
+  </ul>
+
+  <section class="wrap inset section">
+    <SectionHeader label="Official" title="Two to start with." />
+    <div class="mt-12 grid gap-5 lg:grid-cols-2">
+      <article class="dossier p-7 sm:p-9 flex flex-col reveal">
+        <p class="label label-dot" style={`--dot: ${tints.finished}`}>On from the start</p>
+        <h3 class="heading mt-4">Fake Download Check</h3>
+        <p class="mt-4 muted">Looks at the names and sizes of a download's files, before any of it arrives, for the signs fakes share. Everything happens on your Mac.</p>
+        <dl class="facts mt-7">
+          <div><dt class="label">Runs</dt><dd>Before it starts</dd></div>
+          <div><dt class="label">Looks at</dt><dd>File names and sizes</dd></div>
+          <div><dt class="label">Sends</dt><dd>Nothing, anywhere</dd></div>
+        </dl>
+        <div class="mt-7 grid gap-6 sm:grid-cols-2">
+          <div>
+            <p class="label">It holds</p>
+            <ul class="list mt-3">
+              <li>A program disguised as a video</li>
+              <li>A film with a program or installer in it</li>
+              <li>A video locked in an archive, with a password file</li>
+            </ul>
+          </div>
+          <div>
+            <p class="label">It warns about</p>
+            <ul class="list mt-3">
+              <li>A film far too small for its quality</li>
+              <li>Video only in .wmv</li>
+              <li>Links to download it elsewhere</li>
+              <li>A film with no video in it</li>
+            </ul>
+          </div>
+        </div>
+      </article>
+      <article class="dossier p-7 sm:p-9 flex flex-col reveal" style="--delay: 0.06s">
+        <p class="label label-dot" style={`--dot: ${tints.active}`}>With a free key</p>
+        <h3 class="heading mt-4">VirusTotal Scan</h3>
+        <p class="mt-4 muted">When a download finishes, it looks up each file's fingerprint on VirusTotal, which checks it against about 70 antivirus engines.</p>
+        <dl class="facts mt-7">
+          <div><dt class="label">Runs</dt><dd>After it finishes</dd></div>
+          <div><dt class="label">Fails</dt><dd>3 or more engines call a file malicious</dd></div>
+          <div><dt class="label">Warns</dt><dd>1 or 2 do, since one-off false alarms are common</dd></div>
+          <div><dt class="label">Uploads</dt><dd>Nothing, unless you turn that on</dd></div>
+        </dl>
+        <ul class="list mt-7">
+          <li>Checks programs first, then archives, then documents, and remembers answers for a week.</li>
+          <li>The free key allows 4 lookups a minute, so it waits between them.</li>
+        </ul>
+      </article>
+    </div>
+  </section>
+
+  <div class="rule"></div>
+
+  <section class="wrap inset section pb-0">
+    <SectionHeader label="Safe by design" title="Code from others," tone="kept on a short leash.">
+      OrbTorrent doesn't rely on reviewing extensions alone. It limits what their code can do.
+    </SectionHeader>
+  </section>
+  <ul class="wrap cells cells-3 mt-14 reveal">
+    {safety.map((item) => (
+      <li class="cell">
+        <span class="cell-icon"><item.icon size={18} /></span>
+        <h3 class="mt-5 text-[1.0625rem] font-medium tracking-tight">{item.title}</h3>
+        <p class="mt-2 text-[0.9375rem] muted">{item.body}</p>
+      </li>
+    ))}
+  </ul>
+
+  <section class="wrap inset section grid gap-12 lg:grid-cols-[0.9fr_1.1fr] lg:items-start">
+    <div>
+      <SectionHeader label="Build your own" title="In TypeScript," tone="or in a sentence." dot="#a875ff">
+        Start one with a single command. It comes with tests that run without OrbTorrent, and loads into it as you save.
+      </SectionHeader>
+      <pre class="terminal mt-8 reveal"><code><span class="prompt">$</span> npm create @orbtorrent/extension@latest size-guard
+<span class="prompt">$</span> npm test
+<span class="prompt">$</span> npm run dev</code></pre>
+      <p class="mt-6 muted reveal">
+        Or describe what you want: on the Develop tab of OrbTorrent's Extensions page, it becomes a request for a coding agent such as Claude Code, Codex, Cursor or Gemini CLI,
+        which writes it, tests it and tries it on your downloads. Nothing runs until you allow it.
+      </p>
+      <div class="mt-7 flex flex-wrap gap-2.5 reveal">
+        <a href={site.extensionDocs} class="btn btn-dark btn-sm">Read the docs <ArrowRight size={15} /></a>
+        <a href="https://www.npmjs.com/package/@orbtorrent/api" class="btn btn-soft btn-sm">@orbtorrent/api on npm</a>
+      </div>
+    </div>
+    <div class="reveal" style="--delay: 0.08s">
+      <CodeSample />
+      <p class="mt-5 text-sm faint">Share it as an .orbext file: opening one shows what it does and what it can reach, and installs it when you confirm. The SDK is MIT licensed, so your extension can use any licence.</p>
+    </div>
+  </section>
+
+  <section class="wrap">
+    <figure class="art art-blue showcase reveal">
+      <Shot src={develop} alt="The Develop tab: describe an extension, copy the request for a coding agent, and the steps you'll be asked to confirm" width={1040} class="w-full h-auto" />
+    </figure>
+  </section>
+
+  <section class="wrap inset pt-16">
+    <div class="panel community reveal">
+      <div>
+        <p class="label">Community</p>
+        <h2 class="subheading mt-3">Made an extension?</h2>
+        <p class="mt-2 muted max-w-xl">Add it to the community list in the README with a pull request: its name, a link, and a line on what it does.</p>
+      </div>
+      <a href={`${site.repo}#community`} class="btn btn-dark">The community list <ArrowRight size={16} /></a>
+    </div>
+  </section>
+</Base>
+
+<style>
+  .section { padding-block: clamp(4.5rem, 9vw, 7rem); }
+  .showcase {
+    display: grid;
+    place-items: center;
+    padding: clamp(1.25rem, 5vw, 4.5rem) clamp(1rem, 6vw, 6rem);
+  }
+  .showcase :global(img) { filter: drop-shadow(0 30px 50px rgb(30 40 90 / 0.28)); }
+  .list { display: grid; gap: 0.5rem; color: var(--ink-2); font-size: 0.9375rem; }
+  .list li { position: relative; padding-left: 1.1rem; }
+  .list li::before { content: ""; position: absolute; left: 0; top: 0.62em; width: 0.35rem; height: 0.35rem; border-radius: 1px; background: var(--ink-3); }
+  .community {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1.5rem 3rem;
+    padding: clamp(1.75rem, 4vw, 2.5rem);
+  }
+</style>

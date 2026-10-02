@@ -1,0 +1,90 @@
+---
+import "../styles/global.css";
+import geist from "@fontsource-variable/geist/files/geist-latin-wght-normal.woff2?url";
+import Seo from "../components/Seo.astro";
+import Analytics from "../components/Analytics.astro";
+import Nav from "../components/Nav.astro";
+import Footer from "../components/Footer.astro";
+import DownloadStarted from "../components/DownloadStarted.astro";
+
+interface Props {
+  title: string;
+  description: string;
+  schema?: object;
+  image?: string;
+  imageAlt?: string;
+  noindex?: boolean;
+}
+const seo = Astro.props;
+---
+
+<!doctype html>
+<html lang="en-GB" class="no-js">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <script is:inline>document.documentElement.classList.remove("no-js")</script>
+    <link rel="preload" href={geist} as="font" type="font/woff2" crossorigin />
+    <!-- Geist, if it arrives in time; if not, the Mac's own font stands in for
+         this visit rather than swapping as you read. -->
+    <style is:inline set:html={`@font-face{font-family:"Geist Variable";font-style:normal;font-weight:100 900;font-display:optional;src:url(${geist}) format("woff2-variations");unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}`} />
+    <Seo {...seo} />
+    <meta name="color-scheme" content="light" />
+    <meta name="theme-color" content="#f6f5f1" />
+    <link rel="icon" href="/favicon.ico" sizes="32x32" />
+    <link rel="icon" href="/favicon.png" type="image/png" sizes="64x64" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <link rel="manifest" href="/site.webmanifest" />
+    <link rel="sitemap" href="/sitemap-index.xml" />
+    <slot name="head" />
+    <Analytics />
+  </head>
+  <body>
+    <a href="#main" class="skip">Skip to content</a>
+    <div class="frame-lines" aria-hidden="true"></div>
+    <Nav />
+    <main id="main">
+      <slot />
+    </main>
+    <Footer />
+    <DownloadStarted />
+    <script>
+      // Things appear as they scroll into view.
+      const reveal = new IntersectionObserver((entries) => {
+        for (const entry of entries) {
+          if (!entry.isIntersecting) continue;
+          entry.target.classList.add("is-in");
+          reveal.unobserve(entry.target);
+        }
+      }, { rootMargin: "0px 0px -6% 0px" });
+      for (const element of document.querySelectorAll(".reveal")) reveal.observe(element);
+    </script>
+  </body>
+</html>
+
+<style>
+  .skip {
+    position: absolute;
+    left: 1rem;
+    top: -4rem;
+    z-index: 100;
+    padding: 0.6rem 1rem;
+    border-radius: 999px;
+    background: var(--ink);
+    color: var(--paper);
+    font-weight: 500;
+  }
+  .skip:focus { top: 1rem; }
+  /* The frame's two dashed edges, the length of the page. */
+  .frame-lines {
+    position: fixed;
+    inset: 0 auto 0 50%;
+    width: var(--frame);
+    translate: -50% 0;
+    pointer-events: none;
+    background:
+      linear-gradient(to bottom, var(--line-2) 50%, transparent 50%) left top / 1px 8px repeat-y,
+      linear-gradient(to bottom, var(--line-2) 50%, transparent 50%) right top / 1px 8px repeat-y;
+  }
+  main { position: relative; }
+</style>

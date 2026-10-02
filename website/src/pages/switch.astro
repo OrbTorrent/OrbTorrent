@@ -1,0 +1,116 @@
+---
+import Base from "../layouts/Base.astro";
+import PageHero from "../components/PageHero.astro";
+import SectionHeader from "../components/SectionHeader.astro";
+import Move from "../components/Move.astro";
+import DownloadButton from "../components/DownloadButton.astro";
+import Check from "@lucide/astro/icons/check";
+import { tints } from "../lib/site";
+import { breadcrumbs, graph, organization } from "../lib/schema";
+
+const schema = graph(organization, breadcrumbs([{ name: "Switch from Transmission or qBittorrent", path: "/switch" }]));
+const downloads = [
+  ["Where each one is saved", "Files stay where they are. Nothing is copied or moved."],
+  ["The files you chose", "Files you skipped stay skipped."],
+  ["Names and labels", "Renamed downloads keep their names, and labels come too."],
+  ["Limits and history", "Speed limits, when each was added, and how much it's downloaded and shared, so ratios carry on."],
+  ["Progress", "qBittorrent's comes over as it is. Transmission's downloads have their files checked first, then carry on."],
+];
+const settings = [
+  "Save folder", "Download and upload limits", "Ratio limit", "Listening port", "Router port mapping",
+  "TCP and µTP", "DHT", "Peer exchange", "Local peer discovery", "Encryption", "Connection limits",
+];
+const steps = [
+  { title: "Open OrbTorrent", body: "It finds Transmission and qBittorrent on your Mac, and offers to bring their downloads over, with the settings of the one you used most recently." },
+  { title: "Choose what comes", body: "See the downloads and the settings that would change, and pick. Nothing changes until you do." },
+  { title: "Carry on", body: "The other app quits while it happens, so the two don't use the same files. Then your downloads carry on in OrbTorrent." },
+];
+---
+
+<Base
+  title="Switch from Transmission or qBittorrent · OrbTorrent"
+  description="Switch from Transmission or qBittorrent in one step. Downloads come over with their folders, file choices, labels and progress, and settings if you like."
+  schema={schema}
+>
+  <PageHero label="Switching" title="Bring everything" tone="with you." dot={tints.waiting}>
+    OrbTorrent brings your downloads and settings over from Transmission or the qBittorrent app in one step, when you first open it or any time after.
+  </PageHero>
+
+  <section class="wrap">
+    <figure class="art art-peach drawing reveal"><Move /></figure>
+  </section>
+
+  <section class="wrap inset section grid gap-14 lg:grid-cols-[1.1fr_0.9fr]">
+    <div class="reveal">
+      <p class="label">What comes over</p>
+      <dl class="rows mt-6">
+        {downloads.map(([what, how]) => (
+          <div><dt>{what}</dt><dd>{how}</dd></div>
+        ))}
+      </dl>
+    </div>
+    <div class="reveal" style="--delay: 0.06s">
+      <p class="label">Settings, if you want them</p>
+      <p class="mt-6 muted">You see each setting that's different from OrbTorrent's, and choose which ones come over. Anything you leave keeps OrbTorrent's own.</p>
+      <ul class="mt-6 flex flex-wrap gap-2">
+        {settings.map((setting) => <li class="chip">{setting}</li>)}
+      </ul>
+    </div>
+  </section>
+
+  <div class="rule"></div>
+
+  <section class="wrap inset section pb-0">
+    <SectionHeader label="How it goes" title="Three steps," tone="and you're moved in." />
+  </section>
+  <ol class="wrap cells cells-3 mt-12 reveal">
+    {steps.map((step, index) => (
+      <li class="cell">
+        <span class="cell-number">{index + 1}</span>
+        <h3 class="mt-5 text-[1.0625rem] font-medium tracking-tight">{step.title}</h3>
+        <p class="mt-2 text-[0.9375rem] muted">{step.body}</p>
+      </li>
+    ))}
+  </ol>
+  <p class="wrap inset mt-8 muted reveal">Later on, choose <strong class="font-medium text-[var(--ink)]">File › Import From</strong>, or the Import button in OrbTorrent's settings.</p>
+
+  <section class="wrap inset section">
+    <div class="dossier why reveal">
+      <div>
+        <p class="label">Why people switch</p>
+        <h2 class="heading mt-4">Good apps, <span class="tone">and a different idea.</span></h2>
+        <p class="mt-4 muted max-w-xl">Transmission and qBittorrent are good, actively developed apps, and OrbTorrent runs on qBittorrent's own engine. It's for when you'd like:</p>
+      </div>
+      <div>
+        <ul class="grid gap-3">
+          {["A menu bar app that feels like part of macOS", "Downloads that stop if your VPN drops", "Your VPN's forwarded port kept in step by itself", "Fake downloads held before they arrive"].map((item) => (
+            <li class="flex gap-3 items-start"><Check size={18} class="mt-1 flex-none text-[#16a061]" />{item}</li>
+          ))}
+        </ul>
+        <DownloadButton class="mt-8" />
+      </div>
+    </div>
+  </section>
+</Base>
+
+<style>
+  .section { padding-block: clamp(4.5rem, 9vw, 7rem); }
+  .drawing {
+    display: grid;
+    place-items: center;
+    padding: clamp(2.5rem, 7vw, 5rem) 1.25rem;
+  }
+  .rows { border-top: 1px solid var(--line-2); }
+  .rows div { display: grid; gap: 0.25rem; padding: 1rem 0; border-bottom: 1px solid var(--line-2); }
+  @media (min-width: 640px) { .rows div { grid-template-columns: 13rem 1fr; gap: 1.5rem; } }
+  .rows dt { font-weight: 500; }
+  .rows dd { color: var(--ink-2); }
+  .why {
+    display: grid;
+    gap: 2.5rem;
+    padding: clamp(1.75rem, 5vw, 3rem);
+  }
+  @media (min-width: 1024px) {
+    .why { grid-template-columns: 1fr 1fr; align-items: center; gap: 4rem; }
+  }
+</style>

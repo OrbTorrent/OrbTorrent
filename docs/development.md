@@ -1,7 +1,7 @@
 # Developing OrbTorrent
 
 How OrbTorrent is built, how to build it yourself, and how releases go out.
-To build an extension instead, see [extensions](extensions/README.md). To
+To build an extension instead, see [the extension docs](https://orbtorrent.com/docs/extensions). To
 send a change, see [CONTRIBUTING.md](../CONTRIBUTING.md).
 
 ## How it works
@@ -32,7 +32,7 @@ Extensions run one at a time per hook in `orb-extension-host`, a small helper
 with JavaScriptCore and the App Sandbox: it can't read files or reach the
 network itself, and asks OrbTorrent for everything, which checks each request
 against the extension's permissions. See
-[extensions/security.md](extensions/security.md).
+[Security model](https://orbtorrent.com/docs/extensions/security).
 
 ## Building
 
@@ -96,6 +96,40 @@ These versions mirror qBittorrent's own macOS release. Pins live in
 `engine/versions.env`, and any fixes needed for newer toolchains live in
 `engine/patches/<component>/`. Set `ARCHS="arm64 x86_64"` for a universal binary.
 
+## The website and docs
+
+`website/` is orbtorrent.com: an [Astro](https://astro.build) site whose
+pages are all built ahead of time, with the docs at `/docs` built by
+[Starlight](https://starlight.astro.build). A small Cloudflare Worker,
+`website/src/worker.ts`, answers `/download/mac` with the newest disk image
+from the update feed, and Cloudflare serves every other page as a file.
+
+```sh
+cd website
+npm install
+npm run dev      # the site and docs at http://localhost:4321, reloading as you edit
+npm run build    # every page into dist/, checking the docs' links
+```
+
+- **The docs are Markdown** in `website/src/content/docs/docs/`, one file per
+  page, and the sidebar is in `website/src/lib/docs-sidebar.mjs`. Every page
+  needs a `title` and a `description`.
+- **The build checks them:** every link between docs pages and to their
+  headings must lead somewhere, and the API reference must have a heading for
+  every export of `@orbtorrent/api` in `sdk/src/index.ts`. The extension SDK's
+  changelog page shows `sdk/CHANGELOG.md` itself.
+- **Each page is also Markdown** at its address plus `.md`, and `llms.txt`,
+  `llms-full.txt` and `docs/extensions/llms-full.txt` are built from the
+  docs, for language models.
+- Change the SDK and its docs in the same pull request. CI builds the site
+  whenever either changes.
+- `npm run deploy` builds the site and publishes it, with the Worker, to
+  orbtorrent.com.
+- On a Mac, the Download buttons start the download without leaving the page.
+  The Worker counts each one, without the address it came from, and
+  `website/stats.sh` shows them by day, by the page they started on and by
+  country. Pages are counted by Cloudflare Web Analytics.
+
 ## Project layout
 
 ```
@@ -120,8 +154,9 @@ sdk/            @orbtorrent/api: the extension API, the orb CLI and templates
 skills/         The Agent Skill for building extensions
 engine/         Engine build script, pinned versions and patches
 updates/        updates.orbtorrent.com, the update feed (a Cloudflare Worker)
-scripts/        DMG packaging, publishing updates, extension docs and permission checks
-docs/           This guide, the extension docs and the extension system's design
+website/        orbtorrent.com and its docs, and the Worker in front of them
+scripts/        DMG packaging, publishing updates, the Agent Skill's AGENTS.md and permission checks
+docs/           This guide, and the extension system's design
 ```
 
 ## Releasing

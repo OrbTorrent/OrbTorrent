@@ -1,0 +1,58 @@
+---
+title: OrbTorrent Docs
+description: How to use OrbTorrent, the free, open-source torrent app made for the Mac, and how to build extensions for it in TypeScript.
+template: doc
+tableOfContents: false
+hero:
+  title: Everything about OrbTorrent.
+  tagline: How to download with it, keep your downloads on your VPN and fix what goes wrong, and how to build extensions that check every download.
+  actions:
+    - text: Install OrbTorrent
+      link: /docs/get-started/install
+      variant: primary
+    - text: Build an extension
+      link: /docs/extensions
+      variant: secondary
+---
+
+import { Card, CardGrid, LinkCard } from "@astrojs/starlight/components";
+
+## Use OrbTorrent
+
+<CardGrid>
+<Card title="Get started" icon="rocket">
+
+[Install OrbTorrent](/docs/get-started/install), [add your first download](/docs/get-started/first-download), and [bring your downloads over](/docs/get-started/switch) from Transmission or qBittorrent.
+
+</Card>
+<Card title="Everyday use" icon="laptop">
+
+[The menu bar](/docs/guides/menu-bar), [the library window](/docs/guides/library), [each download's details](/docs/guides/download-details), and [choosing files](/docs/guides/files) and the order they download in.
+
+</Card>
+<Card title="Network and privacy" icon="padlock">
+
+[Download only through a VPN](/docs/guides/vpn), keep your VPN's [forwarded port](/docs/guides/port-forwarding) in step, and [find more peers](/docs/guides/peers) for slow downloads.
+
+</Card>
+<Card title="Help" icon="information">
+
+[Troubleshooting](/docs/help/troubleshooting) for the usual problems, every [setting](/docs/reference/settings) and [shortcut](/docs/reference/shortcuts), and how to [report a problem](/docs/help/report-a-problem).
+
+</Card>
+</CardGrid>
+
+## Build extensions
+
+Extensions are TypeScript. They check a download before it starts, and can hold it until you decide, or act on it once it finishes. They run in a sandbox, and reach only the files and sites they list.
+
+<CardGrid>
+<LinkCard title="Your first extension" href="/docs/extensions/getting-started" description="Make one from a template, test it, and run it on one of your downloads in about ten minutes." />
+<LinkCard title="Build with a coding agent" href="/docs/extensions/coding-agents" description="Say what it should do, and Claude Code, Codex, Cursor or Gemini CLI writes it, tests it and tries it." />
+<LinkCard title="API reference" href="/docs/extensions/reference/api" description="fetch, files, storage, progress, settings and everything else @orbtorrent/api provides." />
+<LinkCard title="The orb command" href="/docs/extensions/reference/cli" description="Every orb command and option, its JSON output, and what it needs from OrbTorrent." />
+</CardGrid>
+
+## For language models
+
+Every page here is also plain Markdown, at its address plus `.md`, and has a **Copy page** button under its title. [llms.txt](/llms.txt) lists the whole site, and [llms-full.txt](/llms-full.txt) holds all of these docs in one file. Coding agents building an extension can read just [the extension docs](/docs/extensions/llms-full.txt).

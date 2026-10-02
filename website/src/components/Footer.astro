@@ -1,0 +1,86 @@
+---
+import { site } from "../lib/site";
+
+const columns = [
+  {
+    title: "Product",
+    links: [
+      { href: "/download", label: "Download" },
+      { href: "/#features", label: "Features" },
+      { href: "/extensions", label: "Extensions" },
+      { href: "/switch", label: "Switching to OrbTorrent" },
+      { href: "/faq", label: "FAQ" },
+      { href: "/docs/help/troubleshooting", label: "Help" },
+    ],
+  },
+  {
+    title: "Developers",
+    links: [
+      { href: site.docs, label: "Docs" },
+      { href: site.extensionDocs, label: "Build extensions" },
+      { href: site.repo, label: "Source code" },
+      { href: site.contributing, label: "Contributing" },
+      { href: site.security, label: "Security" },
+      { href: site.roadmap, label: "Roadmap" },
+    ],
+  },
+  {
+    title: "About",
+    links: [
+      { href: "/privacy", label: "Privacy" },
+      { href: "/press", label: "Press kit" },
+      { href: `mailto:${site.email}`, label: site.email },
+      { href: site.issues, label: "Report a problem" },
+    ],
+  },
+];
+---
+
+<footer class="footer">
+  <div class="rule"></div>
+  <div class="wrap inset pt-16">
+    <div class="grid grid-cols-2 gap-x-6 gap-y-12 md:grid-cols-[1.5fr_repeat(3,1fr)]">
+      <div class="col-span-2 max-w-xs md:col-span-1">
+        <a href="/" class="flex items-center gap-2.5 font-semibold tracking-tight text-[1.0625rem]">
+          <img src="/brand/orb-mark.webp" alt="" width="24" height="24" loading="lazy" />
+          OrbTorrent
+        </a>
+        <p class="mt-4 text-[0.9375rem] muted">{site.tagline}</p>
+        <p class="mt-3 text-sm faint">Free and open source, under the <a class="link" href={site.license}>GNU GPL</a>.</p>
+      </div>
+      {columns.map((column) => (
+        <div>
+          <h2 class="label">{column.title}</h2>
+          <ul class="mt-4 space-y-2.5">
+            {column.links.map((link) => (
+              <li><a class="text-[0.9375rem] muted hover:text-[var(--ink)] transition-colors" href={link.href}>{link.label}</a></li>
+            ))}
+          </ul>
+        </div>
+      ))}
+    </div>
+    <div class="mt-16 flex flex-col gap-2 md:flex-row md:justify-between text-sm faint">
+      <p>Copyright © 2026 {site.author}.</p>
+      <p>Not affiliated with the qBittorrent project. Download and share only what you have the right to.</p>
+    </div>
+  </div>
+  <div class="wordmark wrap" aria-hidden="true"></div>
+</footer>
+
+<style>
+  .footer { margin-top: 6rem; overflow: hidden; }
+  /* The name, set huge and cut off by the page's end. */
+  .wordmark {
+    margin-top: 2.5rem;
+    margin-bottom: calc(-0.24 * min(18.5vw, 15rem));
+    font-size: min(18.5vw, 15rem);
+    font-weight: 600;
+    letter-spacing: -0.06em;
+    line-height: 1;
+    text-align: center;
+    color: var(--paper-3);
+    user-select: none;
+  }
+  /* Drawn by the stylesheet, as it's decoration rather than words. */
+  .wordmark::before { content: "OrbTorrent"; }
+</style>

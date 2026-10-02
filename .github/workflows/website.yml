@@ -1,0 +1,49 @@
+name: Website
+
+# Builds orbtorrent.com and its docs when they change: type-checks the code,
+# builds every page, checks every link between docs pages, and checks that the
+# API reference covers every export of @orbtorrent/api. Deploying is by hand,
+# with `npm run deploy` in website/, until the first release.
+
+on:
+  pull_request:
+    paths:
+      - "website/**"
+      - "sdk/src/index.ts"
+      - "sdk/CHANGELOG.md"
+  push:
+    branches: [main]
+    paths:
+      - "website/**"
+      - "sdk/src/index.ts"
+      - "sdk/CHANGELOG.md"
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: website
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          # Each docs page's "Last updated" date comes from its history.
+          fetch-depth: 0
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: website/package-lock.json
+
+      - name: Install
+        run: npm ci --no-audit --no-fund
+
+      - name: Type-check
+        run: npx astro check
+
+      - name: Build, and check the docs' links
+        run: npx astro build

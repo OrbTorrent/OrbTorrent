@@ -1,0 +1,9 @@
+---
+// The extension SDK's changelog, from sdk/CHANGELOG.md.
+import { getEntry, render } from "astro:content";
+
+const entry = await getEntry("sdkChangelog", "sdk");
+const { Content } = await render(entry!);
+---
+
+<Content />

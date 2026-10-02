@@ -1,0 +1,331 @@
+/* The docs, in the site's own paper and ink, and by night in the deep blue
+   the orb is lit on. Geist for words, loaded in the docs' Head, and the
+   Mac's own mono for code, as on the rest of orbtorrent.com. Starlight's
+   styles sit in cascade layers, so everything here, outside them, wins. */
+
+:root {
+  --sl-font: "Geist Variable";
+  --sl-font-mono: ui-monospace, "SF Mono", SFMono-Regular, Menlo, Consolas, monospace;
+
+  /* The orb's colours, as hues Starlight builds its tints from. */
+  --sl-hue-blue: 218;
+  --sl-hue-green: 152;
+  --sl-hue-orange: 31;
+  --sl-hue-red: 0;
+  --sl-hue-purple: 252;
+
+  --sl-content-width: 46rem;
+  --sl-sidebar-width: 17.5rem;
+  --sl-text-h1: 2.25rem;
+  --sl-line-height: 1.7;
+
+  /* By night: the stage the orb is lit on. */
+  --sl-color-white: #f3f5ff;
+  --sl-color-gray-1: #dfe3f2;
+  --sl-color-gray-2: #c0c6da;
+  --sl-color-gray-3: #8c93ab;
+  --sl-color-gray-4: #5f6681;
+  --sl-color-gray-5: #2a3049;
+  --sl-color-gray-6: #151a2d;
+  --sl-color-black: #090c18;
+
+  --sl-color-accent-low: #142250;
+  --sl-color-accent: #5b8cff;
+  --sl-color-accent-high: #b6caff;
+
+  --sl-color-text-accent: var(--sl-color-accent-high);
+  --sl-color-bg-nav: rgb(9 12 24 / 0.82);
+  --sl-color-bg-sidebar: var(--sl-color-black);
+  --sl-color-bg-inline-code: #182038;
+  --sl-color-hairline-light: #232a43;
+  --sl-color-hairline: #1b2036;
+  --sl-color-hairline-shade: #1b2036;
+  --sl-color-backdrop-overlay: rgb(5 7 15 / 0.7);
+
+  --docs-card: #0e1324;
+  --docs-card-hover: #121931;
+  --docs-code-titlebar: #0e1324;
+  --docs-selection: rgb(91 140 255 / 0.3);
+  --docs-glow: rgb(56 133 255 / 0.18);
+}
+
+@media (min-width: 50em) {
+  :root {
+    --sl-text-h1: 2.75rem;
+    --sl-text-h2: 1.75rem;
+    --sl-text-h3: 1.3rem;
+    --sl-text-h4: 1.1rem;
+  }
+}
+
+/* By day: warm paper and ink. */
+:root[data-theme="light"] {
+  --sl-color-white: #131316;
+  --sl-color-gray-1: #232328;
+  --sl-color-gray-2: #3b3b42;
+  --sl-color-gray-3: #5e5e65;
+  --sl-color-gray-4: #8b8a85;
+  --sl-color-gray-5: #d8d4ca;
+  --sl-color-gray-6: #ebe8e1;
+  --sl-color-gray-7: #f1efe9;
+  --sl-color-black: #f6f5f1;
+
+  --sl-color-accent-low: #dde5fb;
+  --sl-color-accent: #2453e6;
+  --sl-color-accent-high: #1a3cad;
+
+  --sl-color-text-accent: var(--sl-color-accent);
+  --sl-color-bg-nav: rgb(246 245 241 / 0.85);
+  --sl-color-bg-sidebar: var(--sl-color-black);
+  --sl-color-bg-inline-code: #ebe8e1;
+  --sl-color-hairline-light: #e2ded5;
+  --sl-color-hairline: #e6e2d9;
+  --sl-color-hairline-shade: #e2ded5;
+  --sl-color-backdrop-overlay: rgb(19 19 22 / 0.25);
+
+  --docs-card: #fbfaf7;
+  --docs-card-hover: #ffffff;
+  --docs-code-titlebar: #f1efe9;
+  --docs-selection: rgb(56 133 255 / 0.22);
+  --docs-glow: rgb(56 133 255 / 0.12);
+}
+
+::selection { background: var(--docs-selection); }
+
+body {
+  font-feature-settings: "ss01", "cv11";
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+/* The bar across the top: frosted, with the page showing through. */
+.header {
+  backdrop-filter: blur(16px) saturate(1.5);
+  -webkit-backdrop-filter: blur(16px) saturate(1.5);
+}
+
+/* The sidebar. */
+.sidebar-content {
+  --sl-sidebar-item-padding-inline: 0.65rem;
+}
+.sidebar-content a[aria-current="page"],
+.sidebar-content a[aria-current="page"]:hover,
+.sidebar-content a[aria-current="page"]:focus {
+  color: var(--sl-color-text-accent);
+  background-color: var(--sl-color-accent-low);
+  font-weight: 500;
+}
+.sidebar-content a {
+  border-radius: 0.5rem;
+}
+.sidebar-content .large {
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: var(--sl-color-white);
+}
+/* A page elsewhere on orbtorrent.com, marked as such. */
+.sidebar-content a[data-external]::after {
+  content: "↗";
+  margin-inline-start: 0.3em;
+  color: var(--sl-color-gray-4);
+}
+
+/* Headings: Geist, set tight. */
+.sl-markdown-content :is(h1, h2, h3, h4, h5, h6),
+h1#_top,
+.hero h1 {
+  font-weight: 600;
+  letter-spacing: -0.022em;
+  text-wrap: balance;
+}
+h1#_top {
+  letter-spacing: -0.04em;
+  line-height: 1.05;
+}
+.sl-markdown-content h2 {
+  letter-spacing: -0.03em;
+}
+.sl-markdown-content :is(p, li) {
+  text-wrap: pretty;
+}
+.sl-markdown-content strong {
+  color: var(--sl-color-white);
+  font-weight: 600;
+}
+
+/* Links read as links. */
+.sl-markdown-content a:not(:where(.not-content *)) {
+  text-decoration: underline;
+  text-decoration-color: color-mix(in srgb, currentColor 35%, transparent);
+  text-underline-offset: 3px;
+  transition: text-decoration-color 0.2s;
+}
+.sl-markdown-content a:not(:where(.not-content *)):hover {
+  color: var(--sl-color-text-accent);
+  text-decoration-color: currentColor;
+}
+
+/* Code in a sentence. */
+.sl-markdown-content :not(pre) > code:not(:where(.not-content *)) {
+  border-radius: 0.35rem;
+  box-shadow: inset 0 0 0 1px var(--sl-color-hairline-light);
+  font-size: 0.85em;
+  padding: 0.1rem 0.35rem;
+}
+
+/* Code in a heading, such as an API's name, is set as the heading. */
+.sl-markdown-content :is(h2, h3, h4) code:not(:where(.not-content *)) {
+  padding: 0;
+  background: none;
+  box-shadow: none;
+  font-size: 0.92em;
+}
+
+/* Keys, as macOS prints them in menus. They sit in the line, without the
+   space Starlight gives blocks in a list. */
+.sl-markdown-content kbd.key {
+  margin: 0;
+}
+kbd.key {
+  display: inline-block;
+  min-width: 1.6em;
+  padding: 0.05em 0.4em;
+  border-radius: 0.35rem;
+  font-family: var(--__sl-font);
+  font-size: 0.85em;
+  font-weight: 500;
+  text-align: center;
+  color: var(--sl-color-white);
+  background: var(--docs-card);
+  box-shadow: inset 0 0 0 1px var(--sl-color-hairline-light), 0 1px 0 var(--sl-color-hairline-light);
+}
+
+/* Tables: hairlines, and a header row on card. */
+.sl-markdown-content table:not(:where(.not-content *)) {
+  font-size: var(--sl-text-sm);
+}
+.sl-markdown-content th:not(:where(.not-content *)) {
+  color: var(--sl-color-white);
+  font-weight: 600;
+  text-align: start;
+}
+.sl-markdown-content :is(th, td):not(:where(.not-content *)) {
+  border-bottom-color: var(--sl-color-hairline-light);
+}
+
+/* Screenshots of the app, with the room a window has around it. */
+.sl-markdown-content img:not(:where(.not-content *)) {
+  border-radius: 0.9rem;
+}
+.sl-markdown-content figure.shot {
+  margin-inline: auto;
+}
+.sl-markdown-content figure.shot img {
+  margin-inline: auto;
+}
+.sl-markdown-content figcaption {
+  margin-top: 0.6rem;
+  font-size: var(--sl-text-sm);
+  color: var(--sl-color-gray-3);
+  text-align: center;
+}
+
+/* Asides: soft panels in the orb's colours. A tip is green, as finished
+   downloads are. */
+.starlight-aside {
+  border-radius: 0.75rem;
+  border-inline-start-width: 3px;
+}
+.starlight-aside--tip {
+  --sl-color-asides-text-accent: var(--sl-color-green-high);
+  --sl-color-asides-border: var(--sl-color-green);
+  background-color: var(--sl-color-green-low);
+}
+.starlight-aside__title {
+  font-size: var(--sl-text-base);
+}
+
+/* Cards and link cards: sheets of card on the paper. */
+.card,
+.sl-link-card {
+  border-radius: 1rem;
+  border-color: var(--sl-color-hairline-light);
+  background: var(--docs-card);
+  box-shadow: none;
+  transition: border-color 0.2s, background-color 0.2s;
+}
+.sl-link-card:hover {
+  border-color: var(--sl-color-gray-4);
+  background: var(--docs-card-hover);
+}
+/* Every card's icon in the accent, rather than a different colour each. */
+.card {
+  --sl-card-border: var(--sl-color-accent);
+  --sl-card-bg: var(--sl-color-accent-low);
+}
+.card .title {
+  font-size: var(--sl-text-lg);
+  font-weight: 600;
+  letter-spacing: -0.015em;
+}
+
+/* Previous and next. */
+.pagination-links a {
+  border-radius: 0.9rem;
+  border-color: var(--sl-color-hairline-light);
+  box-shadow: none;
+}
+.pagination-links a:hover {
+  border-color: var(--sl-color-gray-4);
+}
+.pagination-links .link-title {
+  font-size: var(--sl-text-lg);
+  font-weight: 600;
+  letter-spacing: -0.015em;
+}
+
+/* Steps: numbered, in ink. */
+.sl-steps {
+  --bullet-size: 1.75rem;
+}
+
+/* The search box in the bar. */
+site-search button[data-open-modal] {
+  border-radius: 999px;
+  border-color: var(--sl-color-hairline-light);
+  background: var(--docs-card);
+}
+
+/* Buttons, in ink, as the rest of the site draws them. */
+.sl-link-button {
+  border-radius: 999px;
+  font-weight: 500;
+}
+.sl-link-button.primary {
+  border-color: var(--sl-color-white);
+  background: var(--sl-color-white);
+  color: var(--sl-color-black);
+}
+.sl-link-button.primary:hover {
+  opacity: 0.85;
+}
+.sl-link-button.secondary {
+  border-color: var(--sl-color-hairline-light);
+  background: var(--docs-card);
+  color: var(--sl-color-white);
+}
+
+/* The table of contents on the right. */
+.right-sidebar a[aria-current="true"] {
+  color: var(--sl-color-text-accent);
+  font-weight: 500;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+  }
+}

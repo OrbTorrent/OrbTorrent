@@ -1,0 +1,42 @@
+---
+// The end of the bar, and the foot of the menu on phones: GitHub, and the
+// Download button the rest of the site has.
+import { Icon } from "@astrojs/starlight/components";
+import AppleMark from "../AppleMark.astro";
+import { site } from "../../lib/site";
+---
+
+<a href={site.repo} class="icon-link">
+  <span class="sr-only">OrbTorrent on GitHub</span>
+  <Icon name="github" size="1.15rem" />
+</a>
+<a href="/download" class="download" data-download><AppleMark size={14} /> Download</a>
+
+<style>
+  .icon-link {
+    display: flex;
+    padding: 0.5em;
+    margin: -0.5em;
+    color: var(--sl-color-gray-3);
+  }
+  .icon-link:hover { color: var(--sl-color-white); }
+  .download {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    height: 2.1rem;
+    padding-inline: 0.9rem;
+    border-radius: 999px;
+    font-size: 0.875rem;
+    font-weight: 500;
+    letter-spacing: -0.01em;
+    white-space: nowrap;
+    text-decoration: none;
+    color: var(--sl-color-black);
+    background: var(--sl-color-white);
+    transition: opacity 0.2s;
+  }
+  .download:hover { opacity: 0.85; }
+  /* The Apple logo's leaf makes it look low; a touch higher sits it on the word. */
+  .download :global(svg) { flex: none; translate: 0 -1px; }
+</style>
