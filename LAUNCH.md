@@ -114,10 +114,11 @@ None of the loud launch happens until all of these are true:
   - an email sign-up, "Hear about big releases", in the footer, confirmed by
     email, without tracking, and on the privacy page (built 2 October 2026;
     the 1.0 email itself goes through a newsletter service, CHECKLIST.md §8);
-  - pages people search for: "Transmission alternative for Mac",
-    "qBittorrent for Mac", "µTorrent alternative for Mac", and a how-to, "Port
+  - pages people search for: "µTorrent for Mac", "qBittorrent for Mac",
+    "Transmission for Mac", a guide to magnet links, and a how-to, "Port
     forwarding with Proton VPN on a Mac", which answers a real, recurring
-    question.
+    question. [SEARCH.md](SEARCH.md) has the research, the numbers and the
+    order.
 - **A press page, orbtorrent.com/press,** open to everyone:
   - a fact sheet: name, version, price (free), macOS 26 or later, universal,
     GPL, developer, website, contact;

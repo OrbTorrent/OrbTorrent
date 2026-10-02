@@ -92,12 +92,14 @@ accounts early: Reddit and Hacker News need weeks of history.
 
 ## 2. Now, while Apple reviews: Claude
 
-- [ ] **Search pages,** each answering what people type into Google:
-  "qBittorrent for Mac", "µTorrent alternative for Mac" and "Transmission
-  alternative for Mac". Each says what OrbTorrent is, has a calm comparison
-  table (engine, VPN only, port forwarding, menu bar, native, price, open
-  source) and shows how to switch. They keep bringing people from search
-  long after the launch.
+- [x] **Search research:** what Mac users search for and how many, who
+  answers them, and the pages to make, from autocomplete, Bing, forums and
+  Semrush ([SEARCH.md](SEARCH.md)). (3 Oct)
+- [ ] **Search pages,** in [SEARCH.md](SEARCH.md)'s order: the homepage's
+  title and description, µTorrent for Mac, qBittorrent for Mac, a guide to
+  magnet links, and Transmission for Mac. Each app page says what OrbTorrent
+  is, has a calm comparison table and shows how to switch. They keep bringing
+  people from search long after the launch.
 - [ ] **The technical write-up,** "How OrbTorrent is built", for Show HN,
   newsletters and Lobsters. You review it.
 - [ ] **The video's script,** for you to record.
