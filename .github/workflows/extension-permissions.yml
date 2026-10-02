@@ -1,0 +1,59 @@
+name: Extension permissions
+
+# Comments on a pull request that changes what an official extension can do,
+# so the reviewer sees first what users will be asked to allow, and updates
+# the comment as the pull request changes.
+#
+# It runs as pull_request_target, so its token can comment on a pull request
+# from a fork too. That token is why it never checks out or runs the pull
+# request's code: it runs this repo's own copy of the script, which only reads
+# the pull request's package.json files out of git.
+
+on:
+  pull_request_target:
+    paths:
+      - "extensions/**"
+
+permissions:
+  contents: read
+  pull-requests: write
+
+jobs:
+  comment:
+    runs-on: ubuntu-latest
+    steps:
+      # The base branch, not the pull request.
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Fetch the pull request's commits, without checking them out
+        env:
+          NUMBER: ${{ github.event.pull_request.number }}
+        run: git fetch --no-tags origin "+refs/pull/$NUMBER/head:refs/remotes/pull/head"
+
+      - name: Compare what each extension can do
+        env:
+          BASE: ${{ github.event.pull_request.base.sha }}
+        run: node scripts/extension-permissions.mjs "$(git merge-base "$BASE" pull/head)" pull/head > permissions.md
+
+      - name: Comment
+        env:
+          GH_TOKEN: ${{ github.token }}
+          NUMBER: ${{ github.event.pull_request.number }}
+        run: |
+          marker="<!-- extension-permissions -->"
+          comment="$(gh api --paginate "repos/$GITHUB_REPOSITORY/issues/$NUMBER/comments" \
+            --jq ".[] | select(.user.login == \"github-actions[bot]\" and (.body | startswith(\"$marker\"))) | .id" | tail -n 1)"
+          if [ -s permissions.md ]; then
+            body="$marker"$'\n'"$(cat permissions.md)"
+          elif [ -n "$comment" ]; then
+            body="$marker"$'\n'"Official extensions' hooks and permissions no longer change in this pull request."
+          else
+            exit 0
+          fi
+          if [ -n "$comment" ]; then
+            gh api --method PATCH "repos/$GITHUB_REPOSITORY/issues/comments/$comment" -f body="$body" > /dev/null
+          else
+            gh api "repos/$GITHUB_REPOSITORY/issues/$NUMBER/comments" -f body="$body" > /dev/null
+          fi

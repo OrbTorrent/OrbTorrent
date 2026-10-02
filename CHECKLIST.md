@@ -62,6 +62,14 @@ accounts early: Reddit and Hacker News need weeks of history.
   program or script, after the download's checks and not if one failed,
   without a shell. Only you can choose it; the engine's own way stays off.
   The docs have a guide with tested scripts. (3 Oct)
+- [x] **Extension SDK 1.1.0 on npm,** ahead of the beta. Until then,
+  extensions that use API 1.1 need the build made on 3 Oct or later. (3 Oct)
+- [x] **Ready for other developers and their coding agents:** `AGENTS.md` at
+  the top of the repo, a pull request template that asks which agent helped
+  and whether a person read it, the rules for the community list, and a
+  "Propose an official extension" issue form. The comment on changed
+  extension permissions now knows `"files": "add"` and works on pull
+  requests from forks. (3 Oct)
 - [x] **The engine's versions in every release's notes,** added by CI:
   qBittorrent, libtorrent, Qt, OpenSSL and Boost with their licences, what
   changed since the release before, and links to the build script, with
@@ -149,9 +157,6 @@ With the first notarized build:
 - [ ] **Beta 1's release notes:** what's in it and what's counted, linking
   orbtorrent.com/privacy#counts. CI adds the engine's versions. Claude
   drafts and you publish.
-- [ ] **Publish extension SDK 1.1.0** (tag `sdk-v1.1.0`) together with the
-  first build people get that supports API 1.1. Published sooner, new
-  extensions would need an OrbTorrent nobody has yet. (Claude, when you say)
 - [ ] **The README opens with** the video or GIF, Download, and the
   `brew install` line, which is already in its Install section. (Claude)
 

@@ -1,5 +1,5 @@
 name: Suggest a feature
-description: An idea for OrbTorrent, or for an official extension.
+description: An idea for OrbTorrent, or a change to one of its official extensions.
 labels: [enhancement]
 body:
   - type: markdown

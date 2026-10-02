@@ -9,7 +9,7 @@ Bug reports, fixes and extensions are all welcome. OrbTorrent is open source, un
 
 - **Report a problem.** **Help › Report a Problem** in the app fills in what helps, or open an issue with the bug report form. [Report a problem](/docs/help/report-a-problem) explains.
 - **Suggest a feature.** Check the [roadmap](https://github.com/sanjevirau/OrbTorrent/blob/main/ROADMAP.md) first, then open an issue with the feature request form. OrbTorrent aims to stay small and fit in on a Mac, so not every good idea will make it in. Many fit better as an extension.
-- **Build an extension.** It doesn't need to be in the repository. Start with [Build extensions](/docs/extensions), and add yours to the community list.
+- **Build an extension.** It doesn't need to be in the repository. Start with [Build extensions](/docs/extensions), then add yours to the [community list](/docs/extensions/sharing#the-community-list), or [propose it as an official extension](/docs/extensions/sharing#propose-an-official-extension).
 - **Improve these docs.** Every page has **Edit page** at the bottom. The docs are Markdown, in `website/src/content/docs/docs/`.
 - **Report a security problem** privately, by email, not in an issue. See [Security problems](/docs/help/report-a-problem#security-problems).
 
@@ -32,7 +32,7 @@ make test     # run the tests
 | `make dev` | Builds **OrbTorrent Dev**, quits the running copy and opens the new one. |
 | `make run` | Builds OrbTorrent itself and opens it. |
 | `make test` | Runs the app's tests. |
-| `make test-extensions` | Runs the extension SDK's and the official extensions' tests. |
+| `make test-extensions` | Runs the tests of the extension SDK, the official extensions and their scripts. |
 | `make dmg` | Packages a disk image. |
 | `make project` | Generates `OrbTorrent.xcodeproj` from `project.yml`, to work in Xcode. |
 
@@ -51,6 +51,18 @@ For anything bigger than a small fix, open an issue first, so we can agree on th
 3. Add or update tests for what you change, and run them with `make test` and `make test-extensions`.
 4. For a change you can see, put before and after screenshots in the pull request.
 5. Write commit messages that say what changes for people using OrbTorrent, such as "Show each peer's country flag in the Peers tab".
+
+## Use a coding agent
+
+Coding agents are welcome. The repository's [`AGENTS.md`](https://github.com/sanjevirau/OrbTorrent/blob/main/AGENTS.md) tells yours how OrbTorrent is built, tested and written, and what must stay true, such as extensions staying sandboxed. Claude Code reads it through `CLAUDE.md`. You're still the author:
+
+- read every line before you send it, and try it in OrbTorrent Dev;
+- say in the pull request which agent helped;
+- keep it to one change, and to the issue it's for.
+
+A pull request that nobody has read or tried may be closed without a review.
+
+## Licence
 
 By sending a pull request, you agree that your contribution is under the same licence as the code it changes: the GPL for the app, MIT for the SDK. There's no contributor licence agreement to sign.
 

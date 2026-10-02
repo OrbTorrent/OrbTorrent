@@ -1,0 +1,46 @@
+name: Propose an official extension
+description: An extension to ship inside OrbTorrent, for everyone. Before you build it.
+title: "Official extension: "
+labels: [enhancement]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Official extensions ship inside OrbTorrent, are under its licence (GPL-3.0-or-later), and are kept working by its maintainers, so we agree on one here before anyone builds it. Most extensions fit better in the [community list](https://github.com/sanjevirau/OrbTorrent#community), which takes only a pull request.
+
+        An official extension:
+        - is useful to most people who use OrbTorrent;
+        - works without an account, or makes one optional;
+        - has nothing to do with finding or getting copyrighted material;
+        - asks for the least it needs.
+  - type: textarea
+    id: what
+    attributes:
+      label: What it does
+      description: Who it's for, whether it runs before a download starts or after it finishes, and what it shows in the Checks tab.
+    validations:
+      required: true
+  - type: textarea
+    id: permissions
+    attributes:
+      label: What it needs to be allowed
+      description: Each host it connects to, and whether it reads files or adds them. See https://orbtorrent.com/docs/extensions/reference/manifest
+    validations:
+      required: true
+  - type: textarea
+    id: accounts
+    attributes:
+      label: Accounts and keys
+      description: Any service it needs an account or API key for, and what's free.
+  - type: input
+    id: code
+    attributes:
+      label: Code so far
+      description: A link, if you've built it already as your own extension.
+  - type: checkboxes
+    id: licence
+    attributes:
+      label: Licence
+      options:
+        - label: If it's accepted, its code in OrbTorrent is under GPL-3.0-or-later.
+          required: true

@@ -1,6 +1,6 @@
 ---
 title: Share and install
-description: Install your extension for good, package it as an .orbext file anyone can install, release updates, and add it to the community list.
+description: Install your extension, package it as an .orbext file anyone can install, release updates, and list it or propose it as an official extension.
 ---
 
 ## Install it yourself
@@ -55,7 +55,25 @@ An extension's `name` is its id: lowercase letters, digits and hyphens, unique a
 
 ## The community list
 
-Made an extension others would like? Add it to the **Community** list in OrbTorrent's [README](https://github.com/sanjevirau/OrbTorrent#community) with a pull request: its name, a link, and a line on what it does.
+Made an extension others would like? Add it to the **Community** list in OrbTorrent's [README](https://github.com/sanjevirau/OrbTorrent#community) with a pull request that adds one line, in alphabetical order. For it to be listed:
+
+- its source is public, with a licence;
+- a release there has the `.orbext` file, built from that source with `npx orb package`;
+- its tests pass, with `npx orb test`;
+- the line says what it does, and what it's allowed to do: each host it connects to, and whether it reads or adds files.
+
+Listings are checked against these rules, not reviewed line by line, and the list says so. If a listed extension stops working, or does something its line doesn't say, it comes off the list.
+
+## Propose an official extension
+
+Official extensions ship inside OrbTorrent, are under its licence (GPL-3.0-or-later), and are kept working by its maintainers. Before you build one, open an issue with the [Propose an official extension](https://github.com/sanjevirau/OrbTorrent/issues/new?template=official_extension.yml) form. An official extension:
+
+- is useful to most people who use OrbTorrent;
+- works without an account, or makes one optional;
+- has nothing to do with finding or getting copyrighted material;
+- asks for the least it needs.
+
+Once it's agreed, add it in the repository's `extensions/` folder, laid out like the others, with a `README.md`, a `CHANGELOG.md` and tests for every rule, and open a pull request. [CONTRIBUTING.md](https://github.com/sanjevirau/OrbTorrent/blob/main/CONTRIBUTING.md) has the steps.
 
 ## Change an official extension
 
@@ -67,4 +85,4 @@ To change one:
 2. Run `make test-extensions`.
 3. Open a pull request.
 
-CI runs every extension's tests and lint. When a pull request changes an extension's hooks or permissions, CI posts the difference as a comment, so the reviewer sees first what users will be asked to allow.
+CI runs every extension's tests and lint. When a pull request changes an extension's hooks or permissions, CI posts the difference as a comment, so the reviewer sees first what users will be asked to allow. Say in the pull request why it needs them.

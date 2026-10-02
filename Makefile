@@ -3,7 +3,7 @@
 #   make engine         Build qbittorrent-nox for this Mac's architecture
 #   make extensions     Build the extension SDK and the official extensions (needs Node.js 22+)
 #   make sparkle        Download Sparkle, the updater, and its tools into build/sparkle
-#   make test-extensions  Run the SDK's and the official extensions' tests
+#   make test-extensions  Test the extension SDK, the official extensions and their scripts
 #   make dev            Build OrbTorrent Dev, quit the running copy and open the new one
 #   make run            Build OrbTorrent.app and open it
 #   make install        Build OrbTorrent.app, and replace and reopen the one in /Applications
@@ -46,6 +46,8 @@ extensions:
 test-extensions: extensions
 	npm test --workspace sdk
 	for extension in extensions/*/; do (cd "$$extension" && npx orb test && npx orb lint) || exit 1; done
+	node --test "scripts/*.test.mjs"
+	node scripts/extension-docs.mjs --check
 
 sparkle:
 	@./scripts/fetch-sparkle.sh >/dev/null

@@ -146,8 +146,15 @@ Share it as an `.orbext` file, which others install by opening it. See
 
 ### Community
 
-Made an extension? Add it to this list with a pull request: its name, a link,
-and a line on what it does.
+Made by their authors, and not reviewed by OrbTorrent. Before you install one,
+OrbTorrent shows what it's allowed to do, and it runs in a sandbox.
+
+<!-- One line each, in alphabetical order:
+- **[Name](link to its releases)** does what it does. It connects to example.com, and adds files next to your downloads.
+-->
+
+Made an extension? Add it here with a pull request. The rules are in
+[CONTRIBUTING.md](CONTRIBUTING.md#your-own-extension).
 
 ## Install
 

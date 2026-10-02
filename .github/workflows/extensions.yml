@@ -6,20 +6,20 @@ on:
       - "extensions/**"
       - "sdk/**"
       - "skills/**"
+      - "scripts/extension-*"
       - "package.json"
       - "package-lock.json"
 
+# A pull request from a fork gets a token that can only read. The comment on
+# changed permissions comes from extension-permissions.yml instead.
 permissions:
   contents: read
-  pull-requests: write
 
 jobs:
   extensions:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
 
       - uses: actions/setup-node@v4
         with:
@@ -40,15 +40,8 @@ jobs:
             (cd "$extension" && npx orb test && npx orb lint && npx orb build) || exit 1
           done
 
-      - name: Check the Agent Skill's AGENTS.md is up to date
+      - name: Check every copy of AGENTS.md is up to date
         run: node scripts/extension-docs.mjs --check
 
-      - name: Comment on changed permissions
-        env:
-          GH_TOKEN: ${{ github.token }}
-        run: |
-          node scripts/extension-permissions.mjs "origin/${{ github.base_ref }}" > permissions.md
-          if [ -s permissions.md ]; then
-            gh pr comment "${{ github.event.pull_request.number }}" --body-file permissions.md --edit-last \
-              || gh pr comment "${{ github.event.pull_request.number }}" --body-file permissions.md
-          fi
+      - name: Test the permission comparison
+        run: node --test "scripts/*.test.mjs"
