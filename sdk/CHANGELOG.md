@@ -1,5 +1,13 @@
 # @orbtorrent/api Changelog
 
+## 1.0.4
+
+- The docs moved to orbtorrent.com/docs/extensions. The npm pages, the
+  README, `orb create`, `orb doctor` and new extensions' `AGENTS.md` link
+  there, and to the docs in one file for language models,
+  [llms-full.txt](https://orbtorrent.com/docs/extensions/llms-full.txt).
+- `orb create` ends with a link to the getting-started guide.
+
 ## 1.0.3
 
 - The docs, the npm pages and `npm create`'s help say

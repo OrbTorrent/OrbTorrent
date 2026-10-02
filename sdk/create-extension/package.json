@@ -1,6 +1,6 @@
 {
   "name": "@orbtorrent/create-extension",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "description": "Make a new extension for OrbTorrent, the BitTorrent app for macOS: npm create @orbtorrent/extension@latest <name>",
   "keywords": [
     "orbtorrent",
