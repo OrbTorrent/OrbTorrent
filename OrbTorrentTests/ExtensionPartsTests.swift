@@ -60,7 +60,8 @@ struct ExtensionManifestTests {
     @Test func knowsWhichAPIVersionsItCanRun() {
         #expect(ExtensionAPI.supports("1.0.0"))
         #expect(ExtensionAPI.supports("^1.0.0"))
-        #expect(!ExtensionAPI.supports("1.1.0"))
+        #expect(ExtensionAPI.supports("1.1.0"))
+        #expect(!ExtensionAPI.supports("1.2.0"))
         #expect(!ExtensionAPI.supports("2.0.0"))
     }
 }

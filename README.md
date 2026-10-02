@@ -114,8 +114,9 @@ free, with no ads, no account and no tracking.
 
 Extensions check your downloads at two moments: before a download starts,
 when they can hold it until you decide, and after it finishes. Their results
-show in each download's **Checks** tab. Each extension runs in a sandbox and
-can only reach the files and sites it lists, which its page shows. One switch
+show in each download's **Checks** tab, and an extension can add files such as
+subtitles next to a finished download. Each extension runs in a sandbox and can
+only reach the files and sites it lists, which its page shows. One switch
 turns them all off, to use OrbTorrent as a plain torrent client.
 
 ### Official
@@ -157,13 +158,13 @@ and a line on what it does.
 3. Open OrbTorrent. It offers to bring over your downloads from Transmission
    or qBittorrent, and to become your default torrent app.
 
-OrbTorrent needs macOS 26 (Tahoe) or later, on Apple silicon or Intel.
 Or install it with [Homebrew](https://brew.sh):
 
 ```sh
 brew install orbtorrent/tap/orbtorrent
 ```
 
+OrbTorrent needs macOS 26 (Tahoe) or later, on Apple silicon or Intel.
 
 Every release is notarized by Apple, and every update is signed. OrbTorrent
 updates itself, including when Homebrew installed it.

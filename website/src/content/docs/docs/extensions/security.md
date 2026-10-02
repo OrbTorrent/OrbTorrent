@@ -14,9 +14,10 @@ Exactly what its `package.json` says, which users see before they install it:
 | See the names and sizes of the files in your downloads | Always |
 | Hold a download before it starts, until you decide | With a `beforeStart` hook |
 | Read the contents of your downloads | With `"files": "contents"` |
+| Add files, such as subtitles, next to your downloads | With `"files": "add"` |
 | Connect to a site | For each host in `permissions.network` |
 
-OrbTorrent enforces the list. An extension can't read other files, reach other sites, or see anything else.
+OrbTorrent enforces the list. An extension can't read other files, change or delete any, reach other sites, or see anything else. It can't run programs either: [running one of your own](/docs/guides/run-a-program) is a setting only you can choose.
 
 ## What it never sees
 
@@ -38,13 +39,24 @@ OrbTorrent enforces the list. An extension can't read other files, reach other s
 
 - HTTPS only, on port 443, to hosts listed exactly in `permissions.network`.
 - Redirects are followed only to hosts on the same list.
-- A host that resolves to an address on the Mac or a local network is refused, so an extension can't reach your router, your NAS or OrbTorrent's own engine.
+- A host that resolves to an address on the Mac or a local network is refused, so an extension can't reach your router, your NAS or OrbTorrent's own engine. OrbTorrent connects to the very address it checked, through a relay of its own, so a host can't pass the check and then switch to a local address.
 - There are no cookies and no shared cache.
 - Responses are limited to 10 MB, and each request to 30 seconds.
 
 ## Files
 
 With `"files": "contents"`, an extension can ask for a finished file's SHA-256 fingerprint, or upload it with `fetch`. OrbTorrent reads the file itself and streams it, so the extension never gets a path, and never reads anything that isn't part of the download it's checking.
+
+## Adding files
+
+With `"files": "add"`, an extension can add a file next to one of a finished download's files. OrbTorrent writes it, after checking that:
+
+- it's next to a file of the download the extension is running on, in the same folder, and named after that file, so nothing lands anywhere else;
+- it's subtitles, text, an image or checksums, never a program, a script or an app;
+- nothing's there already, not even a link, unless the same hook added it to the same download before;
+- it's no more than 10 MB, and the run has added no more than 200 files and 50 MB.
+
+Each file is readable but never runnable, and marked as downloaded from the internet, as browsers do. The Checks tab lists every file an extension added, and they're moved and removed with their download.
 
 ## Settings and secrets
 

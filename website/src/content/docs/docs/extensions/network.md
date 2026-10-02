@@ -61,8 +61,15 @@ This needs `"network": ["discord.com"]`, and a `webhook` setting for the channel
 | `headers` | `get(name)`, `has(name)` and `entries()`. Names are case-insensitive. |
 | `text()` | The body as text. |
 | `json()` | The body parsed as JSON. |
+| `bytes()` | The body as a `Uint8Array`, for images, zip files and anything that isn't text. |
+| `arrayBuffer()` | The body as an `ArrayBuffer`. |
 
-The body is read as UTF-8 text, so `fetch` suits JSON and text APIs, not downloading binary files.
+Text and JSON arrive as they are, and anything else arrives intact as bytes, so an extension can fetch an image and [save it next to a download](/docs/extensions/files#add-a-file):
+
+```ts
+const poster = await fetch(posterAddress);
+await files.save(video, "-poster.jpg", await poster.bytes());
+```
 
 ## The rules
 
@@ -70,7 +77,7 @@ OrbTorrent checks every request before it's made:
 
 - **HTTPS only,** on the standard port, 443.
 - **Only listed hosts.** A request to any other is refused with an error that says which host to add.
-- **Never your Mac or your network.** A host that points to an address on the Mac or the local network is refused, wherever its name says it is.
+- **Never your Mac or your network.** A host that points to an address on the Mac or the local network is refused, wherever its name says it is. OrbTorrent looks the host up, checks every address, and connects to the very address it checked, so a host can't pass the check and then switch to a local address.
 - **Redirects only to listed hosts.** A redirect to any other host isn't followed: the hook gets the redirect response itself.
 - **No credentials in the address.** Put them in a header instead.
 - **Responses up to 10 MB,** and **30 seconds** for each request.

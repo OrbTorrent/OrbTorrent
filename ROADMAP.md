@@ -213,8 +213,14 @@ Cheap, mostly settings the engine already supports.
   ([#72](https://github.com/qbittorrent/qBittorrent/issues/72), 45 👍). Engine:
   `ip_filter_enabled`, `ip_filter_path`; downloading the list is ours.
 - [ ] Create `.torrent` files. Engine: `torrentcreator/*`.
-- [ ] Unpack archives when a download finishes. Engine: `autorun_enabled`,
-  `autorun_program`, or do it in OrbTorrent.
+- [ ] Unpack archives when a download finishes. For now, a script run by
+  "When a download finishes, run" does it (the guide has one); built in, or
+  as an extension ability, later.
+- [x] **When a download finishes, run** a program or script of the user's
+  own, after the download's checks and not if one failed (Settings ›
+  Downloads). It runs as the user without a shell, and only a person in
+  Settings can choose it; the engine's own `autorun_*` stays off. The escape
+  hatch for what extensions can't do yet. (3 Oct)
 - [x] Automatic app updates (Sparkle), with What's New. See
   [RELEASE.md](RELEASE.md).
 
@@ -326,15 +332,33 @@ listed by how much it would unlock:
 2. **Hosts the user chooses, including the local network when they allow
    it:** refreshing Plex or Jellyfin, Sonarr and Radarr, Home Assistant, and
    self-hosted ntfy or Gotify.
-3. **Write files:** unpacking ([Unpackerr](https://github.com/Unpackerr/unpackerr),
-   1.5k ⭐; built into Deluge and ruTorrent), saving subtitles
-   ([Bazarr](https://github.com/morpheus65535/bazarr), 4.3k ⭐) and renaming
-   like FileBot.
+3. **Write files:** adding files is done (API 1.1, below). Still to come:
+   unpacking ([Unpackerr](https://github.com/Unpackerr/unpackerr), 1.5k ⭐;
+   built into Deluge and ruTorrent), which needs gigabytes written and is best
+   built into OrbTorrent and offered as `files.unpack`, and renaming like
+   FileBot, which changes files the extension didn't add.
 4. **Read file contents:** media info, and spotting fake FLAC from its sound,
    as ruTorrent's Spectrogram plugin does.
 5. **More moments:** when a download stalls (Cleanuparr's main job) or is
    removed ([#7465](https://github.com/qbittorrent/qBittorrent/issues/7465),
    13 👍).
+
+Also wanted, smaller: commands the user runs on a download (a right-click
+"Find subtitles"), buttons on a result, a number and a folder setting, and
+host patterns such as `*.example.com`.
+
+Done in extension API 1.1 (3 Oct), after a coding agent built a subtitles
+extension that could only link the file:
+
+- [x] **Add files** next to a finished download's (`files.save`, permission
+  `"files": "add"`): subtitles, text, images and checksums only, named after a
+  file of the download, never replacing a file the hook didn't add. The
+  Checks tab lists them, and they move and go with the download.
+- [x] **Bytes** in `fetch` responses (`bytes()`, `arrayBuffer()`).
+- [x] **`notify: true`** on a result shows it as a notification.
+- [x] **Connecting to the checked address**, through a relay in OrbTorrent,
+  so a host can't switch to a local address after the check.
+- [x] `AGENTS.md` says up front what extensions can't do yet.
 
 ## Not now
 
@@ -347,8 +371,10 @@ listed by how much it would unlock:
   Transmission [#47](https://github.com/transmission/transmission/issues/47),
   131 👍, and [#458](https://github.com/transmission/transmission/issues/458), 96 👍).
 - **I2P anonymous networking:** needs a separate I2P program running.
-- **A subtitles extension:** IINA finds subtitles when a video plays, and an
-  extension can't save them yet.
+- **An official subtitles extension:** extensions can save subtitles now, and
+  the docs' worked example does, but every subtitle service needs the user's
+  own account and key. IINA also finds subtitles as a video plays. Better as a
+  community extension.
 - **Checking game repacks or debrid caches:** real demand
   ([fake FitGirl repacks](https://blog.gridinsoft.com/fitgirl-repacks-safe/)),
   but tied to piracy groups, so not for an official extension.

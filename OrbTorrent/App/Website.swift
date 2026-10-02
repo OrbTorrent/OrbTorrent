@@ -7,4 +7,5 @@ enum Website {
     static let docs = URL(string: "https://orbtorrent.com/docs")!
     static let troubleshooting = URL(string: "https://orbtorrent.com/docs/help/troubleshooting")!
     static let counts = URL(string: "https://orbtorrent.com/privacy#counts")!
+    static let finishedProgram = URL(string: "https://orbtorrent.com/docs/guides/run-a-program")!
 }

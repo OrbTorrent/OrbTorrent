@@ -32,12 +32,22 @@ struct ExtensionNetwork: Sendable {
     struct Response: Sendable, Equatable {
         let status: Int
         let headers: [String: String]
-        let body: String
+        let body: Data
         let url: String
 
+        /// UTF-8 text goes to the extension as it is; anything else, such as
+        /// an image or a zip file, goes in Base64, so its bytes arrive intact.
         var json: JSONValue {
-            ["status": .number(Double(status)), "headers": .object(headers.mapValues(JSONValue.string)),
-             "body": .string(body), "url": .string(url)]
+            var fields: [String: JSONValue] = [
+                "status": .number(Double(status)), "headers": .object(headers.mapValues(JSONValue.string)), "url": .string(url),
+            ]
+            if let text = String(data: body, encoding: .utf8), Data(text.utf8) == body {
+                fields["body"] = .string(text)
+            } else {
+                fields["body"] = .string(body.base64EncodedString())
+                fields["encoding"] = .string("base64")
+            }
+            return .object(fields)
         }
     }
 
@@ -45,6 +55,7 @@ struct ExtensionNetwork: Sendable {
     let permissions: ExtensionManifest.Permissions
     /// Looks up a host's addresses; replaced in tests.
     var resolve: @Sendable (String) async -> [String] = { await ExtensionNetwork.addresses(of: $0) }
+    var relay = ExtensionRelay.shared
 
     static let maximumResponse = 10 << 20
     static let timeout: TimeInterval = 30
@@ -93,23 +104,33 @@ struct ExtensionNetwork: Sendable {
         }
         urlRequest.setValue("OrbTorrent-Extension/\(extensionName)", forHTTPHeaderField: "User-Agent")
 
-        let session = URLSession(configuration: Self.configuration, delegate: RedirectGuard(network: self), delegateQueue: nil)
+        // Through the relay, which connects to the address it checked itself.
+        guard let relayPort = await relay.start() else {
+            throw ExtensionRefusal(message: "OrbTorrent couldn't make the connection for extensions. Quit OrbTorrent and open it again.")
+        }
+        let session = URLSession(configuration: Self.configuration(relay: relayPort), delegate: RedirectGuard(network: self), delegateQueue: nil)
         defer { session.finishTasksAndInvalidate() }
 
-        switch request.body {
-        case .none:
-            return try await receive(session.bytes(for: urlRequest))
-        case .text(let text):
-            urlRequest.httpBody = Data(text.utf8)
-            return try await receive(session.bytes(for: urlRequest))
-        case .multipart(let parts):
-            let boundary = "OrbTorrent-\(UUID().uuidString)"
-            urlRequest.setValue("multipart/form-data; boundary=\(boundary)", forHTTPHeaderField: "Content-Type")
-            let form = try await Task.detached { try Self.writeMultipart(parts, boundary: boundary) }.value
-            defer { try? FileManager.default.removeItem(at: form) }
-            let (data, response) = try await session.upload(for: urlRequest, fromFile: form)
-            guard data.count <= Self.maximumResponse else { throw Self.tooLarge }
-            return Self.response(data, response)
+        do {
+            switch request.body {
+            case .none:
+                return try await receive(session.bytes(for: urlRequest))
+            case .text(let text):
+                urlRequest.httpBody = Data(text.utf8)
+                return try await receive(session.bytes(for: urlRequest))
+            case .multipart(let parts):
+                let boundary = "OrbTorrent-\(UUID().uuidString)"
+                urlRequest.setValue("multipart/form-data; boundary=\(boundary)", forHTTPHeaderField: "Content-Type")
+                let form = try await Task.detached { try Self.writeMultipart(parts, boundary: boundary) }.value
+                defer { try? FileManager.default.removeItem(at: form) }
+                let (data, response) = try await session.upload(for: urlRequest, fromFile: form)
+                guard data.count <= Self.maximumResponse else { throw Self.tooLarge }
+                return Self.response(data, response)
+            }
+        } catch let error as NSError where error.domain == kCFErrorDomainCFNetwork as String && error.code == 310 {
+            // The relay wouldn't connect: by then the host pointed to this Mac
+            // or the local network, or it couldn't be reached.
+            throw ExtensionRefusal(message: "\(host) couldn't be reached. It may point to this Mac or your local network, which extensions can't reach.")
         }
     }
 
@@ -132,12 +153,17 @@ struct ExtensionNetwork: Sendable {
         for (name, value) in http?.allHeaderFields ?? [:] {
             headers[String(describing: name).lowercased()] = String(describing: value)
         }
-        return Response(status: http?.statusCode ?? 0, headers: headers,
-                        body: String(decoding: data, as: UTF8.self), url: response.url?.absoluteString ?? "")
+        return Response(status: http?.statusCode ?? 0, headers: headers, body: data, url: response.url?.absoluteString ?? "")
     }
 
-    private static var configuration: URLSessionConfiguration {
+    private static func configuration(relay port: UInt16) -> URLSessionConfiguration {
         let configuration = URLSessionConfiguration.ephemeral
+        configuration.connectionProxyDictionary = [
+            kCFNetworkProxiesHTTPSEnable as String: true,
+            kCFNetworkProxiesHTTPSProxy as String: "127.0.0.1",
+            kCFNetworkProxiesHTTPSPort as String: Int(port),
+            kCFNetworkProxiesHTTPEnable as String: false,
+        ]
         configuration.httpShouldSetCookies = false
         configuration.httpCookieAcceptPolicy = .never
         configuration.urlCache = nil

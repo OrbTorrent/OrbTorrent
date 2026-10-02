@@ -486,6 +486,7 @@ struct AgentPromptTests {
         for command in ["npm create @orbtorrent/extension@latest", "AGENTS.md", "npx orb doctor", "npx orb downloads", "npx orb run", "npx orb install"] {
             #expect(prompt.contains(command), "missing \(command)")
         }
+        #expect(prompt.contains("If what I asked for needs something extensions can't do, tell me before you build it."))
         #expect(!prompt.contains("ORB_APP"))
         #expect(!prompt.contains("\n\n\n"))
     }

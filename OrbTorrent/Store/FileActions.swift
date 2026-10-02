@@ -104,6 +104,65 @@ enum FileActions {
         return targets.filter { !isProtectedRoot($0, home: home) }
     }
 
+    // MARK: Files extensions added
+
+    /// Where files an extension added next to a download's are now: each one
+    /// still there, and inside the download's save folder.
+    nonisolated static func addedFiles(_ paths: [String], in savePath: String) -> [URL] {
+        guard !savePath.isEmpty else { return [] }
+        // By the paths alone, the way they were recorded (ExtensionFileAdder.relativePath).
+        let folder = URL(fileURLWithPath: savePath, isDirectory: true).standardized
+        return paths.map { folder.appending(path: $0).standardized }.filter { url in
+            var status = stat()
+            return isInside(url, folder) && lstat(url.path, &status) == 0 && status.st_mode & S_IFMT == S_IFREG
+        }
+    }
+
+    /// Shows the files an extension added, selected in Finder.
+    static func revealAdded(_ paths: [String], of torrent: Torrent) {
+        let urls = addedFiles(paths, in: torrent.savePath)
+        guard !urls.isEmpty else { return revealSaveFolder(of: torrent) }
+        NSWorkspace.shared.activateFileViewerSelecting(urls)
+    }
+
+    /// Removes the files extensions added to a removed download, to the Trash
+    /// or for good like its own files, then any of their folders left empty.
+    nonisolated static func removeAdded(_ paths: [String], in savePath: String, trash: Bool) -> [Error] {
+        var errors: [Error] = []
+        let folder = URL(fileURLWithPath: savePath, isDirectory: true).standardized
+        for url in addedFiles(paths, in: savePath) {
+            do {
+                if trash {
+                    try FileManager.default.trashItem(at: url, resultingItemURL: nil)
+                } else {
+                    try FileManager.default.removeItem(at: url)
+                }
+            } catch {
+                errors.append(error)
+            }
+            // The engine leaves the download's folder while these are in it.
+            var parent = url.deletingLastPathComponent()
+            while isInside(parent, folder), rmdir(parent.path) == 0 {
+                parent = parent.deletingLastPathComponent()
+            }
+        }
+        return errors
+    }
+
+    /// Moves the files extensions added along with their download, keeping
+    /// each one's place in it. The engine moves only the download's own.
+    nonisolated static func moveAdded(_ paths: [String], from savePath: String, to destination: URL) {
+        let source = URL(fileURLWithPath: savePath, isDirectory: true).standardized
+        let destination = destination.standardized
+        guard source.path != destination.path else { return }
+        for url in addedFiles(paths, in: savePath) {
+            let target = destination.appending(path: String(url.path.dropFirst(source.path.count + 1)))
+            guard !FileManager.default.fileExists(atPath: target.path) else { continue }
+            try? FileManager.default.createDirectory(at: target.deletingLastPathComponent(), withIntermediateDirectories: true)
+            try? FileManager.default.moveItem(at: url, to: target)
+        }
+    }
+
     /// The engine's hidden file in the save folder holding the pieces of files
     /// that were skipped, which are shared with files that weren't.
     nonisolated static func partsFile(of torrent: Torrent) -> URL? {

@@ -453,6 +453,9 @@ private struct CheckCard: View {
                     .foregroundStyle(record.status == .failed ? .primary : .secondary)
                     .fixedSize(horizontal: false, vertical: true)
                     .textSelection(.enabled)
+                if let added = record.addedFiles, !added.isEmpty {
+                    AddedFilesList(paths: added)
+                }
                 if !record.status.isFinished, let done = record.progress?.done, let total = record.progress?.total, total > 0 {
                     VStack(alignment: .leading, spacing: 3) {
                         ProgressView(value: Double(done), total: Double(total))
@@ -503,12 +506,16 @@ private struct CheckCard: View {
         let canRunAgain = item != nil && hook != nil && record.status.isFinished
             && (hook?.event == .beforeStart || torrent.isComplete)
         let needsSetup = item.map { !model.extensions.settings.missing(for: $0).isEmpty } ?? false
-        if record.details != nil || record.link != nil || canRunAgain || needsSetup {
+        let added = record.addedFiles ?? []
+        if record.details != nil || record.link != nil || !added.isEmpty || canRunAgain || needsSetup {
             HStack(spacing: 14) {
                 if record.details != nil {
                     Button(showsDetails ? "Hide Details" : "Details") {
                         withAnimation(.snappy) { showsDetails.toggle() }
                     }
+                }
+                if !added.isEmpty {
+                    Button("Show in Finder") { FileActions.revealAdded(added, of: torrent) }
                 }
                 if let link = record.link {
                     Link(destination: link.url) {
@@ -526,6 +533,32 @@ private struct CheckCard: View {
             .font(.callout)
             .padding(.top, 1)
         }
+    }
+}
+
+/// The files a check added next to the download's, by name.
+private struct AddedFilesList: View {
+    let paths: [String]
+    private static let shown = 4
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 2) {
+            ForEach(paths.prefix(Self.shown), id: \.self) { path in
+                Label((path as NSString).lastPathComponent, systemImage: "doc.badge.plus")
+                    .lineLimit(1)
+                    .truncationMode(.middle)
+                    .help(path)
+            }
+            if paths.count > Self.shown {
+                Text("and \(paths.count - Self.shown) more")
+                    .padding(.leading, 22)
+            }
+        }
+        .font(.callout)
+        .foregroundStyle(.secondary)
+        .padding(.top, 1)
+        .accessibilityElement(children: .combine)
+        .accessibilityLabel("Added \(paths.count == 1 ? "a file" : "\(paths.count) files")")
     }
 }
 

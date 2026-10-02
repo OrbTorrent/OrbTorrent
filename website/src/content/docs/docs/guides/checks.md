@@ -32,7 +32,13 @@ It has three tabs:
 | **Skipped** | The check didn't apply, or couldn't run, such as with no internet connection. |
 | **Didn't finish** | The extension failed, or took too long. A check that doesn't finish never stops a download. |
 
-After a download finishes, a warning sends a notification too, so you don't miss it.
+After a download finishes, a warning sends a notification too, so you don't miss it. A check can also tell you about something it did, such as adding subtitles.
+
+## Files a check added
+
+Some extensions add files next to a finished download's, such as subtitles in your language or a film's poster. A check lists any it added, with **Show in Finder**.
+
+They belong with the download. **Move To…** takes them along, and removing the download with its files removes them too. An extension only ever adds subtitles, text, images or checksums, never a program, and never replaces a file it didn't add.
 
 ## A held download
 
@@ -99,7 +105,7 @@ The key is kept in your Mac's Keychain. The free key allows 4 lookups a minute a
 
 Extensions come as `.orbext` files. To install one, open it in Finder, or choose **File › Install Extension…**, or click **Install Extension…** on the Extensions page.
 
-OrbTorrent shows what the extension does before you install it: who made it, when it runs, and what it **can** do, such as read the contents of your downloads or connect to a site. When you update an extension, anything new it asks for is marked **New**.
+OrbTorrent shows what the extension does before you install it: who made it, when it runs, and what it **can** do, such as read the contents of your downloads, add files such as subtitles next to them, or connect to a site. When you update an extension, anything new it asks for is marked **New**.
 
 :::caution[Only install extensions from people you trust]
 Extensions from anyone other than OrbTorrent are marked **Not reviewed by OrbTorrent**. OrbTorrent enforces what an extension says it can do, so it can't read other files or reach other sites, but nobody has reviewed its code. [Security model](/docs/extensions/security) explains the limits.

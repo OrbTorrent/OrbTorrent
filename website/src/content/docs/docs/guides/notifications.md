@@ -11,7 +11,7 @@ OrbTorrent sends a notification when something needs you, or when a download is 
 |---|---|---|
 | **Download Finished** | A download has every file you wanted. | **Open** and **Show in Finder** |
 | **Download Held** | A check held a download before it started. It says which check, and what it found. | **Download Anyway** and **Remove…** |
-| A check's name, such as **VirusTotal Scan** | A check on a finished download failed, or warned. | Click it for the download's checks. |
+| A check's name, such as **VirusTotal Scan** | A check on a finished download failed, or warned. Or a check has news, such as subtitles it added. | Click it for the download's checks. |
 | **Download Paused** | Downloads paused because their disk is almost full. | They resume by themselves once there's room. |
 | **OrbTorrent … Is Available** | A new version was found while OrbTorrent was in the background. | Click it to see what's new and install it. |
 

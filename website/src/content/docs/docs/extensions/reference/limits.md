@@ -29,7 +29,19 @@ OrbTorrent enforces these limits, and stops a hook that goes over one. A hook th
 | Response size | 10 MB |
 | Each request | 30 s |
 | Redirects | Followed only to listed hosts |
-| Local addresses | Refused: the Mac and its local network |
+| Local addresses | Refused: the Mac and its local network, checked again as it connects |
+| Bodies | Text, JSON or bytes |
+
+## Adding files
+
+| | |
+|---|---|
+| When | `afterFinish` hooks, next to a file the user chose to download |
+| Kinds | Subtitles, text, images and checksums, by extension |
+| A file | 10 MB |
+| A run | 200 files and 50 MB |
+| A suffix | 64 characters, starting with `.`, `-`, `_` or a space |
+| Replacing | Only a file the same hook added to the same download before |
 
 ## Storage
 

@@ -80,8 +80,8 @@ export default async function check(download: Download): Promise<Result> {
 ```
 
 A hook returns `passed`, `warning`, `failed` or `skipped`, with a one-line
-summary and optional details in Markdown. Before a download starts, `failed`
-holds it. A hook that throws or runs out of time shows "Didn't finish", and a
+summary, optional details in Markdown and a link, and `notify: true` to show
+the summary as a notification too. Before a download starts, `failed` holds it. A hook that throws or runs out of time shows "Didn't finish", and a
 download is never blocked by a broken extension.
 
 | | `beforeStart` | `afterFinish` |
@@ -89,6 +89,7 @@ download is never blocked by a broken extension.
 | Runs | Once the file list is known, before any data downloads | Once every wanted file has finished |
 | Can hold the download | Yes | No, it reports |
 | File contents | Not yet | Yes, with `"files": "contents"` |
+| Adding files next to them | No | Yes, with `"files": "add"` |
 | Time limit | 15 s | 6 h (2 min of CPU) |
 
 ## What an extension can use
@@ -99,9 +100,10 @@ encoding and `crypto.randomUUID()`, everything goes through this package, and
 OrbTorrent checks each call against the permissions in `package.json`:
 
 ```ts
-fetch(url, { method?, headers?, body? })   // HTTPS to the hosts in permissions.network
+fetch(url, { method?, headers?, body? })   // HTTPS to the hosts in permissions.network; text, JSON or bytes back
 files.sha256(file)                          // a finished file's fingerprint
 files.formData({ field: "text", file })     // upload a file with fetch
+files.save(file, ".en.srt", contents)       // add a file next to it, such as subtitles
 progress({ done?, total?, message? })       // shown in the Checks tab
 storage.get / set / remove / keys           // JSON, up to 1 MB, kept across runs
 getPreferenceValues()                       // the extension's settings, typed
@@ -112,6 +114,13 @@ sleep(milliseconds)
 Settings (text fields, passwords kept in the Keychain, checkboxes and menus)
 are declared in `package.json`, and OrbTorrent draws them. Users see what an
 extension can do, from its hooks and permissions, before they install it.
+
+`files.save` adds only subtitles, text, images and checksums, next to a file of
+a finished download and named after it, and never replaces a file it didn't
+add. Extensions can't yet change, move or delete files, change the download,
+reach the local network or run programs. For those, OrbTorrent can run a
+program of the user's own when a download finishes, which only the user can
+choose, in Settings.
 
 ## Versions
 

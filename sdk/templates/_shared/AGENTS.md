@@ -9,6 +9,27 @@ This file has what you need. The full docs are at
 https://orbtorrent.com/docs/extensions, and in one file at
 https://orbtorrent.com/docs/extensions/llms-full.txt.
 
+## What extensions can do, and can't yet
+
+Check what the user asked for against this list before you build. If it needs
+something extensions can't do, say so in your first reply, and offer what fits.
+
+- **Can:** see a download's file names and sizes; hold it before it starts;
+  fingerprint and upload its files once it finishes; make HTTPS requests to the
+  hosts it lists; add files such as subtitles, artwork or checksums next to a
+  finished download's files; show a result with details and a link, and as a
+  notification; keep a little storage; have settings.
+- **Can't yet:** change, rename, move or delete files, or unpack archives; read
+  a file's contents itself; change the download (pause it, label it, skip
+  files); reach this Mac or the local network, such as Plex, Sonarr or a NAS;
+  run programs; act at other moments than before a download starts and after it
+  finishes.
+- **For what extensions can't do,** OrbTorrent can run a program or script of
+  the user's own when a download finishes. Only the user can choose it, in
+  OrbTorrent's **Settings › Downloads › When a Download Finishes**, because it
+  runs as them, outside the sandbox. You can write the script for them:
+  https://orbtorrent.com/docs/guides/run-a-program.
+
 ## The loop
 
 Work in this order, and don't stop at a green build:
@@ -72,7 +93,7 @@ exits afterwards.
 | `title`, `description`, `author`, `icon` | Shown on OrbTorrent's Extensions page. `icon` is a 512×512 PNG in `assets/`. |
 | `version` | Such as `1.0.0`, shown on its page. Raise it with each change you install or share. |
 | `hooks` | `[{ "name", "title", "description"?, "event" }]`. `event` is `beforeStart` or `afterFinish`. A hook named `check` is the default export of `src/check.ts`. |
-| `permissions.files` | `"contents"` lets it fingerprint and upload the download's files. Names and sizes are always given. |
+| `permissions.files` | `"contents"` lets it fingerprint and upload the download's files, and `"add"` lets it add files next to them. `["contents", "add"]` for both. Names and sizes are always given. |
 | `permissions.network` | Exact host names, such as `["www.virustotal.com"]`. Only HTTPS on port 443, and never local addresses. |
 | `preferences` | Settings OrbTorrent draws: `{ "name", "type", "title", "description"?, "required"?, "placeholder"?, "default"?, "label"? (checkbox), "data"? (dropdown: [{ "title", "value" }]) }`. Types: `textfield`, `password`, `checkbox`, `dropdown`. |
 | `verify` | Names `src/<verify>.ts`, which checks the settings when the user presses Verify. |
@@ -116,8 +137,13 @@ interface Result {
   summary: string;                          // one line, shown in the list
   details?: string;                         // markdown: paragraphs, "- " lists, **bold**, `code`, [links](https://…); no tables
   link?: { title: string; url: string };
+  notify?: boolean;                         // also show the summary as a notification
 }
 ```
+
+A warning or failure after a download finishes, and a download held before it
+starts, are notifications already. Set `notify: true` for news the user would
+want without opening the Checks tab, such as "Added English subtitles".
 
 - **passed:** nothing wrong.
 - **warning:** worth a look. The download carries on and gets a badge.
@@ -130,16 +156,38 @@ interface Result {
 ```ts
 fetch(url, { method?, headers?, body? }): Promise<Response>
   // HTTPS to a host in permissions.network. body is text (JSON.stringify for JSON),
-  // or files.formData(...). Response: status, ok, url, headers.get(), text(), json().
+  // or files.formData(...). Response: status, ok, url, headers.get(), text(), json(),
+  // bytes() and arrayBuffer() for images and zip files.
   // Responses are limited to 10 MB; each request times out after 30 s.
 files.sha256(file): Promise<string>        // lowercase hex; afterFinish only; needs "files": "contents"
 files.formData({ field: "text", file: download.files[0] }): FormBody   // upload with fetch
+files.save(file, suffix, contents): Promise<{ path, size }>
+  // afterFinish only; needs "files": "add". Saves next to `file`, named after it:
+  // files.save(video, ".en.srt", text) saves Film.2024.en.srt beside Film.2024.mkv.
+  // contents is text (saved as UTF-8) or a Uint8Array.
 progress({ done?, total?, message? }): Promise<void>                   // shown in the Checks tab
 storage.get(key) / set(key, value) / remove(key) / keys()             // JSON, up to 1 MB, kept across runs
 getPreferenceValues(): OrbPreferences     // every setting has a value; types come from orb-env.d.ts
 environment.extensionName / isDevelopment / entryPoint / apiVersion
 sleep(milliseconds): Promise<void>        // waiting doesn't use CPU time
 ```
+
+### Adding files
+
+`files.save` adds a file next to one of the download's, in the same folder and
+named after it, so players and media servers find it.
+
+- **The suffix** starts with `.`, `-`, `_` or a space, and ends with an
+  extension: `.en.srt`, `.forced.srt`, `-poster.jpg`, `.nfo`.
+- **Only files that can't run:** subtitles (`.srt .ass .ssa .vtt .sub .idx
+  .sup .smi .lrc`), text (`.txt .nfo .md .json .xml .csv .cue`), images (`.jpg
+  .jpeg .png .webp .gif .heic`) and checksums (`.sfv .md5 .sha1 .sha256`).
+- **It never replaces a file,** except one the same hook added to the same
+  download before, such as when the user runs it again. If a subtitle is
+  already there, `files.save` throws: catch it and report what was there.
+- **Up to 10 MB a file, and 200 files and 50 MB a run.**
+- OrbTorrent lists the files in the Checks tab, and moves and removes them with
+  the download.
 
 `verify` gets the settings and returns `{ ok: true, message? }` or
 `{ ok: false, message }`:
@@ -189,15 +237,20 @@ A test is a JSON file in `tests/`:
   - `hook`, which can be left out when there's only one hook;
   - `"verify": true`, which runs `verify` with `preferences` instead;
   - `download.files[].sha256`, which answers `files.sha256`;
+  - `download.alsoOnDisk`, paths of other files already next to the download's,
+    which `files.save` won't replace;
   - `mocks.fetch`, where `*` in a URL matches any text, and `"times": 1` makes a
     mock answer once before the next matching one does (a rate limit, then
-    success). An unmatched request fails the test and says so.
+    success). A mock answers with `json`, `text`, or `base64` for bytes. An
+    unmatched request fails the test and says so.
   - Timers run on a virtual clock, so waiting out a rate limit takes no time.
 - **What `expect` can check:**
   - `status`;
   - `summaryIncludes` (case-insensitive) and `summaryMatches` (a regex);
   - `detailsIncludes`;
   - `fetched`, the URLs requested;
+  - `saved`, the paths of files it added, and `savedIncludes`, text in each;
+  - `notify`, whether the result asks to be a notification;
   - `throws`, part of the error message;
   - `ok` and `messageIncludes`, for `verify`;
   - `not`, which inverts any of the others.
@@ -211,7 +264,7 @@ A test is a JSON file in `tests/`:
 - **Check as early as you can.** A download's names and sizes are known before
   it starts, so a check on them belongs in `beforeStart`, where it can save the
   user a download. Use `afterFinish` to read file contents, or to act once a
-  download is done, such as sending a notification.
+  download is done, such as adding its subtitles.
 - **Write the summary in plain words, and say which file and why.** For example:
   "Contains a program disguised as a video: Film.mp4.exe". Use sentence case,
   with no full stop.
@@ -221,6 +274,8 @@ A test is a JSON file in `tests/`:
   `failed`.
 - **Respect rate limits.** `sleep` between requests, report `progress` on long
   runs, and keep answers in `storage` so a rerun doesn't repeat work.
+- **Add only what was asked for, next to the file it's for.** One subtitle per
+  video in the user's language, not every language there is.
 - **Don't log API keys or file contents.**
 
 ## Errors and fixes
@@ -229,7 +284,10 @@ A test is a JSON file in `tests/`:
 |---|---|
 | `Request to <host> was refused. Add "<host>" to permissions.network…` | Add the exact host to `permissions.network`. |
 | `Reading files isn't allowed…` | Add `"files": "contents"` to `permissions`. |
-| `File N isn't available: it isn't downloaded yet…` | File contents only exist in `afterFinish` hooks. |
+| `File N isn't available: it isn't downloaded yet…` | File contents only exist in `afterFinish` hooks, and only for files the user chose to download. |
+| `Adding files isn't allowed…` | Add `"files": "add"` to `permissions`, or `["contents", "add"]`. |
+| `"<name>" already exists. An extension can't replace a file it didn't add.` | Something is there already, such as subtitles that came with the download: report it, and don't retry. |
+| `Extensions can't add .<x> files…` | Only subtitles, text, images and checksums. |
 | `"fs" is a Node.js module, and extensions don't run in Node.js…` | Use the API named in the message. |
 | `The hook "x" needs src/x.ts.` | Name the file after the hook, or rename the hook. |
 | `The test has no mock for GET https://…` | Add that URL to the test's `mocks.fetch`. |

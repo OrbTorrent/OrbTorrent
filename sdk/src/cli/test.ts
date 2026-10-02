@@ -19,6 +19,8 @@ interface TestFile {
     name?: string;
     isPrivate?: boolean;
     files?: { path: string; size?: number; wanted?: boolean; sha256?: string }[];
+    /** Other files already next to the download's, relative to its folder, which `files.save` won't replace. */
+    alsoOnDisk?: string[];
   };
   preferences?: Record<string, unknown>;
   storage?: Record<string, unknown>;
@@ -35,6 +37,12 @@ interface Expectation {
   detailsIncludes?: string;
   /** URLs it should have requested, in any order. `*` matches any text. */
   fetched?: string[];
+  /** Paths of files it should have added with `files.save`, in any order. `*` matches any text. */
+  saved?: string[];
+  /** Part of the text of each file it added. */
+  savedIncludes?: string;
+  /** Whether the result asks to be a notification. */
+  notify?: boolean;
   /** Part of the error it should throw. */
   throws?: string;
   /** For verify: whether the settings are accepted. */
@@ -52,6 +60,7 @@ export interface TestReport {
   error?: string;
   logs: { level: string; message: string }[];
   fetched: { method: string; url: string }[];
+  saved: { path: string; size: number }[];
 }
 
 const matchesURL = (pattern: string, url: string) => {
@@ -93,6 +102,20 @@ function check(expectation: Expectation, run: HarnessRun): string[] {
   for (const pattern of expectation.fetched ?? []) {
     if (!run.fetched.some((request) => matchesURL(pattern, request.url))) failures.push(`expected a request to ${pattern}`);
   }
+  for (const pattern of expectation.saved ?? []) {
+    if (!run.saved.some((saved) => matchesURL(pattern, saved.path))) {
+      failures.push(`expected it to add ${pattern}${run.saved.length > 0 ? `, but it added ${run.saved.map((saved) => saved.path).join(", ")}` : ", but it added nothing"}`);
+    }
+  }
+  if (expectation.savedIncludes !== undefined) {
+    if (run.saved.length === 0) failures.push(`expected the files it added to include “${expectation.savedIncludes}”, but it added nothing`);
+    for (const saved of run.saved) {
+      if (!saved.text?.includes(expectation.savedIncludes)) failures.push(`expected ${saved.path} to include “${expectation.savedIncludes}”`);
+    }
+  }
+  if (expectation.notify !== undefined && (value.notify === true) !== expectation.notify) {
+    failures.push(expectation.notify ? "expected the result to ask for a notification (notify: true)" : "expected the result not to ask for a notification");
+  }
   if (expectation.not) {
     const inner = check(expectation.not, run);
     if (inner.length === 0) failures.push(`expected not ${JSON.stringify(expectation.not)}, but it matched`);
@@ -106,10 +129,10 @@ async function runTest(path: string, built: BuildResult): Promise<TestReport> {
   try {
     test = JSON.parse(readFileSync(path, "utf8"));
   } catch (error) {
-    return { file: relativePath, name: basename(path), passed: false, failures: [`couldn't be read: ${(error as Error).message}`], logs: [], fetched: [] };
+    return { file: relativePath, name: basename(path), passed: false, failures: [`couldn't be read: ${(error as Error).message}`], logs: [], fetched: [], saved: [] };
   }
   const name = test.name ?? basename(path, ".json");
-  const fail = (failure: string): TestReport => ({ file: relativePath, name, passed: false, failures: [failure], logs: [], fetched: [] });
+  const fail = (failure: string): TestReport => ({ file: relativePath, name, passed: false, failures: [failure], logs: [], fetched: [], saved: [] });
   const { manifest } = built;
 
   let script: string;
@@ -149,7 +172,8 @@ async function runTest(path: string, built: BuildResult): Promise<TestReport> {
     entryPoint,
     preferences: preferencesFor(test),
     fetchMocks: test.mocks?.fetch ?? [],
-    files: Object.fromEntries(files.map((file) => [file.index, { sha256: file.sha256 }])),
+    files: Object.fromEntries(files.map((file) => [file.index, { path: file.path, wanted: file.wanted, sha256: file.sha256 }])),
+    alsoOnDisk: test.download?.alsoOnDisk,
     storage: test.storage ?? {},
     timeout: test.timeout ?? 10_000,
   });
@@ -163,6 +187,7 @@ async function runTest(path: string, built: BuildResult): Promise<TestReport> {
     error: run.outcome.ok ? undefined : run.outcome.message,
     logs: run.logs,
     fetched: run.fetched,
+    saved: run.saved.map(({ path, size }) => ({ path, size })),
   };
 }
 

@@ -58,6 +58,9 @@ final class TorrentStore {
     /// What's happening to a download besides downloading, such as a check
     /// running on it, put before its status line.
     @ObservationIgnored var statusActivity: ((Torrent) -> String?)?
+    /// Files extensions added next to a download's, by hash, relative to its
+    /// save folder. They're moved and removed with it.
+    @ObservationIgnored var addedFiles: ((String) -> [String])?
     private static let diskCheckInterval: TimeInterval = 5
 
     init(engine: EngineController, orders: DownloadOrderManager, trackerList: TrackerList,
@@ -393,12 +396,20 @@ final class TorrentStore {
         selection.subtract(hashes)
         orders.forget(hashes)
         extraTrackers.forget(hashes)
+        let added = Dictionary(uniqueKeysWithValues: torrents.map { ($0.hash, addedFiles?($0.hash) ?? []) })
         if files == .trash {
             // Give the engine a moment to close the files before moving them.
             try? await Task.sleep(for: .milliseconds(600))
             let failures = torrents.flatMap { FileActions.trashContent(of: $0, files: filesByHash[$0.hash] ?? []) }
+                + torrents.flatMap { FileActions.removeAdded(added[$0.hash] ?? [], in: $0.savePath, trash: true) }
             if let failure = failures.first {
                 actionError = "Some files couldn't be moved to the Trash: \(failure.localizedDescription)"
+            }
+        } else if files == .erase, added.values.contains(where: { !$0.isEmpty }) {
+            try? await Task.sleep(for: .milliseconds(600))
+            let failures = torrents.flatMap { FileActions.removeAdded(added[$0.hash] ?? [], in: $0.savePath, trash: false) }
+            if let failure = failures.first {
+                actionError = "Some files couldn't be deleted: \(failure.localizedDescription)"
             }
         }
         await refresh()
@@ -421,7 +432,13 @@ final class TorrentStore {
     }
 
     func move(_ torrents: [Torrent], to folder: URL) async {
-        await perform { try await $0.setLocation(torrents.map(\.hash), to: folder.path) }
+        await perform { client in
+            try await client.setLocation(torrents.map(\.hash), to: folder.path)
+            // The engine moves only each download's own files.
+            for torrent in torrents {
+                FileActions.moveAdded(addedFiles?(torrent.hash) ?? [], from: torrent.savePath, to: folder)
+            }
+        }
     }
 
     func setPriority(_ priority: FilePriority, of files: [TorrentFile], in hash: String) async {

@@ -124,7 +124,7 @@ function nodeHint(module: string): string {
     case "fs":
     case "fs/promises":
     case "path":
-      return "To read a download's files, use files.sha256 or files.formData from @orbtorrent/api.";
+      return "To read a download's files, use files.sha256 or files.formData from @orbtorrent/api, and to add one next to them, files.save.";
     case "http":
     case "https":
     case "net":
@@ -137,7 +137,7 @@ function nodeHint(module: string): string {
       return "Use Uint8Array, TextEncoder and TextDecoder.";
     case "child_process":
     case "worker_threads":
-      return "Extensions can't start programs.";
+      return "Extensions can't start programs. OrbTorrent can run one of the user's own when a download finishes: Settings › Downloads.";
     default:
       return "Use the functions in @orbtorrent/api instead.";
   }

@@ -18,7 +18,7 @@
     }
   },
   "problems": [
-    "“permissions.files” can only be “contents”.",
+    "“permissions.files” can only be “contents”, “add”, or a list of both.",
     "“permissions.network” lists host names only, such as “www.virustotal.com”, without https:// or a path."
   ]
 }

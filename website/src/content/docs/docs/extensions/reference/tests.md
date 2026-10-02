@@ -48,8 +48,11 @@ A test is a JSON file in an extension's `tests/` folder. `orb test` runs them al
 | `id` | A made-up info hash | Its info hash. |
 | `isPrivate` | `false` | Whether it's from a private tracker. |
 | `files` | `[]` | Its files, in order: each `path`, `size` (0 unless given), `wanted` (true unless given), and `sha256`, which `files.sha256` returns for it. |
+| `alsoOnDisk` | `[]` | Other files already next to its files, as paths like theirs, such as subtitles the user added. `files.save` won't replace them. |
 
-The download's `size` is the sum of its wanted files' sizes. Each file's `index` is its place in the list, from 0.
+The download's `size` is the sum of its wanted files' sizes. Each file's `index` is its place in the list, from 0. As in OrbTorrent, a hook can only use the files that are wanted.
+
+Files a hook adds with `files.save` aren't written anywhere: the test keeps them, for `saved` and `savedIncludes` to check.
 
 ## mocks.fetch
 
@@ -62,6 +65,7 @@ Each mock answers requests that match it:
 | `status` | `200` | The status to answer with. |
 | `json` | | A body to answer with, as JSON. Sets `content-type: application/json`. |
 | `text` | `""` | A body to answer with, as text. |
+| `base64` | | A body of bytes to answer with, in Base64, such as an image or a zip file. |
 | `headers` | | Headers to answer with. |
 | `times` | Any number | How many requests this mock answers. After that, the next matching mock takes over. |
 
@@ -76,6 +80,9 @@ A request takes the first mock that matches. A request with no mock throws, and 
 | `summaryMatches` | The summary matches this regular expression. |
 | `detailsIncludes` | The details include this text. |
 | `fetched` | Each of these URLs was requested. `*` matches any text. |
+| `saved` | Each of these files was added with `files.save`, by its path. `*` matches any text. |
+| `savedIncludes` | Each file it added includes this text. |
+| `notify` | Whether the result asks to be a notification, with `notify: true`. |
 | `throws` | The hook threw an error that includes this text. The rest of `expect` is then ignored. |
 | `ok` | For `verify`: whether it accepted the settings. |
 | `messageIncludes` | For `verify`: its message includes this text. |

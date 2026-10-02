@@ -30,6 +30,11 @@ struct CheckRecord: Codable, Identifiable, Sendable, Equatable {
     var progress: CheckProgress?
     var startedAt: Date?
     var finishedAt: Date?
+    /// Files the hook added next to the download's, relative to the folder
+    /// it's saved in. They go with the download when it's moved or removed.
+    var addedFiles: [String]?
+    /// Whether the result asked to be a notification.
+    var notify: Bool?
 
     var id: String { "\(extensionName)/\(hookName)" }
 

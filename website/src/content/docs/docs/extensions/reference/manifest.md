@@ -70,10 +70,10 @@ Everything else, such as `scripts`, `dependencies` and `private`, is npm's, and 
 
 | Field | Meaning |
 |---|---|
-| `files` | `"contents"` lets the extension fingerprint and upload the download's files, in `afterFinish` hooks. Without it, it sees only names and sizes. |
+| `files` | `"contents"` lets the extension fingerprint and upload the download's files, and `"add"` lets it add files such as subtitles next to them, both in `afterFinish` hooks. `["contents", "add"]` for both. Without it, it sees only names and sizes. |
 | `network` | Exact host names it can reach over HTTPS, without `https://` or a path, such as `"www.virustotal.com"`. No wildcards. |
 
-[Network requests](/docs/extensions/network) and [Reading files](/docs/extensions/files) explain what each allows.
+[Network requests](/docs/extensions/network) and [Read and add files](/docs/extensions/files) explain what each allows.
 
 ## Preferences
 
@@ -113,6 +113,7 @@ The Extensions page and the install sheet list what each extension **can** do, f
 - "See the names and sizes of the files in your downloads", always;
 - "Hold a download before it starts, until you decide", with a `beforeStart` hook;
 - "Read the contents of your downloads", with `"files": "contents"`;
+- "Add files, such as subtitles, next to your downloads", with `"files": "add"`;
 - "Connect to …", for each host in `permissions.network`.
 
 OrbTorrent enforces the list, so ask only for what the extension needs.

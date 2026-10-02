@@ -12,7 +12,16 @@ enum EngineConfiguration {
         let fileManager = FileManager.default
         try fileManager.createDirectory(at: EnginePaths.configFile.deletingLastPathComponent(),
                                         withIntermediateDirectories: true)
-        var ini = IniFile(contents: (try? String(contentsOf: EnginePaths.configFile, encoding: .utf8)) ?? "")
+        let current = (try? String(contentsOf: EnginePaths.configFile, encoding: .utf8)) ?? ""
+        try configured(current, for: credentials, networkInterface: networkInterface)
+            .write(to: EnginePaths.configFile, atomically: true, encoding: .utf8)
+        try fileManager.setAttributes([.posixPermissions: 0o600], ofItemAtPath: EnginePaths.configFile.path)
+    }
+
+    /// The engine's settings file, with OrbTorrent's settings written over
+    /// whatever was there.
+    static func configured(_ contents: String, for credentials: EngineCredentials, networkInterface: String = "") -> String {
+        var ini = IniFile(contents: contents)
         ini.set("Accepted", "true", in: "LegalNotice")
         ini.set("WebUI\\Enabled", "true", in: "Preferences")
         ini.set("WebUI\\Address", "127.0.0.1", in: "Preferences")
@@ -29,10 +38,16 @@ enum EngineConfiguration {
         // downloads DB-IP's country database for them once a month, and looks
         // peers up in it on this Mac.
         ini.set("Connection\\ResolvePeerCountries", "true", in: "Preferences")
+        // The engine never runs programs itself. OrbTorrent's own setting,
+        // "When a download finishes, run", starts the user's program without
+        // a shell (FinishedProgram).
+        ini.set("enabled", "false", in: "AutoRun")
+        ini.set("program", "", in: "AutoRun")
+        ini.set("OnTorrentAdded\\Enabled", "false", in: "AutoRun")
+        ini.set("OnTorrentAdded\\Program", "", in: "AutoRun")
         ini.set("Session\\Interface", networkInterface, in: "BitTorrent")
         ini.set("Session\\InterfaceName", networkInterface, in: "BitTorrent")
-        try ini.contents.write(to: EnginePaths.configFile, atomically: true, encoding: .utf8)
-        try fileManager.setAttributes([.posixPermissions: 0o600], ofItemAtPath: EnginePaths.configFile.path)
+        return ini.contents
     }
 
     /// qBittorrent's password format: PBKDF2-HMAC-SHA512, 100 000 rounds,

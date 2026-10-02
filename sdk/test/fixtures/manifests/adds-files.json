@@ -1,0 +1,24 @@
+{
+  "manifest": {
+    "name": "subtitles",
+    "title": "Subtitles",
+    "description": "Adds subtitles.",
+    "author": "you",
+    "hooks": [
+      {
+        "name": "subtitles",
+        "event": "afterFinish"
+      }
+    ],
+    "permissions": {
+      "files": [
+        "contents",
+        "add"
+      ],
+      "network": [
+        "api.opensubtitles.com"
+      ]
+    }
+  },
+  "problems": []
+}

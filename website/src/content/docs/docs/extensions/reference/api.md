@@ -74,6 +74,12 @@ interface Result {
   /** Markdown, shown under Details. */
   details?: string;
   link?: { title: string; url: string };
+  /**
+   * Also shows the summary as a notification, such as "Added English
+   * subtitles". A warning or failure after a download finishes, and a
+   * download held before it starts, are notifications already.
+   */
+  notify?: boolean;
 }
 ```
 
@@ -136,7 +142,7 @@ function fetch(url: string | URL, init?: RequestInit): Promise<Response>;
 
 An HTTPS request to a host listed in `permissions.network`. It throws if the request is refused, or fails.
 
-- HTTPS on port 443 only, and never an address on the Mac or its local network.
+- HTTPS on port 443 only, and never an address on the Mac or its local network. OrbTorrent connects to the very address it checked.
 - Redirects are followed only to listed hosts. Otherwise the redirect itself is returned.
 - Responses are limited to 10 MB, and each request to 30 seconds.
 - There's no global `fetch`: import this one.
@@ -166,10 +172,13 @@ interface Response {
   readonly headers: Headers;
   text(): Promise<string>;
   json<T = any>(): Promise<T>;
+  /** The body's bytes, such as an image or a zip file. */
+  bytes(): Promise<Uint8Array>;
+  arrayBuffer(): Promise<ArrayBuffer>;
 }
 ```
 
-The body is read as UTF-8 text.
+`text()` and `json()` read the body as UTF-8, and `bytes()` and `arrayBuffer()` as it came. Since 1.1.
 
 ### `Headers`
 
@@ -191,15 +200,30 @@ A response's headers. Names are case-insensitive, and `entries()` gives them in 
 const files: {
   sha256(file: DownloadFile | number): Promise<string>;
   formData(fields: Record<string, string | DownloadFile>): FormBody;
+  save(file: DownloadFile | number, suffix: string, contents: string | Uint8Array | ArrayBuffer): Promise<SavedFile>;
 };
 ```
 
-The download's files. Reading them needs `"files": "contents"` in `permissions`, and works only in `afterFinish` hooks, once the files are there.
+The download's files, only in `afterFinish` hooks, once they're there. Reading them needs `"files": "contents"` in `permissions`, and adding files next to them needs `"files": "add"`, or `["contents", "add"]` for both. Pass a file from `download.files`, or its `index`.
 
-- **`files.sha256(file)`**: the file's SHA-256 fingerprint in lowercase hex, computed by OrbTorrent. Large files are quick, and the time doesn't count towards CPU time. Pass a file from `download.files`, or its `index`.
+- **`files.sha256(file)`**: the file's SHA-256 fingerprint in lowercase hex, computed by OrbTorrent. Large files are quick, and the time doesn't count towards CPU time.
 - **`files.formData(fields)`**: a multipart form to upload with `fetch`. OrbTorrent streams each file from disk.
+- **`files.save(file, suffix, contents)`**: adds a file next to `file`, named after it: `files.save(video, ".en.srt", text)` saves `Film.2024.en.srt` beside `Film.2024.mkv`. The suffix starts with `.`, `-`, `_` or a space, and ends with an extension. Only subtitles, text, images and checksums, up to 10 MB each and 50 MB a run. It never replaces a file, except one the same hook added to the same download before, and throws if one's there. Text is saved as UTF-8. Since 1.1.
 
-[Reading files](/docs/extensions/files) has examples.
+[Read and add files](/docs/extensions/files) has examples.
+
+### `SavedFile`
+
+```ts
+interface SavedFile {
+  /** Relative to the download's folder, like a `DownloadFile`'s path. */
+  path: string;
+  /** In bytes. */
+  size: number;
+}
+```
+
+A file `files.save` added.
 
 ### `FormBody`
 
@@ -263,7 +287,7 @@ const environment: {
   readonly isDevelopment: boolean;
   /** The hook or `verify` function running now. */
   readonly entryPoint: { type: "hook" | "verify"; name: string; event?: HookEvent };
-  /** The API version this OrbTorrent provides, such as "1.0.0". */
+  /** The API version this OrbTorrent provides, such as "1.1.0". */
   readonly apiVersion: string;
 };
 ```

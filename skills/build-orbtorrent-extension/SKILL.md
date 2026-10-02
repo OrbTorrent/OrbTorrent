@@ -14,29 +14,34 @@ permissions.
 
 ## Steps
 
-1. **Start from a template, unless you're changing an existing extension.**
+1. **Check that extensions can do what's asked.** They can't change, move or
+   delete files, change the download, reach the local network or run
+   programs: `references/AGENTS.md` lists what they can and can't do. Say so
+   first if the request needs one of those. OrbTorrent can run a script of the
+   user's own when a download finishes, which only they can set up.
+2. **Start from a template, unless you're changing an existing extension.**
    Run `npm create @orbtorrent/extension@latest <name> -- --template before-start|after-finish`,
    then `npm install` in the new folder.
-2. **Read `references/AGENTS.md`.** It covers the API, the manifest, the hooks,
+3. **Read `references/AGENTS.md`.** It covers the API, the manifest, the hooks,
    the test format, the rules for good results, and the errors you'll see with
    their fixes. An extension made with `orb create` has the same file. The
    full docs are at https://orbtorrent.com/docs/extensions, and all of them in
    one file at https://orbtorrent.com/docs/extensions/llms-full.txt.
-3. **Write the hook and a test for each behaviour**, including downloads that
+4. **Write the hook and a test for each behaviour**, including downloads that
    must pass.
-4. **Loop until everything passes:**
+5. **Loop until everything passes:**
    - `npx orb test --json`
    - `npx orb build --json`
    - `npx orb lint --json`
 
    Every command takes `--json`, never prompts, and exits with 1 on failure.
-5. **Check OrbTorrent is ready** with `npx orb doctor --json`. A check with
+6. **Check OrbTorrent is ready** with `npx orb doctor --json`. A check with
    `"ok": false` needs fixing, and its `fix` says how. Some steps only the user
    can take in OrbTorrent: ask them, and never try to get around them.
-6. **Confirm on a real download:** `npx orb downloads --json` lists them, then
+7. **Confirm on a real download:** `npx orb downloads --json` lists them, then
    `npx orb run <hook> --download "<name>" --json`. The first time, OrbTorrent
    asks the user to allow the folder.
-7. **Install it** once it does what the user asked: `npx orb install --json`
+8. **Install it** once it does what the user asked: `npx orb install --json`
    shows the install sheet in OrbTorrent, and returns `"installed": true` once
    the user has confirmed it.
 
@@ -44,10 +49,14 @@ permissions.
 
 - Hooks are `beforeStart` (15 s; `failed` holds the download) or `afterFinish`
   (6 h; file contents available).
-- A hook returns `{ status: "passed" | "warning" | "failed" | "skipped", summary, details?, link? }`.
-  The summary is one line that says which file and why.
+- A hook returns `{ status: "passed" | "warning" | "failed" | "skipped", summary, details?, link?, notify? }`.
+  The summary is one line that says which file and why. `notify: true` also
+  shows it as a notification.
 - Network access needs each exact host in `permissions.network`. Reading files
-  needs `"files": "contents"`.
+  needs `"files": "contents"`, and adding them `"files": "add"`.
+- `files.save(file, ".en.srt", contents)` adds a file next to a finished
+  download's file, named after it: only subtitles, text, images and
+  checksums, and never replacing a file it didn't add.
 - There's no `fs`, `process`, `Buffer`, `require`, global `fetch` or DOM. Use
   `fetch`, `files`, `storage`, `progress` and `getPreferenceValues` from
   `@orbtorrent/api`.

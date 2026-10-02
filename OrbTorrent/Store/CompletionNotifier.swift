@@ -101,6 +101,19 @@ final class CompletionNotifier: NSObject, UNUserNotificationCenterDelegate {
         center.add(UNNotificationRequest(identifier: "check-\(torrent.hash)-\(record.id)", content: content, trigger: nil))
     }
 
+    /// Shows a check's result that asked to be a notification, such as
+    /// "Added English subtitles". Only a problem makes a sound.
+    func postNotice(hash: String, download: String, _ record: CheckRecord) {
+        let content = UNMutableNotificationContent()
+        content.title = record.extensionTitle
+        content.subtitle = download
+        content.body = record.summary
+        if record.status == .warning || record.status == .failed { content.sound = .default }
+        content.categoryIdentifier = Self.checkCategory
+        content.userInfo = ["hash": hash]
+        center.add(UNNotificationRequest(identifier: "notice-\(hash)-\(record.id)", content: content, trigger: nil))
+    }
+
     /// Says downloads were paused because their disk is almost full.
     func postDiskAlmostFull(_ disks: [String], paused count: Int) {
         let content = UNMutableNotificationContent()

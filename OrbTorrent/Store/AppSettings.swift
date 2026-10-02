@@ -90,6 +90,12 @@ final class AppSettings {
         didSet { defaults.set(vpnForwardedPort, forKey: Keys.vpnForwardedPort) }
     }
 
+    /// The user's own program, run when each download finishes: see
+    /// FinishedProgram. Only ever set from Settings, by a person.
+    var finishedProgram: String? {
+        didSet { defaults.set(finishedProgram, forKey: Keys.finishedProgram) }
+    }
+
     /// Add anonymous counts to the daily update check: see AnonymousCounts.
     var sendsAnonymousCounts: Bool {
         didSet { defaults.set(sendsAnonymousCounts, forKey: Keys.sendsAnonymousCounts) }
@@ -136,6 +142,7 @@ final class AppSettings {
         vpnServiceID = defaults.string(forKey: Keys.vpnServiceID)
         vpnForwardedPort = defaults.object(forKey: Keys.vpnForwardedPort) as? Int
         sendsAnonymousCounts = defaults.bool(forKey: Keys.sendsAnonymousCounts)
+        finishedProgram = defaults.string(forKey: Keys.finishedProgram)
         hasCompletedOnboarding = defaults.bool(forKey: Keys.hasCompletedOnboarding)
         dismissedDefaultAppBanner = defaults.bool(forKey: Keys.dismissedDefaultAppBanner)
         appliedEngineDefaults = defaults.bool(forKey: Keys.appliedEngineDefaults)
@@ -155,6 +162,7 @@ final class AppSettings {
         static let vpnServiceID = "vpnServiceID"
         static let vpnForwardedPort = "vpnForwardedPort"
         static let sendsAnonymousCounts = "sendsAnonymousCounts"
+        static let finishedProgram = "finishedProgram"
         static let hasCompletedOnboarding = "hasCompletedOnboarding"
         static let dismissedDefaultAppBanner = "dismissedDefaultAppBanner"
         static let appliedEngineDefaults = "appliedEngineDefaults"

@@ -95,8 +95,9 @@ private final class HelperSession: @unchecked Sendable {
     /// Calls being answered, stopped with the helper.
     private var calls: [Int: Task<Void, Never>] = [:]
 
-    /// The most a helper may print before it's stopped, against runaway logging.
-    private static let maximumOutput = 64 << 20
+    /// The most a helper may send before it's stopped, against runaway
+    /// logging: room for the 50 MB of files a run can add, in Base64.
+    private static let maximumOutput = 128 << 20
     private static let maximumLogLength = 10_000
 
     init(helper: URL, handler: any ExtensionCallHandler) {

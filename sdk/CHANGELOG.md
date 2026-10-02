@@ -1,5 +1,31 @@
 # @orbtorrent/api Changelog
 
+## 1.1.0
+
+Extension API 1.1, which needs an OrbTorrent that supports it. OrbTorrent says
+so if it's too old.
+
+- **`files.save(file, suffix, contents)`** adds a file next to one of a
+  finished download's, named after it: `files.save(video, ".en.srt", text)`
+  saves `Film.2024.en.srt` beside `Film.2024.mkv`. It needs the new
+  permission `"files": "add"`, or `["contents", "add"]` with reading, which
+  the install sheet shows as "Add files, such as subtitles, next to your
+  downloads". Only subtitles, text, images and checksums, up to 10 MB each,
+  and it never replaces a file, except one the same hook added before.
+  OrbTorrent lists added files in the Checks tab, and moves and removes them
+  with the download.
+- **Bytes over the network.** A `fetch` response has `bytes()` and
+  `arrayBuffer()`, for images and zip files, and `files.save` takes a
+  `Uint8Array`.
+- **`notify: true`** in a result also shows its summary as a notification.
+- **`orb test`:** mocks can answer with `base64`; `expect` can check `saved`,
+  `savedIncludes` and `notify`; and `download.alsoOnDisk` lists files already
+  next to the download's. A file the user chose not to download isn't
+  available to a hook, as in OrbTorrent.
+- `AGENTS.md`, in new extensions and the Agent Skill, starts with what
+  extensions can and can't do, so a coding agent can say before building when a
+  request needs something they can't do yet.
+
 ## 1.0.4
 
 - The docs moved to orbtorrent.com/docs/extensions. The npm pages, the

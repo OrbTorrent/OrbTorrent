@@ -32,6 +32,7 @@ An extension can have several hooks, each in its own file, at either moment.
 | **Runs** | Once the file list is known, before any data downloads | Once every wanted file has finished |
 | **Can hold the download** | Yes: `failed` holds it until the user decides | No, it reports |
 | **File contents** | No: the files don't exist yet | Yes, with `"files": "contents"` |
+| **Adding files next to them** | No | Yes, with `"files": "add"` |
 | **Time limit** | 15 s, of which 10 s of CPU | 6 h, of which 2 min of CPU |
 | **Memory** | 512 MB | 512 MB |
 

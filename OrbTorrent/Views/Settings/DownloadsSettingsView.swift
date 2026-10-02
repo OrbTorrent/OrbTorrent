@@ -7,6 +7,8 @@ struct DownloadsSettingsView: View {
     @State private var ratio = 2.0
     @State private var ratioAction: EnginePreferences.RatioAction = .stop
     @State private var hasLoaded = false
+    /// Why the chosen file can't be the program to run.
+    @State private var programProblem: String?
 
     var body: some View {
         @Bindable var settings = model.settings
@@ -46,6 +48,40 @@ struct DownloadsSettingsView: View {
                     }
                 }
             }
+
+            Section {
+                LabeledContent("Run") {
+                    HStack(spacing: 8) {
+                        Text(settings.finishedProgram.map { ($0 as NSString).lastPathComponent } ?? "Nothing")
+                            .lineLimit(1)
+                            .truncationMode(.middle)
+                            .foregroundStyle(.secondary)
+                            .help(settings.finishedProgram ?? "")
+                        Button(settings.finishedProgram == nil ? "Choose…" : "Change…", action: chooseProgram)
+                        if settings.finishedProgram != nil {
+                            Button("Stop Running It") { settings.finishedProgram = nil }
+                        }
+                    }
+                }
+                if let programProblem {
+                    Text(programProblem)
+                        .font(.callout)
+                        .foregroundStyle(.red)
+                        .textSelection(.enabled)
+                }
+                if FileManager.default.fileExists(atPath: FinishedProgram.log.path) {
+                    LabeledContent("What it printed") {
+                        Button("Show Log") { NSWorkspace.shared.activateFileViewerSelecting([FinishedProgram.log]) }
+                    }
+                }
+            } header: {
+                Text("When a Download Finishes")
+            } footer: {
+                VStack(alignment: .leading, spacing: 6) {
+                    Text("A program or script of your own, run as you after each download's checks, unless one of them failed. It gets the download's file or folder, and its name.")
+                    Link("How to Write One", destination: Website.finishedProgram)
+                }
+            }
         }
         .formStyle(.grouped)
         .onAppear(perform: load)
@@ -82,6 +118,24 @@ struct DownloadsSettingsView: View {
     private func displayPath(_ path: String?) -> String {
         guard let path, !path.isEmpty else { return "—" }
         return (path as NSString).abbreviatingWithTildeInPath
+    }
+
+    /// Asks for the program to run. Only ever set here, by a person.
+    private func chooseProgram() {
+        let panel = NSOpenPanel()
+        panel.title = "Run When a Download Finishes"
+        panel.message = "Choose a program or script of your own. It runs as you, with access to your files, like any program you open."
+        panel.canChooseFiles = true
+        panel.canChooseDirectories = false
+        panel.treatsFilePackagesAsDirectories = false
+        panel.prompt = "Choose"
+        guard panel.runModal() == .OK, let url = panel.url else { return }
+        guard FinishedProgram.executable(for: url) != nil else {
+            programProblem = "“\(url.lastPathComponent)” can't be run. If it's a script, start it with a line such as #!/bin/zsh, then make it runnable in Terminal: chmod +x \"\(url.path)\""
+            return
+        }
+        programProblem = nil
+        model.settings.finishedProgram = url.path
     }
 
     private func chooseFolder() {

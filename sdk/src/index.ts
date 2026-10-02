@@ -178,6 +178,12 @@ export interface Result {
   /** Markdown, shown under Details. */
   details?: string;
   link?: { title: string; url: string };
+  /**
+   * Also shows the summary as a notification, such as "Added English
+   * subtitles". A warning or failure after a download finishes, and a
+   * download held before it starts, are notifications already.
+   */
+  notify?: boolean;
 }
 
 /** A hook: the default export of `src/<hook name>.ts`. */
@@ -232,12 +238,17 @@ export interface Response {
   readonly headers: Headers;
   text(): Promise<string>;
   json<T = any>(): Promise<T>;
+  /** The body's bytes, such as an image or a zip file. */
+  bytes(): Promise<Uint8Array>;
+  arrayBuffer(): Promise<ArrayBuffer>;
 }
 
 interface RawResponse {
   status: number;
   headers: Record<string, string>;
+  /** UTF-8 text, or Base64 when `encoding` says so. */
   body: string;
+  encoding?: "base64";
   url: string;
 }
 
@@ -254,6 +265,8 @@ export async function fetch(url: string | URL, init: RequestInit = {}): Promise<
     body,
   });
   const headers = Object.fromEntries(Object.entries(raw.headers).map(([name, value]) => [name.toLowerCase(), value]));
+  const bytes = () => raw.encoding === "base64" ? fromBase64(raw.body) : new TextEncoder().encode(raw.body);
+  const text = () => raw.encoding === "base64" ? new TextDecoder().decode(fromBase64(raw.body)) : raw.body;
   return {
     status: raw.status,
     ok: raw.status >= 200 && raw.status < 300,
@@ -263,9 +276,55 @@ export async function fetch(url: string | URL, init: RequestInit = {}): Promise<
       has: (name) => name.toLowerCase() in headers,
       entries: () => Object.entries(headers),
     },
-    text: async () => raw.body,
-    json: async () => JSON.parse(raw.body),
+    text: async () => text(),
+    json: async () => JSON.parse(text()),
+    bytes: async () => bytes(),
+    arrayBuffer: async () => {
+      const view = bytes();
+      return view.buffer.slice(view.byteOffset, view.byteOffset + view.byteLength) as ArrayBuffer;
+    },
   };
+}
+
+// MARK: Base64, for bytes on their way to and from OrbTorrent
+
+const base64Alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
+const base64Values = new Uint8Array(128).fill(255);
+for (let index = 0; index < base64Alphabet.length; index++) base64Values[base64Alphabet.charCodeAt(index)] = index;
+
+function toBase64(bytes: Uint8Array): string {
+  const parts: string[] = [];
+  let line = "";
+  for (let index = 0; index < bytes.length; index += 3) {
+    const a = bytes[index];
+    const b = bytes[index + 1];
+    const c = bytes[index + 2];
+    line += base64Alphabet[a >> 2] + base64Alphabet[((a & 3) << 4) | ((b ?? 0) >> 4)]
+      + (b === undefined ? "=" : base64Alphabet[((b & 15) << 2) | ((c ?? 0) >> 6)])
+      + (c === undefined ? "=" : base64Alphabet[c & 63]);
+    if (line.length >= 8192) {
+      parts.push(line);
+      line = "";
+    }
+  }
+  parts.push(line);
+  return parts.join("");
+}
+
+function fromBase64(text: string): Uint8Array {
+  const clean = text.replace(/[^A-Za-z0-9+/]/g, "");
+  const output = new Uint8Array(Math.floor((clean.length * 3) / 4));
+  let length = 0;
+  for (let index = 0; index < clean.length; index += 4) {
+    const a = base64Values[clean.charCodeAt(index)];
+    const b = base64Values[clean.charCodeAt(index + 1)];
+    const c = index + 2 < clean.length ? base64Values[clean.charCodeAt(index + 2)] : undefined;
+    const d = index + 3 < clean.length ? base64Values[clean.charCodeAt(index + 3)] : undefined;
+    output[length++] = (a << 2) | (b >> 4);
+    if (c !== undefined) output[length++] = ((b & 15) << 4) | (c >> 2);
+    if (d !== undefined && c !== undefined) output[length++] = ((c & 3) << 6) | d;
+  }
+  return output.subarray(0, length);
 }
 
 // MARK: Files
@@ -274,7 +333,19 @@ function fileIndex(file: DownloadFile | number): number {
   return typeof file === "number" ? file : file.index;
 }
 
-/** The download's files. Reading them needs `"files": "contents"` in permissions. */
+/** A file `files.save` added. */
+export interface SavedFile {
+  /** Relative to the download's folder, like a `DownloadFile`'s path. */
+  path: string;
+  /** In bytes. */
+  size: number;
+}
+
+/**
+ * The download's files. Reading them needs `"files": "contents"` in
+ * permissions, and adding files next to them needs `"files": "add"`, or
+ * `["contents", "add"]` for both.
+ */
 export const files = {
   /** The file's SHA-256 fingerprint in lowercase hex, computed by OrbTorrent. Only after the download finishes. */
   sha256(file: DownloadFile | number): Promise<string> {
@@ -286,6 +357,26 @@ export const files = {
     const form = new FormBody();
     for (const [name, value] of Object.entries(fields)) form.append(name, value);
     return form;
+  },
+
+  /**
+   * Adds a file next to one of the download's, named after it with `suffix`:
+   * `files.save(video, ".en.srt", text)` saves `Film.2024.en.srt` beside
+   * `Film.2024.mkv`. Only after the download finishes, and only subtitles,
+   * text, images and checksums, up to 10 MB each. It never replaces a file,
+   * except one this hook added to this download before.
+   *
+   * @param suffix Starts with ".", "-", "_" or a space, and ends with an
+   *   extension, such as ".en.srt" or "-poster.jpg".
+   * @param contents Text, saved as UTF-8, or bytes.
+   */
+  save(file: DownloadFile | number, suffix: string, contents: string | Uint8Array | ArrayBuffer): Promise<SavedFile> {
+    const encoded = typeof contents === "string"
+      ? { text: contents }
+      : { base64: toBase64(ArrayBuffer.isView(contents)
+          ? new Uint8Array(contents.buffer, contents.byteOffset, contents.byteLength)
+          : new Uint8Array(contents)) };
+    return bridge().call("files.save", { file: fileIndex(file), suffix, contents: encoded });
   },
 };
 

@@ -16,6 +16,8 @@ struct ExtensionDownload: Sendable {
     let files: [File]
     /// Downloaded files by index, for hooks after a download finishes.
     var onDisk: [Int: URL] = [:]
+    /// The folder it's saved in, where files the extension adds go.
+    var folder: URL?
 
     var json: JSONValue {
         let wantedSize = files.filter(\.wanted).reduce(Int64(0)) { $0 + $1.size }
@@ -47,8 +49,9 @@ struct ExtensionDownload: Sendable {
         name = torrent.name
         isPrivate = torrent.isPrivate ?? false
         self.files = files.map { File(index: $0.index, path: $0.name, size: $0.size, wanted: $0.isWanted) }
-        if includingFilesOnDisk {
+        if includingFilesOnDisk, !torrent.savePath.isEmpty {
             let folder = URL(fileURLWithPath: torrent.savePath, isDirectory: true)
+            self.folder = folder
             onDisk = Dictionary(uniqueKeysWithValues: files.filter { $0.isWanted && $0.isComplete }
                 .map { ($0.index, folder.appending(path: $0.name)) })
         }
@@ -82,12 +85,17 @@ final class Extensions {
     @ObservationIgnored var onHeld: ((Torrent, [CheckRecord]) -> Void)?
     /// A check after a download finished found something.
     @ObservationIgnored var onFlagged: ((Torrent, CheckRecord) -> Void)?
+    /// A check asked for its result to be a notification, with `notify: true`:
+    /// the download's hash and name, and the result.
+    @ObservationIgnored var onNotice: ((String, String, CheckRecord) -> Void)?
 
     @ObservationIgnored private let runner: ExtensionRunner?
     @ObservationIgnored private var storages: [String: ExtensionStorage] = [:]
     @ObservationIgnored private var runs: [String: Task<CheckRecord, Never>] = [:]
     /// Each extension's runs after downloads finish go one at a time, which suits services' rate limits.
     @ObservationIgnored private var afterFinishTail: [String: Task<CheckRecord, Never>] = [:]
+    /// The checks a download gets once it finishes, by hash, while they run.
+    @ObservationIgnored private var finishing: [String: Task<[CheckRecord], Never>] = [:]
     @ObservationIgnored private var gating: Set<String> = []
     @ObservationIgnored private var knownComplete: [String: Bool]?
     /// Hashes being asked about, whose checks mustn't be forgotten before they're added.
@@ -189,6 +197,10 @@ final class Extensions {
             checks.setGate(.held, for: hash)
             onHeld?(torrent, failed)
         }
+        // Holding it was a notification already.
+        for record in records where record.notify == true && record.status != .failed {
+            onNotice?(hash, torrent.name, record)
+        }
     }
 
     // MARK: Watching the library
@@ -226,33 +238,64 @@ final class Extensions {
         let hooks = registry.hooks(for: .afterFinish)
         guard !hooks.isEmpty else { return }
         for torrent in torrents where torrent.isComplete {
+            var due: [(InstalledExtension, ExtensionManifest.Hook)] = []
             for (item, hook) in hooks {
                 let id = "\(item.name)/\(hook.name)"
                 let record = checks.record(id, for: torrent.hash)
                 let finishedSince = (torrent.completedOn ?? .distantPast) > registry.enabledSince(item)
-                let due: Bool
+                let isDue: Bool
                 if let knownComplete, let wasComplete = knownComplete[torrent.hash] {
-                    due = !wasComplete && torrent.finishedJustNow()
+                    isDue = !wasComplete && torrent.finishedJustNow()
                 } else if knownComplete != nil {
                     // New to the library and already finished, such as a small
                     // download that finished between two refreshes.
-                    due = record == nil && finishedSince
+                    isDue = record == nil && finishedSince
                 } else {
                     // At launch: finished since it was turned on, or interrupted by quitting.
-                    due = (record == nil && finishedSince) || record.map { !$0.status.isFinished } == true
+                    isDue = (record == nil && finishedSince) || record.map { !$0.status.isFinished } == true
                 }
-                if due && runs["\(torrent.hash)/\(id)"] == nil {
-                    Task { await runAfterFinish(item, hook, on: torrent) }
+                if isDue && runs["\(torrent.hash)/\(id)"] == nil { due.append((item, hook)) }
+            }
+            guard !due.isEmpty else { continue }
+            let previous = finishing[torrent.hash]
+            let dueHooks = due
+            let task = Task { () -> [CheckRecord] in
+                let earlier = await previous?.value ?? []
+                let records = await withTaskGroup(of: CheckRecord?.self) { group in
+                    for (item, hook) in dueHooks {
+                        group.addTask { await self.runAfterFinish(item, hook, on: torrent) }
+                    }
+                    var records: [CheckRecord] = []
+                    for await record in group { if let record { records.append(record) } }
+                    return records
                 }
+                return earlier + records
+            }
+            finishing[torrent.hash] = task
+            Task {
+                _ = await task.value
+                if finishing[torrent.hash] == task { finishing[torrent.hash] = nil }
             }
         }
     }
 
-    private func runAfterFinish(_ item: InstalledExtension, _ hook: ExtensionManifest.Hook, on torrent: Torrent) async {
-        guard let files = try? await self.files?(torrent.hash) else { return }
+    /// The results of the checks a download gets once it finishes, after
+    /// they've all run; none if it gets none. For "When a download finishes,
+    /// run", which waits for them.
+    func afterFinishChecks(for hash: String) async -> [CheckRecord] {
+        await finishing[hash]?.value ?? []
+    }
+
+    private func runAfterFinish(_ item: InstalledExtension, _ hook: ExtensionManifest.Hook, on torrent: Torrent) async -> CheckRecord? {
+        guard let files = try? await self.files?(torrent.hash) else { return nil }
         let download = ExtensionDownload(torrent: torrent, files: files, includingFilesOnDisk: true)
         let record = await run(item, hook, on: download, limited: true)
-        if record.status == .failed || record.status == .warning { onFlagged?(torrent, record) }
+        if record.status == .failed || record.status == .warning {
+            onFlagged?(torrent, record)
+        } else if record.notify == true {
+            onNotice?(torrent.hash, torrent.name, record)
+        }
+        return record
     }
 
     // MARK: Running
@@ -264,6 +307,7 @@ final class Extensions {
         let afterFinish = hook.event == .afterFinish
         let download = ExtensionDownload(torrent: torrent, files: files, includingFilesOnDisk: afterFinish && torrent.isComplete)
         let record = await run(item, hook, on: download, limited: afterFinish)
+        if record.notify == true { onNotice?(torrent.hash, torrent.name, record) }
         // A held download that now passes its checks can start.
         if hook.event == .beforeStart, checks.gate(for: torrent.hash) == .held,
            !checks.records(for: torrent.hash).contains(where: { $0.event == .beforeStart && $0.status == .failed }) {
@@ -272,9 +316,11 @@ final class Extensions {
         return record
     }
 
-    /// Runs one hook on a download as it's given.
+    /// Runs one hook on a download as it's given, such as for `orb run`.
     func run(_ item: InstalledExtension, _ hook: ExtensionManifest.Hook, on download: ExtensionDownload) async -> CheckRecord {
-        await run(item, hook, on: download, limited: hook.event == .afterFinish)
+        let record = await run(item, hook, on: download, limited: hook.event == .afterFinish)
+        if record.notify == true { onNotice?(download.id, download.name, record) }
+        return record
     }
 
     private func run(_ item: InstalledExtension, _ hook: ExtensionManifest.Hook, on download: ExtensionDownload,
@@ -283,6 +329,7 @@ final class Extensions {
         runs[key]?.cancel()
         var queued = CheckRecord(extension: item, hook: hook, status: limited ? .queued : .running, summary: "Waiting to run")
         queued.startedAt = .now
+        queued.addedFiles = checks.record(queued.id, for: download.id)?.addedFiles
         checks.update(queued, for: download.id)
         let previous = limited ? afterFinishTail[item.name] : nil
         let task = Task { () -> CheckRecord in
@@ -302,6 +349,9 @@ final class Extensions {
     private func execute(_ item: InstalledExtension, _ hook: ExtensionManifest.Hook, on download: ExtensionDownload) async -> CheckRecord {
         var record = CheckRecord(extension: item, hook: hook, status: .running, summary: "Checking…")
         record.startedAt = .now
+        // Files it added to this download before, which it may replace.
+        let previouslyAdded = checks.record(record.id, for: download.id)?.addedFiles ?? []
+        record.addedFiles = previouslyAdded.isEmpty ? nil : previouslyAdded
         checks.update(record, for: download.id)
         emit(.check(name: item.name, hash: download.id, download: download.name, record: record))
 
@@ -325,7 +375,9 @@ final class Extensions {
                                                 preferences: resolved.values),
                                limits: limits)
         let recordID = record.id
-        let services = ExtensionServices(
+        let adder = ExtensionFileAdder(folder: download.folder, files: download.onDisk,
+                                       allowed: item.manifest.permissions.addsFiles, replaceable: Set(previouslyAdded))
+        var services = ExtensionServices(
             network: ExtensionNetwork(extensionName: item.name, permissions: item.manifest.permissions),
             files: download.onDisk, storage: storage(for: item.name), secrets: resolved.secrets,
             onProgress: { [weak self] progress in
@@ -335,7 +387,11 @@ final class Extensions {
                 }
             },
             onLog: logger(for: item, entryPoint: hook.name, download: download.name))
+        services.adder = adder
         let outcome = await runner.run(job, handler: services)
+        // What it added stays listed, however the run ended.
+        let added = previouslyAdded + (await adder.added).filter { !previouslyAdded.contains($0) }
+        record.addedFiles = added.isEmpty ? nil : added
         return conclude(record, outcome, limits: limits, item: item, entryPoint: hook.name, download: download)
     }
 
@@ -350,6 +406,7 @@ final class Extensions {
             }
             var finished = record
             finished.details = value["details"]?.string.map { String($0.prefix(20_000)) }
+            finished.notify = value["notify"]?.bool == true ? true : nil
             if let title = value["link"]?["title"]?.string, let text = value["link"]?["url"]?.string,
                let url = URL(string: text), ["https", "http"].contains(url.scheme?.lowercased() ?? "") {
                 finished.link = CheckRecord.Link(title: String(title.prefix(60)), url: url)

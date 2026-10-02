@@ -1,0 +1,24 @@
+{
+  "manifest": {
+    "name": "x",
+    "title": "T",
+    "description": "D",
+    "author": "A",
+    "hooks": [
+      {
+        "name": "check",
+        "event": "afterFinish"
+      }
+    ],
+    "permissions": {
+      "files": [
+        "contents",
+        "write",
+        "delete"
+      ]
+    }
+  },
+  "problems": [
+    "“permissions.files” can only be “contents”, “add”, or a list of both."
+  ]
+}

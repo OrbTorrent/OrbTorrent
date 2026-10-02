@@ -94,7 +94,10 @@ The rules OrbTorrent applies run in tests too: a host missing from `permissions.
 }
 ```
 
-Reading files follows OrbTorrent's rules too: without `"files": "contents"`, or in a `beforeStart` hook, it's refused.
+Reading files follows OrbTorrent's rules too: without `"files": "contents"`, in a `beforeStart` hook, or for a file that isn't wanted, it's refused.
+
+- **`files.save`** follows OrbTorrent's rules and messages, and keeps what it adds instead of writing it. `expect` checks it with `saved` and `savedIncludes`, and `download.alsoOnDisk` lists files already there, which it won't replace. [Read and add files](/docs/extensions/files#test-it) has an example.
+- **Bytes:** a mock with `base64` answers with bytes, such as an image, for `response.bytes()`.
 
 ## Time
 

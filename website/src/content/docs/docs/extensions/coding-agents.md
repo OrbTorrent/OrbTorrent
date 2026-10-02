@@ -36,7 +36,7 @@ Build an OrbTorrent extension for me. What it should do: hold downloads that con
 OrbTorrent is a BitTorrent app for macOS. Its extensions are TypeScript hooks, made and tested with the `orb` tool from the @orbtorrent/api npm package. You need Node.js 22.13 or later.
 
 1. Make it with `npm create @orbtorrent/extension@latest <a short name>`. Add `-- --template after-finish` if it should act once a download finishes. Then run `npm install` in the new folder.
-2. Read AGENTS.md in the new folder, and follow its loop until `npx orb test`, `npx orb build` and `npx orb lint` all pass.
+2. Read AGENTS.md in the new folder. If what I asked for needs something extensions can't do, tell me before you build it. Then follow its loop until `npx orb test`, `npx orb build` and `npx orb lint` all pass.
 3. Run `npx orb doctor`, and ask me to do anything it says only I can do in OrbTorrent.
 4. Try it on one of my downloads: `npx orb downloads`, then `npx orb run <hook> --download "<name>"`. OrbTorrent asks me to allow the folder the first time.
 5. When it works, run `npx orb install`, and I'll confirm the install in OrbTorrent.

@@ -20,6 +20,7 @@ final class AppModel {
     let updates = Updates()
     @ObservationIgnored let counts = AnonymousCounts()
     @ObservationIgnored let notifier = CompletionNotifier()
+    @ObservationIgnored let finishedProgram: FinishedProgram
     @ObservationIgnored let developmentServer: DevelopmentServer
 
     /// The engine's own settings, loaded once it is running.
@@ -64,6 +65,7 @@ final class AppModel {
         adder = AddTorrentCoordinator(store: store, settings: settings, extensions: extensions)
         vpn = VPNBinding(settings: settings, engine: engine)
         developmentServer = DevelopmentServer(extensions: extensions)
+        finishedProgram = FinishedProgram(settings: settings, extensions: extensions)
         engine.networkInterface = { [weak self] in self?.vpn.interfaceForLaunch ?? "" }
         engine.didStart = { [weak self] in await self?.engineDidStart() }
         vpn.reconnectPeers = { [weak self] in await self?.store.reconnectPeers() }
@@ -87,7 +89,14 @@ final class AppModel {
         extensions.start = { [weak self] hashes in await self?.store.resume(hashes) }
         extensions.onHeld = { [weak self] torrent, records in self?.notifier.postHeld(torrent, by: records) }
         extensions.onFlagged = { [weak self] torrent, record in self?.notifier.postFound(torrent, record) }
-        store.didRefresh = { [weak self] torrents in self?.extensions.observe(torrents) }
+        extensions.onNotice = { [weak self] hash, name, record in self?.notifier.postNotice(hash: hash, download: name, record) }
+        store.addedFiles = { [weak self] hash in
+            self?.extensions.checks.records(for: hash).flatMap { $0.addedFiles ?? [] } ?? []
+        }
+        store.didRefresh = { [weak self] torrents in
+            self?.extensions.observe(torrents)
+            self?.finishedProgram.observe(torrents)
+        }
         store.statusOverride = { [weak self] torrent in self?.checkStatus(of: torrent) }
         store.statusActivity = { [weak self] torrent in self?.checkActivity(of: torrent) }
         developmentServer.torrents = { [weak self] in self?.store.torrents ?? [] }

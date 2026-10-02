@@ -11,6 +11,7 @@ interface Result {
   summary: string;
   details?: string;
   link?: { title: string; url: string };
+  notify?: boolean;
 }
 ```
 
@@ -18,10 +19,10 @@ interface Result {
 
 | Status | Means | Before it starts | After it finishes |
 |---|---|---|---|
-| `passed` | Nothing wrong. | The download starts. | Shown in the Checks tab. |
+| `passed` | Nothing wrong. | The download starts. | Shown in the Checks tab, and as a notification with `notify: true`. |
 | `warning` | Worth a look. | The download starts, with a badge. | A notification. |
 | `failed` | Something's wrong. | **The download is held** until the user decides. | A notification. |
-| `skipped` | The check didn't apply, or couldn't run. | The download starts. | Shown in the Checks tab. |
+| `skipped` | The check didn't apply, or couldn't run. | The download starts. | Shown in the Checks tab, and as a notification with `notify: true`. |
 
 A hook that throws, crashes or goes over a limit shows **Didn't finish**, with the reason, such as "Didn't finish: it took longer than 15 s". Before a download starts, that lets it start.
 
@@ -43,6 +44,16 @@ Tables, images and code blocks aren't drawn. Details are cut at 20,000 character
 ## Link
 
 Optional: a button under the details, such as `{ title: "Open VirusTotal Report", url: "https://…" }`. The title is cut at 60 characters, and the address must be `https://` or `http://`.
+
+## Notification
+
+`notify: true` also shows the summary as a notification, titled with the extension's name, with the download's name under it. Clicking it opens the download's Checks tab.
+
+```ts
+{ status: "passed", summary: "Added English subtitles", notify: true }
+```
+
+Use it for news the user wants without looking, such as subtitles or artwork the extension added. Some results are notifications already, so they don't need it: a warning or failure after a download finishes, and a download held before it starts. Only a warning or failure makes a sound.
 
 ## Write results people understand
 

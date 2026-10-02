@@ -1,6 +1,7 @@
 import { randomUUID, webcrypto } from "node:crypto";
 import vm from "node:vm";
 import { Manifest } from "./manifest.js";
+import { sdkVersion } from "./paths.js";
 
 // Runs a built entry point the way OrbTorrent's extension host does: only the
 // JavaScript language and the host's few web APIs, with every call answered
@@ -13,11 +14,16 @@ export interface FetchMock {
   headers?: Record<string, string>;
   json?: unknown;
   text?: string;
+  /** A body of bytes, such as an image or a zip file, in Base64. */
+  base64?: string;
   /** Answers this many requests, then lets the next matching mock answer. */
   times?: number;
 }
 
 export interface HarnessFile {
+  path?: string;
+  /** Unless false. */
+  wanted?: boolean;
   sha256?: string;
 }
 
@@ -26,8 +32,10 @@ export interface HarnessOptions {
   entryPoint: { type: "hook" | "verify"; name: string; event?: "beforeStart" | "afterFinish" };
   preferences: Record<string, unknown>;
   fetchMocks: FetchMock[];
-  /** Files by index, once downloaded. */
+  /** The download's files by index. After it finishes, the wanted ones are on disk. */
   files: Record<number, HarnessFile>;
+  /** Other files next to the download's, relative to its folder, as `files.save` would find them. */
+  alsoOnDisk?: string[];
   storage: Record<string, unknown>;
   timeout: number;
 }
@@ -38,6 +46,28 @@ export interface HarnessRun {
   fetched: { method: string; url: string }[];
   progress: { done?: number; total?: number; message?: string }[];
   storage: Record<string, unknown>;
+  /** Files `files.save` added, with their text when they're UTF-8. */
+  saved: { path: string; size: number; text?: string }[];
+}
+
+// The same rules and words as OrbTorrent's ExtensionFileAdder.swift.
+const fileKinds: [string, string[]][] = [
+  ["subtitles", ["srt", "ass", "ssa", "vtt", "sub", "idx", "sup", "smi", "lrc"]],
+  ["text", ["txt", "nfo", "md", "json", "xml", "csv", "cue"]],
+  ["images", ["jpg", "jpeg", "png", "webp", "gif", "heic"]],
+  ["checksums", ["sfv", "md5", "sha1", "sha256"]],
+];
+const addableExtensions = new Set(fileKinds.flatMap(([, extensions]) => extensions));
+const maximumAddedFile = 10 << 20;
+const maximumAddedRun = 50 << 20;
+const maximumAddedFiles = 200;
+const lastExtension = (text: string) => (text.includes(".") ? text.slice(text.lastIndexOf(".") + 1) : "");
+
+export function isSuffix(text: string): boolean {
+  if ([...text].length > 64 || !".-_ ".includes(text[0] ?? "x")) return false;
+  if (/[/\\:\u0000-\u001F\u007F-\u009F]/.test(text)) return false;
+  const extension = lastExtension(text);
+  return extension.length > 0 && extension.length <= 10 && /^[A-Za-z0-9]+$/.test(extension);
 }
 
 class Refusal extends Error {}
@@ -50,21 +80,70 @@ function matches(pattern: string, url: string): boolean {
 }
 
 export async function runInHarness(script: string, args: unknown[], options: HarnessOptions): Promise<HarnessRun> {
-  const run: HarnessRun = { outcome: { ok: true, value: null }, logs: [], fetched: [], progress: [], storage: { ...options.storage } };
+  const run: HarnessRun = { outcome: { ok: true, value: null }, logs: [], fetched: [], progress: [], storage: { ...options.storage }, saved: [] };
+  const unavailable = (index: unknown) => new Refusal(`File ${index} isn't available: it isn't downloaded yet, or it isn't part of this download.`);
+  /** A wanted file of the finished download, as OrbTorrent has it on disk. */
+  const onDisk = (index: unknown): HarnessFile => {
+    if (typeof index !== "number") throw new Refusal("Pass a file from download.files.");
+    const entry = options.files[index];
+    if (options.entryPoint.event !== "afterFinish" || !entry || entry.wanted === false) throw unavailable(index);
+    return entry;
+  };
+  let addedBytes = 0;
   const { manifest } = options;
   const uses = new Map<FetchMock, number>();
 
   const file = (index: unknown): HarnessFile => {
-    if (manifest.permissions.files !== "contents") {
+    if (!manifest.permissions.files.includes("contents")) {
       throw new Refusal("Reading files isn't allowed. Add \"files\": \"contents\" to permissions in package.json.");
     }
-    if (typeof index !== "number") throw new Refusal("Pass a file from download.files.");
-    if (options.entryPoint.event === "beforeStart") {
-      throw new Refusal(`File ${index} isn't available: it isn't downloaded yet, or it isn't part of this download.`);
+    return onDisk(index);
+  };
+
+  const save = (params: any): { path: string; size: number } => {
+    if (!manifest.permissions.files.includes("add")) {
+      throw new Refusal("Adding files isn't allowed. Add \"files\": \"add\" to permissions in package.json, or [\"contents\", \"add\"] to read files too.");
     }
-    const entry = options.files[index];
-    if (!entry) throw new Refusal(`File ${index} isn't available: it isn't downloaded yet, or it isn't part of this download.`);
-    return entry;
+    if (typeof params?.file !== "number") throw new Refusal("Pass a file from download.files.");
+    const source = onDisk(params.file);
+    const suffix = typeof params?.suffix === "string" ? params.suffix : undefined;
+    if (suffix === undefined || !isSuffix(suffix)) {
+      throw new Refusal(`“${suffix ?? ""}” can't be added to a file's name. A suffix starts with “.”, “-”, “_” or a space, and ends with an extension, such as “.en.srt”.`);
+    }
+    const kind = lastExtension(suffix).toLowerCase();
+    if (!addableExtensions.has(kind)) {
+      const all = fileKinds.flatMap(([, extensions]) => extensions).map((extension) => `.${extension}`).join(", ");
+      throw new Refusal(`Extensions can't add .${kind} files, only subtitles, text, images and checksums: ${all}.`);
+    }
+    const sourcePath = source.path ?? "";
+    const slash = sourcePath.lastIndexOf("/");
+    const folder = slash >= 0 ? sourcePath.slice(0, slash + 1) : "";
+    const fileName = sourcePath.slice(slash + 1);
+    const dot = fileName.lastIndexOf(".");
+    const name = (dot > 0 ? fileName.slice(0, dot) : fileName) + suffix;
+    if (Buffer.byteLength(name) > 255) throw new Refusal(`“${name}” is too long for a file name.`);
+    const contents = params?.contents ?? {};
+    const bytes = typeof contents.text === "string" ? Buffer.from(contents.text, "utf8")
+      : typeof contents.base64 === "string" ? Buffer.from(contents.base64, "base64") : undefined;
+    if (!bytes) throw new Refusal("files.save needs the file's contents: text, or bytes as a Uint8Array.");
+    if (bytes.length > maximumAddedFile) throw new Refusal(`“${name}” is larger than 10 MB, the most an extension can add in one file.`);
+    if (run.saved.length >= maximumAddedFiles) {
+      throw new Refusal(`This run has already added ${maximumAddedFiles} files, the most an extension can add in one run.`);
+    }
+    if (addedBytes + bytes.length > maximumAddedRun) {
+      throw new Refusal("This run has already added nearly 50 MB, the most an extension can add in one run.");
+    }
+    const path = folder + name;
+    const existing = new Set([
+      ...Object.values(options.files).filter((entry) => entry.wanted !== false).map((entry) => entry.path ?? ""),
+      ...(options.alsoOnDisk ?? []),
+      ...run.saved.map((saved) => saved.path),
+    ]);
+    if (existing.has(path)) throw new Refusal(`“${name}” already exists. An extension can't replace a file it didn't add.`);
+    addedBytes += bytes.length;
+    const text = bytes.toString("utf8");
+    run.saved.push({ path, size: bytes.length, ...(Buffer.from(text, "utf8").equals(bytes) && { text }) });
+    return { path, size: bytes.length };
   };
 
   const handle = async (method: string, params: any): Promise<unknown> => {
@@ -98,6 +177,13 @@ export async function runInHarness(script: string, args: unknown[], options: Har
           throw new Refusal(`The test has no mock for ${requestMethod} ${url.href}. Add one to "mocks": { "fetch": [...] }.`);
         }
         const headers = { ...(mock.json !== undefined ? { "content-type": "application/json" } : {}), ...mock.headers };
+        if (mock.base64 !== undefined) {
+          // As OrbTorrent sends a body: UTF-8 text as it is, anything else in Base64.
+          const bytes = Buffer.from(mock.base64, "base64");
+          const text = bytes.toString("utf8");
+          const isText = Buffer.from(text, "utf8").equals(bytes);
+          return { status: mock.status ?? 200, headers, body: isText ? text : mock.base64, ...(!isText && { encoding: "base64" }), url: url.href };
+        }
         return {
           status: mock.status ?? 200,
           headers,
@@ -112,6 +198,8 @@ export async function runInHarness(script: string, args: unknown[], options: Har
         }
         return entry.sha256;
       }
+      case "files.save":
+        return save(params);
       case "progress":
         run.progress.push({ done: params?.done, total: params?.total, message: params?.message });
         return null;
@@ -201,7 +289,7 @@ export async function runInHarness(script: string, args: unknown[], options: Har
     extension: { name: manifest.name, title: manifest.title, isDevelopment: true },
     entryPoint: options.entryPoint,
     preferences: options.preferences,
-    api: "1.0.0",
+    api: sdkVersion.split(".").slice(0, 2).join(".") + ".0",
   };
   sandbox.__orb = Object.freeze({
     call: (method: string, params: unknown) =>

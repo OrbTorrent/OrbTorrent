@@ -261,7 +261,7 @@ Like Raycast's, the manifest is `package.json` with extra fields:
 | `title`, `description`, `icon`, `author` | yes | Shown on the Extensions page. The icon is a 512×512 PNG in `assets`. |
 | `license` | no | Official extensions use the app's license. |
 | `hooks` | yes | Each hook's `name` maps to `src/<name>.ts`. `event` is `beforeStart` or `afterFinish`. |
-| `permissions.files` | no | `"contents"` lets the extension fingerprint and upload files. Names and sizes are always given. |
+| `permissions.files` | no | `"contents"` lets the extension fingerprint and upload files, and `"add"` lets it add files next to them (API 1.1); `["contents", "add"]` for both. Names and sizes are always given. |
 | `permissions.network` | no | Exact host names, reached over HTTPS only. |
 | `preferences` | no | Settings OrbTorrent draws. Types: `textfield`, `password`, `checkbox`, `dropdown`. |
 | `verify` | no | Maps to `src/<verify>.ts`, which checks the settings when the user presses Verify. |
@@ -310,6 +310,7 @@ interface Result {
   summary: string; // one line, shown in the Checks tab
   details?: string; // markdown, shown under Details
   link?: { title: string; url: string };
+  notify?: boolean; // since 1.1: also a notification
 }
 ```
 
@@ -322,9 +323,10 @@ Everything an extension can do goes through `@orbtorrent/api`:
 
 | API | What it does | Needs |
 |---|---|---|
-| `fetch(url, init)` | An HTTPS request. Returns `status`, `headers`, `text()` and `json()`. | The host in `permissions.network` |
+| `fetch(url, init)` | An HTTPS request. Returns `status`, `headers`, `text()`, `json()`, and since 1.1 `bytes()` and `arrayBuffer()`: a body that isn't UTF-8 crosses the bridge in Base64. | The host in `permissions.network` |
 | `files.sha256(file)` | The file's SHA-256 fingerprint, computed by OrbTorrent. | `"files": "contents"` |
 | `files.formData(fields)` | A request body that includes a file, which OrbTorrent streams for the upload. | `"files": "contents"` and the host |
+| `files.save(file, suffix, contents)` | Since 1.1: adds a file next to one of a finished download's, named after it with the suffix. OrbTorrent writes it (`ExtensionFileAdder`): subtitles, text, images and checksums only, up to 10 MB each and 200 files and 50 MB a run, never replacing a file the hook didn't add, quarantined and not executable. The record keeps the paths, so the files move and go with the download. | `"files": "add"` |
 | `progress({ done, total, message })` | Updates the row in the Checks tab. | nothing |
 | `storage.get / set / remove` | A small store for the extension (up to 1 MB). It survives restarts and updates and is deleted with the extension. | nothing |
 | `getPreferenceValues<Preferences>()` | The extension's settings. Types are generated from the manifest into `orb-env.d.ts`. | nothing |
@@ -431,7 +433,10 @@ Two routes I ruled out:
 - HTTPS only, to hosts listed exactly in `permissions.network`.
 - Redirects are followed only to hosts on the same list.
 - A host that resolves to a local or private address is refused. This uses the
-  same rules as the tracker list.
+  same rules as the tracker list. Requests go through `ExtensionRelay`, a
+  CONNECT proxy on 127.0.0.1 that resolves the host again and connects to the
+  address it checked, so DNS rebinding can't swap in a local address between
+  the check and the connection (since 1.1).
 - No cookies and no shared cache. The User-Agent is
   `OrbTorrent-Extension/<name>`.
 - Responses are limited to 10 MB, and each request times out after 30 s.

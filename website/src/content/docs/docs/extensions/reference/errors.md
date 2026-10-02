@@ -17,6 +17,7 @@ Thrown by `fetch`, in OrbTorrent and in tests alike.
 | Request to *address* was refused: put credentials in a header, not the address. | Move `user:password@` into a header, such as `Authorization`. |
 | Request to *host* was refused: it points to *address*, which is on this Mac or your local network. | Extensions can't reach the Mac or local network. Use a service on the internet. |
 | *host* couldn't be found. Check the address and your connection. | Check the host name, and that the Mac is online. Before a download starts, return `skipped`. |
+| *host* couldn't be reached. It may point to this Mac or your local network, which extensions can't reach. | It pointed to a local address as OrbTorrent connected, or couldn't be reached. Use a service on the internet, and return `skipped` if it's down. |
 | The response was larger than 10 MB, the most an extension can receive. | Ask for less, such as one page of results at a time. |
 | The request method "*method*" isn't supported. | Use `GET`, `HEAD`, `POST`, `PUT`, `PATCH` or `DELETE`. |
 | A request body must be text, or a form from files.formData(). | Use `JSON.stringify` for JSON. |
@@ -25,12 +26,19 @@ Thrown by `fetch`, in OrbTorrent and in tests alike.
 
 ## Files
 
-Thrown by `files.sha256` and `files.formData`.
+Thrown by `files.sha256`, `files.formData` and `files.save`.
 
 | Message | Fix |
 |---|---|
 | Reading files isn't allowed. Add "files": "contents" to permissions in package.json. | Add `"files": "contents"` to `permissions`. |
-| File *n* isn't available: it isn't downloaded yet, or it isn't part of this download. | Read files only in `afterFinish` hooks, and only files from `download.files`. |
+| Adding files isn't allowed. Add "files": "add" to permissions in package.json, or ["contents", "add"] to read files too. | Add `"add"` to `permissions.files`. |
+| File *n* isn't available: it isn't downloaded yet, or it isn't part of this download. | Use files only in `afterFinish` hooks, and only files from `download.files` the user chose to download. |
+| "*suffix*" can't be added to a file's name. A suffix starts with ".", "-", "_" or a space, and ends with an extension, such as ".en.srt". | Use a suffix such as `.en.srt` or `-poster.jpg`, with no `/`. |
+| Extensions can't add .*x* files, only subtitles, text, images and checksums: … | Add only the kinds listed. |
+| "*name*" already exists. An extension can't replace a file it didn't add. | Something's there already, such as subtitles that came with the download. Report it, and don't try again. |
+| "*name*" is larger than 10 MB, the most an extension can add in one file. | Add a smaller file. |
+| This run has already added 200 files, or nearly 50 MB, the most an extension can add in one run. | Add fewer files in one run. |
+| files.save needs the file's contents: text, or bytes as a Uint8Array. | Pass a string, a `Uint8Array` or an `ArrayBuffer`. |
 | File *n* is missing: it was moved or deleted after downloading. | The user moved or deleted it. Skip it, and say so in the result. |
 | Pass a file from download.files. | Pass a `DownloadFile`, or its `index`. |
 
@@ -61,7 +69,7 @@ Shown in the Checks tab, and by `orb run`.
 |---|---|
 | package.json isn't valid. | Each problem is listed under it, such as "“name” must be lowercase letters, digits and hyphens". [Manifest](/docs/extensions/reference/manifest) has the rules. |
 | Some entry points are missing. | The hook "*name*" needs src/*name*.ts: name the file after the hook, or rename the hook. |
-| "*module*" is a Node.js module, and extensions don't run in Node.js. | Use the API the message names, such as `fetch` instead of `https`. |
+| "*module*" is a Node.js module, and extensions don't run in Node.js. | Use the API the message names, such as `fetch` instead of `https`, or `files.save` instead of `fs`. Extensions can't start programs: OrbTorrent can [run one of the user's own](/docs/guides/run-a-program) when a download finishes. |
 | TypeScript found problems. | Each is listed with its file, line and column. |
 | The extension couldn't be bundled. | Usually a missing package: run `npm install`. |
 | ! The icon assets/*icon* doesn't exist, so OrbTorrent shows a plain one. | A warning. Add the icon, or remove `"icon"`. |

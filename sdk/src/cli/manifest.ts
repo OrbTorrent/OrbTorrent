@@ -34,10 +34,13 @@ export interface Manifest {
   license?: string;
   version?: string;
   hooks: Hook[];
-  permissions: { files?: "contents"; network: string[] };
+  /** `files`: "contents" to read the download's files, "add" to add files next to them. */
+  permissions: { files: FileAccess[]; network: string[] };
   preferences: Preference[];
   verify?: string;
 }
+
+export type FileAccess = "contents" | "add";
 
 export class InvalidManifest extends Error {
   constructor(readonly problems: string[]) {
@@ -49,6 +52,8 @@ const identifier = /^[a-z0-9]+(-[a-z0-9]+)*$/;
 const hostName = /^[a-z0-9]([a-z0-9-]*[a-z0-9])?(\.[a-z0-9]([a-z0-9-]*[a-z0-9])?)+$/;
 const events: HookEvent[] = ["beforeStart", "afterFinish"];
 const preferenceTypes = ["textfield", "password", "checkbox", "dropdown"] as const;
+
+const filesProblem = "“permissions.files” can only be “contents”, “add”, or a list of both.";
 
 export const isIdentifier = (text: string) => text.length <= 64 && identifier.test(text);
 
@@ -88,7 +93,7 @@ export function validateManifest(json: unknown): Manifest {
     version: text("version", false),
     verify: text("verify", false),
     hooks: [],
-    permissions: { network: [] },
+    permissions: { files: [], network: [] },
     preferences: [],
   };
   if (manifest.verify && !isIdentifier(manifest.verify)) {
@@ -118,9 +123,16 @@ export function validateManifest(json: unknown): Manifest {
 
   const permissions = root.permissions;
   if (permissions !== undefined && permissions !== null) {
-    if (permissions.files !== undefined) {
-      if (permissions.files === "contents") manifest.permissions.files = "contents";
-      else if (permissions.files !== "names") problems.push("“permissions.files” can only be “contents”.");
+    if (permissions.files !== undefined && permissions.files !== null) {
+      // One of "contents" and "add", or a list of them.
+      const values: unknown[] = Array.isArray(permissions.files) ? permissions.files : [permissions.files];
+      for (const value of values) {
+        if (value === "contents" || value === "add") {
+          if (!manifest.permissions.files.includes(value)) manifest.permissions.files.push(value);
+        } else if (value !== "names" && !problems.includes(filesProblem)) {
+          problems.push(filesProblem);
+        }
+      }
     }
     for (const host of Array.isArray(permissions.network) ? permissions.network : []) {
       const lowered = typeof host === "string" ? host.toLowerCase() : "";
@@ -184,7 +196,8 @@ export function validateManifest(json: unknown): Manifest {
 /** The manifest OrbTorrent reads, written to dist/package.json. */
 export function builtManifest(manifest: Manifest, apiVersion: string): Record<string, unknown> {
   const permissions: Record<string, unknown> = {};
-  if (manifest.permissions.files) permissions.files = manifest.permissions.files;
+  const files = manifest.permissions.files;
+  if (files.length > 0) permissions.files = files.length === 1 ? files[0] : files;
   if (manifest.permissions.network.length > 0) permissions.network = manifest.permissions.network;
   return {
     name: manifest.name,

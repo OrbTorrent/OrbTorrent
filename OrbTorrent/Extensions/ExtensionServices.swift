@@ -68,7 +68,7 @@ actor ExtensionStorage {
 }
 
 /// Answers one run's calls: requests to the hosts it declared, the files of
-/// the download it runs on, its progress and its storage.
+/// the download it runs on and the files it adds, its progress and its storage.
 struct ExtensionServices: ExtensionCallHandler {
     let network: ExtensionNetwork
     /// The download's files on disk by index, once they've downloaded.
@@ -78,6 +78,8 @@ struct ExtensionServices: ExtensionCallHandler {
     let secrets: [String]
     let onProgress: @Sendable (CheckProgress) -> Void
     let onLog: @Sendable (_ level: String, _ message: String) -> Void
+    /// Adds files next to the download's, for an extension with `"files": "add"`.
+    var adder = ExtensionFileAdder.none
 
     private var permissions: ExtensionManifest.Permissions { network.permissions }
 
@@ -88,6 +90,10 @@ struct ExtensionServices: ExtensionCallHandler {
         case "files.sha256":
             let url = try file(params["file"])
             return .string(try await Self.sha256(of: url))
+        case "files.save":
+            let saved = try await adder.save(file: params["file"]?.int, suffix: params["suffix"]?.string,
+                                             contents: Self.contents(params["contents"]))
+            return ["path": .string(saved.path), "size": .number(Double(saved.size))]
         case "progress":
             onProgress(CheckProgress(done: params["done"]?.int, total: params["total"]?.int,
                                      message: params["message"]?.string.map { String($0.prefix(200)) }))
@@ -169,6 +175,12 @@ struct ExtensionServices: ExtensionCallHandler {
             throw ExtensionRefusal(message: "A request body must be text, or a form from files.formData().")
         }
         return try await network.perform(request)
+    }
+
+    /// What `files.save` writes: `{ text }`, as UTF-8, or `{ base64 }` for bytes.
+    private static func contents(_ value: JSONValue?) -> Data? {
+        if let text = value?["text"]?.string { return Data(text.utf8) }
+        return value?["base64"]?.string.flatMap { Data(base64Encoded: $0) }
     }
 
     /// The file's SHA-256, read in pieces so large files don't fill memory.

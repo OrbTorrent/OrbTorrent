@@ -51,6 +51,17 @@ accounts early: Reddit and Hacker News need weeks of history.
 - [x] **`press@orbtorrent.com`** forwards to your Gmail, like help@. Send it
   a test from another inbox once. (2 Oct)
 - [x] **Extension SDK 1.0.4,** linking the docs on orbtorrent.com. (2 Oct)
+- [x] **Extension API 1.1, built and tested:** extensions can add files such
+  as subtitles next to a finished download (`files.save`, permission
+  `"files": "add"`), read bytes from `fetch`, and ask for a notification.
+  Requests now connect to the address OrbTorrent checked, through a relay.
+  `AGENTS.md`, the Agent Skill and the docs say up front what extensions
+  can't do, and the docs have a subtitles extension as a worked example.
+  (3 Oct)
+- [x] **"When a download finishes, run",** in Settings › Downloads: your own
+  program or script, after the download's checks and not if one failed,
+  without a shell. Only you can choose it; the engine's own way stays off.
+  The docs have a guide with tested scripts. (3 Oct)
 - [x] **The engine's versions in every release's notes,** added by CI:
   qBittorrent, libtorrent, Qt, OpenSSL and Boost with their licences, what
   changed since the release before, and links to the build script, with
@@ -138,6 +149,9 @@ With the first notarized build:
 - [ ] **Beta 1's release notes:** what's in it and what's counted, linking
   orbtorrent.com/privacy#counts. CI adds the engine's versions. Claude
   drafts and you publish.
+- [ ] **Publish extension SDK 1.1.0** (tag `sdk-v1.1.0`) together with the
+  first build people get that supports API 1.1. Published sooner, new
+  extensions would need an OrbTorrent nobody has yet. (Claude, when you say)
 - [ ] **The README opens with** the video or GIF, Download, and the
   `brew install` line, which is already in its Install section. (Claude)
 

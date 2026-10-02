@@ -70,6 +70,13 @@ Extensions' own settings are on the [Extensions page](/docs/guides/checks), not 
 | **Ratio limit** | Such as 2. | |
 | **Then** | **Stop Seeding**, or **Remove Torrent**, which removes it from OrbTorrent and keeps its files. | |
 
+### When a download finishes
+
+| Setting | What it does | At first |
+|---|---|---|
+| **Run** | A program or script of your own, run as you after each download's checks, unless one of them failed. It gets the download's file or folder, and its name. **Choose…** picks it, and **Stop Running It** takes it away. [Run a program when a download finishes](/docs/guides/run-a-program) explains. | Nothing |
+| **What it printed** | **Show Log** shows its log in Finder, once it's run. | |
+
 ## Speed
 
 | Setting | What it does | At first |

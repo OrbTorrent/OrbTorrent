@@ -4,7 +4,7 @@ import Foundation
 /// built with a newer minor version may use something missing here, and one
 /// with a newer major version certainly does.
 enum ExtensionAPI {
-    static let version = (major: 1, minor: 0)
+    static let version = (major: 1, minor: 1)
     static var versionString: String { "\(version.major).\(version.minor).0" }
 
     /// Whether an extension built with `version` of `@orbtorrent/api` can run here.
@@ -43,6 +43,8 @@ struct ExtensionManifest: Sendable, Equatable {
 
     struct Permissions: Sendable, Equatable {
         var readsFileContents = false
+        /// Whether it may add files, such as subtitles, next to a finished download's files.
+        var addsFiles = false
         /// Host names it may reach over HTTPS, in lowercase.
         var network: [String] = []
 
@@ -145,11 +147,17 @@ struct ExtensionManifest: Sendable, Equatable {
 
         var permissions = Permissions()
         if let permissionsValue = root["permissions"], !permissionsValue.isNull {
-            if let files = permissionsValue["files"]?.string {
-                switch files {
-                case "contents": permissions.readsFileContents = true
-                case "names": break
-                default: problems.append("“permissions.files” can only be “contents”.")
+            if let files = permissionsValue["files"], !files.isNull {
+                // One of "contents" and "add", or a list of them.
+                let values = files.array?.map(\.string) ?? [files.string]
+                for value in values {
+                    switch value {
+                    case "contents": permissions.readsFileContents = true
+                    case "add": permissions.addsFiles = true
+                    case "names": break
+                    default:
+                        if !problems.contains(Self.filesProblem) { problems.append(Self.filesProblem) }
+                    }
                 }
             }
             for host in permissionsValue["network"]?.array ?? [] {
@@ -237,9 +245,14 @@ struct ExtensionManifest: Sendable, Equatable {
         if permissions.readsFileContents {
             lines.append("Read the contents of your downloads")
         }
+        if permissions.addsFiles {
+            lines.append("Add files, such as subtitles, next to your downloads")
+        }
         lines += permissions.network.map { "Connect to \($0)" }
         return lines
     }
+
+    private static let filesProblem = "“permissions.files” can only be “contents”, “add”, or a list of both."
 
     static func isIdentifier(_ text: String) -> Bool {
         text.count <= 64 && text.range(of: #"^[a-z0-9]+(-[a-z0-9]+)*$"#, options: .regularExpression) != nil
