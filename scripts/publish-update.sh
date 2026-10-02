@@ -10,6 +10,21 @@
 #       name (such as "OrbTorrent 1.0 beta 2") and its notes, as written on
 #       GitHub in Markdown.
 #
+#   scripts/publish-update.sh --critical v1.0-beta.3
+#       The same, for a fix to a version with a serious problem: every older
+#       version shows it straight away, and it can't be skipped. (Most install
+#       updates by themselves anyway.)
+#
+#   scripts/publish-update.sh --phased v1.0-beta.3
+#       The same, reaching a seventh more of the Macs each day, over a week,
+#       so a bad release can be withdrawn before it reaches everyone. Check
+#       for Updates still finds it at once.
+#
+#   scripts/publish-update.sh --withdraw v1.0-beta.3
+#       Takes a version off the feed, so no more Macs update to it, and
+#       orbtorrent.com/download offers the version before. Macs that have it
+#       keep it: publish a fix, --critical, for them.
+#
 #   scripts/publish-update.sh --dry-run v1.0-beta.2
 #       Makes and checks the feed in build/update-feed without uploading it.
 #
@@ -35,11 +50,22 @@ SPARKLE="$(scripts/fetch-sparkle.sh)/bin"
 
 dry_run=false
 test=false
-case "${1:-}" in
-  --dry-run) dry_run=true; shift ;;
-  --test) test=true; shift ;;
-esac
-[[ $# -ge 1 ]] || { sed -n '3,24p' "$0" | sed 's/^# \{0,1\}//'; exit 64; }
+withdraw=false
+options=()
+while [[ "${1:-}" == --* ]]; do
+  case "$1" in
+    --dry-run) dry_run=true ;;
+    --test) test=true ;;
+    --withdraw) withdraw=true ;;
+    # Critical for every version before it.
+    --critical) options+=(--critical-update-version "") ;;
+    # Sparkle splits Macs into seven groups, a day apart.
+    --phased) options+=(--phased-rollout-interval 86400) ;;
+    *) echo "error: unknown option $1" >&2; exit 64 ;;
+  esac
+  shift
+done
+[[ $# -ge 1 ]] || { sed -n '3,40p' "$0" | sed 's/^# \{0,1\}//'; exit 64; }
 
 KEY="$(mktemp -d)"
 trap 'rm -rf "$KEY"' EXIT
@@ -50,7 +76,26 @@ else
   "$SPARKLE/generate_keys" --account orbtorrent -x "$KEY/key" >/dev/null
 fi
 
-if $test; then
+if $withdraw; then
+  TAG="$1"
+  WORK=build/update-feed
+  rm -rf "$WORK" && mkdir -p "$WORK"
+  curl -fsS -o "$WORK/appcast.xml" "$FEED"
+  python3 - "$WORK/appcast.xml" "/releases/download/$TAG/" <<'PY'
+import re, sys
+path, download = sys.argv[1:3]
+feed = open(path, encoding="utf-8").read()
+items = [item for item in re.findall(r"[ \t]*<item>.*?</item>\n?", feed, re.S) if download in item]
+if not items:
+    sys.exit(f"error: the feed has no version from {download}")
+for item in items:
+    feed = feed.replace(item, "")
+# The feed's old signature goes; it's signed again below.
+feed = re.sub(r"\n?<!-- sparkle-signatures:.*?-->\n?", "\n", feed, flags=re.S)
+open(path, "w", encoding="utf-8").write(feed)
+PY
+  NAME="$TAG"
+elif $test; then
   WORK=build/update-test
   DMG="${1:?the disk image}"; NOTES="${2:?the notes, in Markdown}"; NAME="${3:-}"
   PREFIX=http://127.0.0.1:8123/
@@ -86,9 +131,10 @@ else
   esac
 fi
 
-# The notes as people read them in the app, without what GitHub adds for
-# itself: comments, first-time contributors and the "Full Changelog" link.
-python3 - "${ARCHIVE%.dmg}.md" <<'PY'
+if ! $withdraw; then
+  # The notes as people read them in the app, without what GitHub adds for
+  # itself: comments, first-time contributors and the "Full Changelog" link.
+  python3 - "${ARCHIVE%.dmg}.md" <<'PY'
 import re, sys
 path = sys.argv[1]
 notes = open(path, encoding="utf-8").read().replace("\r\n", "\n")
@@ -99,16 +145,17 @@ notes = re.sub(r" by @[\w-]+ in https://github\.com/\S+$", "", notes, flags=re.M
 open(path, "w", encoding="utf-8").write(re.sub(r"\n{3,}", "\n\n", notes).strip() + "\n")
 PY
 
-"$SPARKLE/generate_appcast" --ed-key-file "$KEY/key" \
-  --embed-release-notes --maximum-versions 0 \
-  --download-url-prefix "$PREFIX" \
-  ${LINK:+--link "$LINK"} \
-  --full-release-notes-url "https://github.com/$REPO/releases" \
-  "$WORK"
+  "$SPARKLE/generate_appcast" --ed-key-file "$KEY/key" \
+    --embed-release-notes --maximum-versions 0 \
+    --download-url-prefix "$PREFIX" \
+    ${LINK:+--link "$LINK"} \
+    --full-release-notes-url "https://github.com/$REPO/releases" \
+    ${options[@]+"${options[@]}"} \
+    "$WORK"
 
-# Name the new version as its release does, such as "1.0 beta 2", for
-# Sparkle's window and What's New, then sign the feed again.
-python3 - "$WORK/appcast.xml" "$PREFIX$(basename "$ARCHIVE")" "${NAME#OrbTorrent }" <<'PY'
+  # Name the new version as its release does, such as "1.0 beta 2", for
+  # Sparkle's window and What's New, then sign the feed again.
+  python3 - "$WORK/appcast.xml" "$PREFIX$(basename "$ARCHIVE")" "${NAME#OrbTorrent }" <<'PY'
 import re, sys
 path, url, name = sys.argv[1:4]
 feed = open(path, encoding="utf-8").read()
@@ -117,6 +164,7 @@ for item in re.findall(r"<item>.*?</item>", feed, re.S):
         feed = feed.replace(item, re.sub(r"<title>.*?</title>", f"<title>{name}</title>", item, count=1))
 open(path, "w", encoding="utf-8").write(feed)
 PY
+fi
 "$SPARKLE/sign_update" --ed-key-file "$KEY/key" "$WORK/appcast.xml" >/dev/null
 "$SPARKLE/sign_update" --verify --ed-key-file "$KEY/key" "$WORK/appcast.xml"
 
@@ -128,7 +176,7 @@ fi
 (cd updates && npx --no-install cf kv keys put appcast.xml --namespace-id "$NAMESPACE" \
   --file "$ROOT/$WORK/appcast.xml" >/dev/null)
 if curl -fsS "$FEED" | cmp -s - "$WORK/appcast.xml"; then
-  echo "Published ${NAME:-$TAG} to $FEED"
+  if $withdraw; then echo "Withdrew $TAG from $FEED"; else echo "Published ${NAME:-$TAG} to $FEED"; fi
 else
   echo "Uploaded; $FEED may take a minute to show it."
 fi

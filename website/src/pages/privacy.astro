@@ -10,7 +10,7 @@ const connections = [
   ["raw.githubusercontent.com", "for a public list of trackers, while “Find more peers for public torrents” is on."],
   ["Web addresses you add torrents from", "to fetch the .torrent file."],
   ["The sites an extension lists", "while it's on. Each extension's page shows them, and it can't reach any others."],
-  ["updates.orbtorrent.com", "once a day, to check for a new version, while “Check for updates automatically” is on. It sends OrbTorrent's version and build number, which is how we count the Macs on each version. The address a check comes from isn't kept."],
+  ["updates.orbtorrent.com", "once a day, to check for a new version, while “Check for updates automatically” is on. It says which version of OrbTorrent it is, with the anonymous counts below. The address a check comes from isn't kept."],
   ["github.com", "to download an update you install."],
   ["download.db-ip.com", "once a month, for a database of which country each IP address is in, to show peers' flags. Peers are looked up in it on your Mac, and never sent anywhere."],
 ];
@@ -18,11 +18,11 @@ const connections = [
 
 <Base
   title="Privacy · OrbTorrent"
-  description="OrbTorrent collects nothing about you: no account, no analytics, no crash reporting. Here's everything the app and this website connect to, and why."
+  description="OrbTorrent knows nothing about you: no account, no ID, no crash reports, only a few anonymous counts. Here's everything the app and this website connect to, what they count, and why."
   schema={schema}
 >
   <PageHero label="Privacy" title="Your Mac's business" tone="stays on your Mac." dot={tints.finished}>
-    OrbTorrent collects nothing about you. This page lists everything the app and this website connect to, and why.
+    OrbTorrent knows nothing about you. This page lists everything the app and this website connect to, the few things they count anonymously, and why.
   </PageHero>
 
   <div class="rule"></div>
@@ -32,7 +32,8 @@ const connections = [
       <p class="label">At a glance</p>
       <dl class="facts mt-5">
         <div><dt class="label">Account</dt><dd>None</dd></div>
-        <div><dt class="label">Analytics</dt><dd>None</dd></div>
+        <div><dt class="label">IDs</dt><dd>None</dd></div>
+        <div><dt class="label">Analytics</dt><dd>Anonymous counts</dd></div>
         <div><dt class="label">Crash reports</dt><dd>None</dd></div>
         <div><dt class="label">Your library</dt><dd>On your Mac</dd></div>
         <div><dt class="label">Cookies here</dt><dd>None</dd></div>
@@ -42,12 +43,21 @@ const connections = [
 
     <article class="prose reveal">
       <h2>The app</h2>
-      <p>OrbTorrent has no account, no analytics and no crash reporting. Your library, settings and extension passwords stay on your Mac. It connects only to:</p>
+      <p>OrbTorrent has no account, no ID and no crash reports. Your library, settings and extension passwords stay on your Mac. It connects only to:</p>
       <ul>
         {connections.map(([name, why]) => <li><strong>{name}</strong>, {why}</li>)}
       </ul>
       <p>Report a Problem, in the Help menu, only opens your own mail app with the report filled in, and nothing is sent until you send it.</p>
       <p>The same note is in the app, under <strong>About OrbTorrent › Privacy</strong>.</p>
+
+      <h2 id="counts">What the app counts</h2>
+      <p>The daily check for updates says which version of OrbTorrent it is, and adds a few anonymous counts, so we know how many Macs use OrbTorrent, which macOS and Macs to keep supporting, and whether a version has a problem:</p>
+      <ul>
+        <li>Your version of macOS, and whether your Mac has Apple silicon or Intel.</li>
+        <li>The week OrbTorrent was installed, and whether this is its first check ever, this week or this month. That's how we count Macs without giving any of them an ID.</li>
+        <li>How many times OrbTorrent or its download engine quit unexpectedly since the last check. A number, not a crash report.</li>
+      </ul>
+      <p>That's all. None of it is an ID, nothing says how you use OrbTorrent, and nothing is about your downloads: no names, files, trackers or sizes. Your IP address isn't kept. <strong>Settings › General</strong> shows exactly what the next check sends, and turns the counts off. The code that sends the counts and the code that adds them up are both public: <a href={`${site.repo}/blob/main/OrbTorrent/Updates/AnonymousCounts.swift`}>AnonymousCounts.swift</a> and <a href={`${site.repo}/blob/main/updates/src/counts.ts`}>the update feed</a>.</p>
 
       <h2>This website</h2>
       <ul>

@@ -130,36 +130,46 @@ struct MenuBarPanel: View {
         }
     }
 
-    /// A new version found while OrbTorrent was in the background.
+    /// A new version that's ready to install, or one found while OrbTorrent
+    /// was in the background.
     @ViewBuilder
     private var updateStrip: some View {
-        if let name = model.updates.waiting {
-            Button {
+        if let name = model.updates.ready {
+            updateButton("\(AppIdentity.name) \(name) is ready", action: "Restart to Update") {
+                MenuBarIcon.closePanel()
+                model.updates.installReadyUpdate(showingWindow: false)
+            }
+        } else if let name = model.updates.waiting {
+            updateButton("\(AppIdentity.name) \(name) is available", action: "Update") {
                 MenuBarIcon.closePanel()
                 model.updates.checkForUpdates()
-            } label: {
-                HStack(spacing: 8) {
-                    Image(systemName: "sparkles")
-                        .foregroundStyle(.tint)
-                    Text("\(AppIdentity.name) \(name) is available")
-                        .lineLimit(1)
-                    Spacer(minLength: 6)
-                    Text("Update")
-                        .foregroundStyle(.tint)
-                    Image(systemName: "chevron.right")
-                        .font(.caption2.weight(.semibold))
-                        .foregroundStyle(.tertiary)
-                }
-                .font(.callout)
-                .padding(.horizontal, 10)
-                .padding(.vertical, 8)
-                .background(.tint.opacity(0.12), in: .rect(cornerRadius: 12))
-                .overlay(RoundedRectangle(cornerRadius: 12).strokeBorder(.tint.opacity(0.3)))
-                .contentShape(.rect)
             }
-            .buttonStyle(.plain)
-            .reachesOut()
         }
+    }
+
+    private func updateButton(_ title: String, action: String, perform: @escaping () -> Void) -> some View {
+        Button(action: perform) {
+            HStack(spacing: 8) {
+                Image(systemName: "sparkles")
+                    .foregroundStyle(.tint)
+                Text(title)
+                    .lineLimit(1)
+                Spacer(minLength: 6)
+                Text(action)
+                    .foregroundStyle(.tint)
+                Image(systemName: "chevron.right")
+                    .font(.caption2.weight(.semibold))
+                    .foregroundStyle(.tertiary)
+            }
+            .font(.callout)
+            .padding(.horizontal, 10)
+            .padding(.vertical, 8)
+            .background(.tint.opacity(0.12), in: .rect(cornerRadius: 12))
+            .overlay(RoundedRectangle(cornerRadius: 12).strokeBorder(.tint.opacity(0.3)))
+            .contentShape(.rect)
+        }
+        .buttonStyle(.plain)
+        .reachesOut()
     }
 
     /// Downloads a check is holding, so they aren't missed in a long list.

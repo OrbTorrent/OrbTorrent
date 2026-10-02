@@ -81,6 +81,9 @@ targets:
         SUVerifyUpdateBeforeExtraction: true
         SUEnableAutomaticChecks: true
         SUScheduledCheckInterval: 86400
+        # Updates download in the background, and OrbTorrent restarts to
+        # install them while it isn't in use (see Updates.swift).
+        SUAutomaticallyUpdate: true
         CFBundleURLTypes:
           - CFBundleURLName: Magnet Link
             CFBundleTypeRole: Viewer

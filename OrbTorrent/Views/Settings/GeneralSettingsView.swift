@@ -3,6 +3,7 @@ import SwiftUI
 struct GeneralSettingsView: View {
     @Environment(AppModel.self) private var model
     @State private var loginItemError: String?
+    @State private var isShowingSent = false
 
     var body: some View {
         @Bindable var settings = model.settings
@@ -18,6 +19,7 @@ struct GeneralSettingsView: View {
 
             if model.updates.isEnabled {
                 updatesSection
+                countsSection
             }
 
             Section("Adding Torrents") {
@@ -59,6 +61,9 @@ struct GeneralSettingsView: View {
             }
         }
         .formStyle(.grouped)
+        .sheet(isPresented: $isShowingSent) {
+            SentCountsView()
+        }
         .onAppear {
             model.defaultApp.refresh()
             model.loginItem.refresh()
@@ -86,9 +91,25 @@ struct GeneralSettingsView: View {
             Toggle("Check for updates automatically", isOn: $updates.checksAutomatically)
             Toggle(isOn: $updates.downloadsAutomatically) {
                 Text("Download and install updates automatically")
-                Text("They install the next time \(AppIdentity.name) quits.")
+                Text("\(AppIdentity.name) restarts to install them while you're not using it, and your downloads carry on.")
             }
             .disabled(!updates.checksAutomatically)
+        }
+    }
+
+    /// The anonymous counts the update check carries.
+    private var countsSection: some View {
+        @Bindable var settings = model.settings
+        return Section("Help Improve \(AppIdentity.name)") {
+            Toggle(isOn: $settings.sendsAnonymousCounts) {
+                Text("Send anonymous counts with update checks")
+                Text("Your version of macOS, the kind of Mac, the week \(AppIdentity.name) was installed, and how often it quit unexpectedly. Never an ID, your IP address, or anything about your downloads.")
+            }
+            LabeledContent {
+                Button("See What's Sent…") { isShowingSent = true }
+            } label: {
+                Text("Exactly what the next check sends")
+            }
         }
     }
 

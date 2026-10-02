@@ -175,8 +175,26 @@ docs/           This guide, and the extension system's design
    the feed with the key in your Keychain and puts the feed on
    `updates.orbtorrent.com`, where every copy finds it within a day.
 
-`updates/` is the feed's Cloudflare Worker, and `updates/stats.sh` shows how
-many Macs checked for updates each day, by version.
+For a fix to a version with a serious problem, add `--critical`: every older
+version shows it at once and can't skip it. `--phased` reaches a seventh more
+of the Macs each day, so a bad release can be stopped early, and
+`scripts/publish-update.sh --withdraw v1.0-beta.3` takes a version off the
+feed, and so off orbtorrent.com/download, without touching the Macs that have
+it.
+
+Updates download in the background, and OrbTorrent restarts to install them
+once it isn't in use (`AppModel.installUpdateWhenIdle`), coming back in the
+menu bar with What's New waiting.
+
+### Counting
+
+`updates/` is the feed's Cloudflare Worker. Each check carries the anonymous
+counts in `OrbTorrent/Updates/AnonymousCounts.swift`, which the Worker keeps
+(`updates/src/counts.ts`, `npm test` there) in Analytics Engine, without the
+address. `updates/stats.sh [days]` shows Macs each day, week and month, new
+installs, versions, unexpected quits per version, how many keep using it by
+the week installed, and macOS and chip. Cloudflare keeps 90 days. The privacy page lists every value; change
+it with them (see `website/AGENTS.md`).
 
 ### Publishing the extension SDK
 

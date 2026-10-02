@@ -29,7 +29,7 @@ export const faqs: Faq[] = [
   },
   {
     question: "Does OrbTorrent collect any data?",
-    answer: "No. There's no account, no analytics and no crash reporting. Once a day it checks for updates, sending only its version and build number, and you can turn that off. Everything it connects to is listed on the privacy page.",
+    answer: "Only anonymous counts, never an ID. Its daily check for updates says which version it is, your version of macOS, the kind of Mac, the week it was installed and how often it quit unexpectedly, so we know how many Macs use it and whether a version has a problem. Nothing about how you use it is sent. There's no account and no crash reporting, Settings shows exactly what's sent and turns it off, and the privacy page lists everything.",
   },
   {
     question: "Can I bring my downloads over from Transmission or qBittorrent?",

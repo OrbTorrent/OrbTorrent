@@ -52,7 +52,7 @@ OrbTorrent updates itself with [Sparkle](https://sparkle-project.org). Once a da
 
 ## Privacy
 
-OrbTorrent has no account, analytics or crash reporting. [Privacy](/docs/guides/privacy) lists everything it connects to.
+OrbTorrent has no account, ID or crash reporting. Its update check carries a few anonymous counts, from `AnonymousCounts.swift`, which the update feed's Worker adds up. [Privacy](/docs/guides/privacy) lists everything it connects to and counts.
 
 ## The source
 

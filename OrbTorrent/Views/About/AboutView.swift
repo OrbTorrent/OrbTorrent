@@ -190,7 +190,7 @@ struct Acknowledgement: Identifiable {
 
 // MARK: - Privacy
 
-/// What OrbTorrent connects to, and that it collects nothing.
+/// What OrbTorrent connects to, and that it knows nothing about you.
 struct PrivacyView: View {
     @Environment(\.dismiss) private var dismiss
 
@@ -201,7 +201,7 @@ struct PrivacyView: View {
                 Text("Privacy")
                     .font(.title2.weight(.bold))
             }
-            Text("OrbTorrent collects nothing about you. There's no account, no analytics and no crash reporting, and your library, settings and extension passwords stay on this Mac.")
+            Text("OrbTorrent knows nothing about you. There's no account, no ID and no crash reports, and your library, settings and extension passwords stay on this Mac.")
                 .fixedSize(horizontal: false, vertical: true)
             VStack(alignment: .leading, spacing: 12) {
                 Text("It connects only to:")
@@ -215,7 +215,7 @@ struct PrivacyView: View {
                 point("puzzlepiece.extension", "The sites an extension lists",
                       "while it's on. Each extension's page shows them, and it can't reach any others.")
                 point("arrow.triangle.2.circlepath", "updates.orbtorrent.com",
-                      "once a day, to check for a new version, while “Check for updates automatically” is on. It sends OrbTorrent's version and build number, which is how we count the Macs on each version. The address a check comes from isn't kept.")
+                      "once a day, to check for a new version, while “Check for updates automatically” is on. It says which version of OrbTorrent this is, with anonymous counts: your version of macOS, the kind of Mac, the week OrbTorrent was installed and how often it quit unexpectedly. Never an ID or anything about how you use it, and the address a check comes from isn't kept. Settings › General shows exactly what's sent.")
                 point("arrow.down.app", "github.com",
                       "to download an update you install.")
                 point("globe", "download.db-ip.com",

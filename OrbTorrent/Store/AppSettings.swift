@@ -90,6 +90,11 @@ final class AppSettings {
         didSet { defaults.set(vpnForwardedPort, forKey: Keys.vpnForwardedPort) }
     }
 
+    /// Add anonymous counts to the daily update check: see AnonymousCounts.
+    var sendsAnonymousCounts: Bool {
+        didSet { defaults.set(sendsAnonymousCounts, forKey: Keys.sendsAnonymousCounts) }
+    }
+
     var hasCompletedOnboarding: Bool {
         didSet { defaults.set(hasCompletedOnboarding, forKey: Keys.hasCompletedOnboarding) }
     }
@@ -103,8 +108,8 @@ final class AppSettings {
         didSet { defaults.set(appliedEngineDefaults, forKey: Keys.appliedEngineDefaults) }
     }
 
-    /// A new install asks before downloading, deletes to the Trash, and finds
-    /// more peers for public torrents.
+    /// A new install asks before downloading, deletes to the Trash, finds
+    /// more peers for public torrents, and sends anonymous counts.
     init(defaults: UserDefaults = .standard) {
         self.defaults = defaults
         defaults.register(defaults: [
@@ -116,6 +121,7 @@ final class AppSettings {
             Keys.preventSleepWhileDownloading: true,
             Keys.pauseWhenDiskFull: true,
             Keys.findMorePeers: true,
+            Keys.sendsAnonymousCounts: true,
         ])
         addBehavior = AddBehavior(rawValue: defaults.string(forKey: Keys.addBehavior) ?? "") ?? .askFirst
         deleteBehavior = DeleteBehavior(rawValue: defaults.string(forKey: Keys.deleteBehavior) ?? "") ?? .moveToTrash
@@ -129,6 +135,7 @@ final class AppSettings {
         vpnOnly = defaults.bool(forKey: Keys.vpnOnly)
         vpnServiceID = defaults.string(forKey: Keys.vpnServiceID)
         vpnForwardedPort = defaults.object(forKey: Keys.vpnForwardedPort) as? Int
+        sendsAnonymousCounts = defaults.bool(forKey: Keys.sendsAnonymousCounts)
         hasCompletedOnboarding = defaults.bool(forKey: Keys.hasCompletedOnboarding)
         dismissedDefaultAppBanner = defaults.bool(forKey: Keys.dismissedDefaultAppBanner)
         appliedEngineDefaults = defaults.bool(forKey: Keys.appliedEngineDefaults)
@@ -147,6 +154,7 @@ final class AppSettings {
         static let vpnOnly = "vpnOnly"
         static let vpnServiceID = "vpnServiceID"
         static let vpnForwardedPort = "vpnForwardedPort"
+        static let sendsAnonymousCounts = "sendsAnonymousCounts"
         static let hasCompletedOnboarding = "hasCompletedOnboarding"
         static let dismissedDefaultAppBanner = "dismissedDefaultAppBanner"
         static let appliedEngineDefaults = "appliedEngineDefaults"

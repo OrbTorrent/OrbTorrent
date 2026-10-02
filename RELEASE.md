@@ -30,12 +30,20 @@ OrbTorrent safely onto other people's Macs and keeping it up to date there.
   goes at `orbtorrent.com`. `help@orbtorrent.com` forwards to the owner's
   Gmail through Cloudflare Email Routing, set up on 29 September 2026 and
   tested on 1 October 2026 with an email from another inbox.
-- [x] **Counting users:** no analytics in the app. The update feed counts
-  update checks by version and build, which is roughly the Macs using each
-  version each day (`updates/stats.sh`). With GitHub's download counts and,
-  later, the website's Cloudflare Web Analytics, that's enough to see whether
-  OrbTorrent is catching on. Opt-in usage counts only if a question comes up
-  that these can't answer, asked in the app and listed in the privacy note.
+- [x] **Counting users:** anonymous counts with the daily update check, no
+  ID (`AnonymousCounts.swift`): the version, macOS, chip, install week, first
+  check ever, this week and this month, and unexpected quits of the app and
+  the engine. On unless turned off in Settings, which shows exactly what's
+  sent. `updates/stats.sh` turns them into Macs a day, week and month,
+  installs, versions, quits per version, how many keep using it, and macOS
+  and chip. Chosen on 2 October 2026 over "no analytics", so a bad release
+  shows up within a day, now that updates install themselves. Nothing about
+  how it's used: an opt-in for that (features, downloads, opened or not) was
+  built and taken out again for launch, as these answer what matters. Add it
+  only if a question comes up that they can't.
+- [ ] **Say what's counted at launch,** in the first release's notes and the
+  announcement, pointing to orbtorrent.com/privacy#counts, rather than let
+  someone find it.
 - [x] **Hold the name "OrbTorrent":** the domain, the GitHub organisation
   `orbtorrent` (github.com/orbtorrent, owner's personal account as admin,
   holding the name; the code stays at `sanjevirau/OrbTorrent` for now), and
@@ -97,10 +105,15 @@ OrbTorrent safely onto other people's Macs and keeping it up to date there.
   It has to be in the first release, since people can only get the updater
   through an update.
   - **In the app:** a check once a day, "Check for Updates…" in the app menu
-    and the menu bar's ⋯ menu, and Settings → General → Updates. An update
-    found while OrbTorrent is in the background waits quietly in the menu
-    bar panel, a banner in the window and a notification, instead of popping
-    up. Off in Dev, except from a test feed.
+    and the menu bar's ⋯ menu, and Settings → General → Updates. Updates
+    download in the background and install themselves (on by default since
+    2 October 2026): OrbTorrent restarts once it isn't in use, meaning not in
+    front, or no input for two minutes, and nothing would be cut short (an
+    import, files moving or being checked, an extension's check). It comes
+    back in the menu bar; "Restart to Update" in the panel and the window
+    does it at once. With that off, Sparkle's window offers each update, and
+    one found in the background waits in the panel, a banner and a
+    notification, unless it's critical. Off in Dev, except from a test feed.
   - **What's New:** after an update, the window shows the new version's
     release notes, as written on GitHub, in the welcome's style; after
     skipping updates, every release's since. Help → What's New shows it again.
@@ -119,6 +132,8 @@ OrbTorrent safely onto other people's Macs and keeping it up to date there.
     the app. Losing it means existing users can't be updated.
   - **Publishing** (see docs/development.md): tag, write the notes on the GitHub
     release and publish it, then run `scripts/publish-update.sh <tag>`.
+    `--critical` for a fix nobody can skip, `--phased` to reach Macs over a
+    week, and `--withdraw <tag>` to take a bad version off the feed.
   - **Tested** on 29 September 2026: OrbTorrent Dev build 1 updated itself to
     build 3 from a test feed listing builds 2 and 3, checked both signatures,
     installed on quit and opened What's New.
@@ -126,6 +141,10 @@ OrbTorrent safely onto other people's Macs and keeping it up to date there.
     On 1 October 2026, through Sparkle's own window too: Check for Updates…
     showed 1.0 beta 4's notes, Install Update downloaded and checked it, and
     Install and Relaunch reopened build 4 with What's New.
+    On 2 October 2026, installing by itself: Dev build 1's daily check sent
+    the anonymous counts, downloaded build 5 and showed "1.0 beta 5 is
+    ready"; with no one at the Mac it restarted 66 s later into build 5, in
+    the menu bar only, and What's New showed when the window opened.
 - [x] **Back up the update key:** in the owner's password manager, since 29
   September 2026. On a new Mac, `build/sparkle/bin/generate_keys --account
   orbtorrent -f <file>` puts it back in the Keychain.
@@ -192,8 +211,9 @@ OrbTorrent safely onto other people's Macs and keeping it up to date there.
   website, all on orbtorrent.com. The Develop tab links the extension docs.
 - [ ] **A GitHub issue as another way to report,** from Report a Problem, once
   the repo is public.
-- [x] **Privacy note,** in the About window and the README; the website
-  still to come. OrbTorrent collects nothing and contacts only peers and
+- [x] **Privacy note,** in the About window, the README and the website.
+  OrbTorrent knows nothing about you, counts only anonymously (see Counting
+  users), and contacts only peers and
   trackers, the public tracker list (while "Find more peers for public
   torrents" is on), web addresses torrents are added from, and the sites each
   extension lists, and `updates.orbtorrent.com` once a day and github.com

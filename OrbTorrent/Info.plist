@@ -70,6 +70,8 @@
 	<string>Copyright © 2026 Sanjevi Rau. OrbTorrent is free software, licensed under the GNU GPL v3 or later.</string>
 	<key>NSUserNotificationAlertStyle</key>
 	<string>banner</string>
+	<key>SUAutomaticallyUpdate</key>
+	<true/>
 	<key>SUEnableAutomaticChecks</key>
 	<true/>
 	<key>SUFeedURL</key>

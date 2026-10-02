@@ -54,6 +54,11 @@ Consult these guides before working on related tasks:
 - Pages are counted by Cloudflare Web Analytics (`src/components/Analytics.astro`),
   only on orbtorrent.com. The privacy page says what's counted: change it when
   that changes.
+- The app's anonymous counts (`OrbTorrent/Updates/AnonymousCounts.swift`) are
+  listed value by value on the privacy page (`#counts`) and summed up in
+  `guides/privacy.md`, `guides/updates.md` and the FAQ. The app's About ›
+  Privacy and "See What's Sent", the README and `updates/src/counts.ts` say the
+  same. Change them all together.
 - Starlight sets Astro's `scopedStyleStrategy` to `"where"` for the whole
   site. In that mode, a component given a `class` also takes its parent's
   scope, so the parent's scoped styles can reach it. Name a component's own

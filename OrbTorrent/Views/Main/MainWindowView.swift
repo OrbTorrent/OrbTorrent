@@ -40,6 +40,7 @@ struct MainWindowView: View {
                 DefaultAppBanner()
             }
             .animation(.smooth, value: model.updates.waiting)
+            .animation(.smooth, value: model.updates.ready)
         }
         .overlay(alignment: .bottom) { toast }
         .dropDestination(for: URL.self) { urls, _ in

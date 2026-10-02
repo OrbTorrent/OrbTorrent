@@ -47,6 +47,8 @@ final class EngineController {
     /// Called each time the engine has started, including when it starts
     /// again by itself after stopping unexpectedly.
     @ObservationIgnored var didStart: (() async -> Void)?
+    /// Called when the engine stops without being asked to.
+    @ObservationIgnored var onUnexpectedExit: (() -> Void)?
 
     var isRunning: Bool { status == .running }
 
@@ -175,6 +177,7 @@ final class EngineController {
         guard let process, process.processIdentifier == pid else { return }
         self.process = nil
         try? FileManager.default.removeItem(at: EnginePaths.pidFile)
+        onUnexpectedExit?()
 
         let now = Date()
         crashTimes = crashTimes.filter { now.timeIntervalSince($0) < 120 } + [now]

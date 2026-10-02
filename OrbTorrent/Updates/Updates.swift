@@ -5,9 +5,16 @@ import Sparkle
 /// Keeps OrbTorrent up to date with Sparkle, from the feed in Info.plist,
 /// and shows What's New after an update.
 ///
-/// Sparkle's own window offers an update. One found while OrbTorrent is in
-/// the background waits quietly instead, in the menu bar panel, the window
-/// and a notification, until it's looked at.
+/// With "Download and install updates automatically" on, as it is unless
+/// turned off, an update downloads in the background and waits as `ready`,
+/// for AppModel to restart OrbTorrent and install it once it isn't in use.
+///
+/// Otherwise Sparkle's own window offers an update. One found while
+/// OrbTorrent is in the background waits quietly instead, in the menu bar
+/// panel, the window and a notification, until it's looked at, unless it's
+/// critical: a fix for a version with a serious problem is shown straight away.
+///
+/// Each check also carries the anonymous counts in `AnonymousCounts`.
 ///
 /// OrbTorrent Dev doesn't update itself, except from a test feed made by
 /// `scripts/publish-update.sh --test`:
@@ -26,6 +33,8 @@ final class Updates: NSObject {
     /// The name of a new version found in the background, such as
     /// "1.0 beta 3", until it's looked at.
     private(set) var waiting: String?
+    /// The name of a new version that's downloaded and ready to install.
+    private(set) var ready: String?
 
     var checksAutomatically = false {
         didSet { if isEnabled { updater.automaticallyChecksForUpdates = checksAutomatically } }
@@ -43,14 +52,23 @@ final class Updates: NSObject {
 
     /// Says a new version is waiting, or takes that back.
     @ObservationIgnored var onWaitingChange: ((String?) -> Void)?
+    /// Says a new version is downloaded and ready to install.
+    @ObservationIgnored var onReady: (() -> Void)?
+    /// The anonymous counts to add to a check, the manual ones included.
+    @ObservationIgnored var countsForCheck: ((_ manual: Bool) -> [AnonymousCounts.Value])?
+    /// Called once a check has reached the feed.
+    @ObservationIgnored var didCheck: (() -> Void)?
 
     @ObservationIgnored let history = ReleaseHistory()
     @ObservationIgnored private let defaults: UserDefaults
     @ObservationIgnored private var controller: SPUStandardUpdaterController!
     @ObservationIgnored private var observations: [NSKeyValueObservation] = []
+    @ObservationIgnored private var installNow: (() -> Void)?
+    @ObservationIgnored private var isManualCheck = false
     private var updater: SPUUpdater { controller.updater }
 
     private static let seenBuildKey = "whatsNewSeenBuild"
+    private static let relaunchKey = "relaunchAfterUpdate"
 
     init(defaults: UserDefaults = .standard) {
         self.defaults = defaults
@@ -77,7 +95,8 @@ final class Updates: NSObject {
         let version = Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? "?"
         let sparkle = Bundle(for: SPUUpdater.self).object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? "2"
         // The version and build, and nothing else, so the feed can count
-        // the Macs on each version.
+        // the Macs on each version. The anonymous counts go in the feed's
+        // address (feedParameters), and the system profile isn't sent.
         updater.userAgentString = "\(AppIdentity.name)/\(version) (\(Self.build)) Sparkle/\(sparkle)"
         updater.sendsSystemProfile = false
         do {
@@ -102,7 +121,27 @@ final class Updates: NSObject {
     func checkForUpdates() {
         guard isEnabled else { return }
         NSApp.activate()
+        isManualCheck = true
         updater.checkForUpdates()
+    }
+
+    /// Restarts OrbTorrent to install the update that's ready. Downloads
+    /// carry on once it's back, in the menu bar, and in its window too if
+    /// `showingWindow`.
+    func installReadyUpdate(showingWindow: Bool) {
+        guard let installNow else { return }
+        defaults.set(["showsWindow": showingWindow, "at": Date.now], forKey: Self.relaunchKey)
+        installNow()
+    }
+
+    /// Whether this launch is OrbTorrent coming back from installing an
+    /// update, and whether to show its window then; nil for any other launch.
+    func takeRelaunchAfterUpdate() -> Bool? {
+        guard let relaunch = defaults.dictionary(forKey: Self.relaunchKey) else { return nil }
+        defaults.removeObject(forKey: Self.relaunchKey)
+        // An install that didn't finish leaves it behind for a later launch.
+        guard let at = relaunch["at"] as? Date, Date.now.timeIntervalSince(at) < 300 else { return nil }
+        return relaunch["showsWindow"] as? Bool ?? false
     }
 
     private func setWaiting(_ name: String?) {
@@ -153,11 +192,33 @@ extension Updates: SPUUpdaterDelegate {
         AppIdentity.isDevelopment ? defaults.string(forKey: Self.testFeedKey) : nil
     }
 
+    /// The anonymous counts, added to the feed's address.
+    func feedParameters(for updater: SPUUpdater, sendingSystemProfile sendingProfile: Bool) -> [[String: String]] {
+        (countsForCheck?(isManualCheck) ?? []).map {
+            ["key": $0.key, "value": $0.value, "displayKey": $0.key, "displayValue": $0.value]
+        }
+    }
+
     /// Keeps every release's notes, including the ones between this version
     /// and the newest, for What's New after updating.
     func updater(_ updater: SPUUpdater, didFinishLoading appcast: SUAppcast) {
         history.remember(appcast.items.compactMap(Release.init))
         currentRelease = history.release(build: Self.build)
+        didCheck?()
+    }
+
+    func updater(_ updater: SPUUpdater, didFinishUpdateCycleFor updateCheck: SPUUpdateCheck, error: (any Error)?) {
+        isManualCheck = false
+    }
+
+    /// An update downloaded in the background: OrbTorrent installs it itself,
+    /// when it isn't in use, rather than waiting until it quits.
+    func updater(_ updater: SPUUpdater, willInstallUpdateOnQuit item: SUAppcastItem,
+                 immediateInstallationBlock immediateInstallHandler: @escaping () -> Void) -> Bool {
+        installNow = immediateInstallHandler
+        ready = Release(item)?.name ?? item.displayVersionString
+        onReady?()
+        return true
     }
 
     func updater(_ updater: SPUUpdater, userDidMake choice: SPUUserUpdateChoice,
@@ -170,10 +231,11 @@ extension Updates: @preconcurrency SPUStandardUserDriverDelegate {
     var supportsGentleScheduledUpdateReminders: Bool { true }
 
     /// Sparkle shows a found update right away only when OrbTorrent is in
-    /// front and was just opened, rather than over whatever's in use.
+    /// front and was just opened, rather than over whatever's in use, or when
+    /// it's critical.
     func standardUserDriverShouldHandleShowingScheduledUpdate(_ update: SUAppcastItem,
                                                               andInImmediateFocus immediateFocus: Bool) -> Bool {
-        immediateFocus && NSApp.isActive
+        update.isCriticalUpdate || (immediateFocus && NSApp.isActive)
     }
 
     func standardUserDriverWillHandleShowingUpdate(_ handleShowingUpdate: Bool, forUpdate update: SUAppcastItem,

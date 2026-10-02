@@ -18,6 +18,7 @@ final class AppModel {
     let vpn: VPNBinding
     let extensions = Extensions()
     let updates = Updates()
+    @ObservationIgnored let counts = AnonymousCounts()
     @ObservationIgnored let notifier = CompletionNotifier()
     @ObservationIgnored let developmentServer: DevelopmentServer
 
@@ -45,6 +46,9 @@ final class AppModel {
     @ObservationIgnored private var hasLaunched = false
     /// `orb install`, waiting for the user to decide on the install sheet.
     @ObservationIgnored private var installWaiter: CheckedContinuation<InstallDecision, Never>?
+    /// Bringing downloads over from another app, which a restart would cut short.
+    @ObservationIgnored private var isImporting = false
+    @ObservationIgnored private var updateInstaller: Task<Void, Never>?
 
     func registerWindowOpener(_ opener: @escaping () -> Void) {
         openMainWindow = opener
@@ -70,6 +74,10 @@ final class AppModel {
         notifier.onAction = { [weak self] action, hash in self?.handleNotification(action, hash: hash) }
         notifier.onUpdate = { [weak self] in self?.updates.checkForUpdates() }
         updates.onWaitingChange = { [weak self] name in self?.notifier.postUpdateAvailable(name) }
+        updates.onReady = { [weak self] in self?.installUpdateWhenIdle() }
+        updates.countsForCheck = { [weak self] manual in self?.countsForCheck(manual: manual) ?? [] }
+        updates.didCheck = { [weak self] in self?.counts.checkSucceeded() }
+        engine.onUnexpectedExit = { [weak self] in self?.counts.engineStoppedUnexpectedly() }
         connectExtensions()
     }
 
@@ -317,6 +325,56 @@ final class AppModel {
         await engine.stop()
     }
 
+    // MARK: Updates
+
+    /// Whether someone is using OrbTorrent: it's asking about a download, or
+    /// it's in front or its menu bar panel is open while they're at the Mac.
+    /// Left in front of a Mac no one has touched for two minutes, it isn't.
+    private var isInUse: Bool {
+        if !adder.menuBarQueue.isEmpty || adder.pending != nil { return true }
+        guard NSApp.isActive || MenuBarIcon.panel?.isVisible == true else { return false }
+        let input = CGEventType(rawValue: ~0).map { CGEventSource.secondsSinceLastEventType(.combinedSessionState, eventType: $0) }
+        return (input ?? 0) < 120
+    }
+
+    /// Whether a restart would cut something short: bringing downloads over,
+    /// the engine starting, files being moved or checked, or an extension's check.
+    private var isBusy: Bool {
+        isImporting || engine.status == .starting || extensions.checks.isRunning
+            || store.torrents.contains { [.moving, .checking].contains($0.state.activity) }
+    }
+
+    /// Restarts to install an update that's downloaded, once OrbTorrent
+    /// hasn't been in use for a minute and a restart wouldn't cut anything
+    /// short. Downloads carry on where they left off once it's back.
+    private func installUpdateWhenIdle() {
+        updateInstaller?.cancel()
+        updateInstaller = Task {
+            var idleSince: ContinuousClock.Instant?
+            while !Task.isCancelled, updates.ready != nil {
+                if isInUse || isBusy {
+                    idleSince = nil
+                } else if let since = idleSince, ContinuousClock.now - since >= .seconds(60) {
+                    updates.installReadyUpdate(showingWindow: false)
+                    return
+                } else if idleSince == nil {
+                    idleSince = .now
+                }
+                try? await Task.sleep(for: .seconds(10))
+            }
+        }
+    }
+
+    /// What the daily update check adds, as the settings allow.
+    private func countsForCheck(manual: Bool) -> [AnonymousCounts.Value] {
+        settings.sendsAnonymousCounts ? counts.valuesForCheck(manual: manual) : []
+    }
+
+    /// What the counts preview shows: the next check's values.
+    func countsPreview() -> [AnonymousCounts.Value] {
+        settings.sendsAnonymousCounts ? counts.values(manual: false) : []
+    }
+
     // MARK: Windows
 
     func showMainWindow(selecting hash: String? = nil) {
@@ -504,6 +562,8 @@ final class AppModel {
     /// downloads came over from each. The apps quit first, saving the latest
     /// state of their downloads as they do.
     func runImport(_ jobs: [ImportJob]) async throws -> [ImportSource: Int] {
+        isImporting = true
+        defer { isImporting = false }
         for job in jobs where job.source.isRunning {
             if !(await job.source.quit()) { throw ImportError.stillOpen(job.source) }
         }

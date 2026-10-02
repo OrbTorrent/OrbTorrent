@@ -55,7 +55,7 @@ The facts every post, pitch and page draws from:
   settings.
 - "Find more peers for public torrents", disk-space guard, download in order.
 - Signed automatic updates, and What's New after each one.
-- Free and GPL-licensed. No account, no ads, no analytics.
+- Free and GPL-licensed. No account, no ads, no tracking: only anonymous counts, without an ID.
 
 How we talk about it:
 - **Respect the others.** Transmission 4.1 (January 2026) and qBittorrent 5.2
@@ -410,9 +410,12 @@ engine, free and open source`, in their PCP template, saying you made it.
 - **How does it use qBittorrent?** It bundles qBittorrent's engine and runs it
   as a helper, talking to it through qBittorrent's own programming interface
   on the Mac.
-- **Does it phone home?** One update check a day, which sends the version and
-  build number. That's how we count Macs, and the address isn't kept. It can
-  be turned off. Nothing else.
+- **Does it phone home?** One update check a day. It sends the version and a
+  few anonymous counts, never an ID: macOS, Apple silicon or Intel, the week
+  it was installed, and how often it quit unexpectedly, so we can count Macs
+  and catch a bad release. Nothing about how you use it. Settings shows
+  exactly what's sent and turns it off, the address isn't kept, and the code
+  is public. Nothing else.
 - **Is it safe?** Notarized by Apple, open source, and updates are signed.
 - **Is it legal?** Torrenting is legal. What you download is up to you, and
   About says to download only what you have the right to share.

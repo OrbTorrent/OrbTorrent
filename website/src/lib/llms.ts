@@ -7,7 +7,7 @@ import { sidebarPages } from "./docs-sidebar.mjs";
 import { pageMarkdown } from "./docs-markdown";
 
 const summary =
-  "OrbTorrent is a free, open-source torrent app for the Mac (macOS 26 or later, Apple silicon and Intel). It's a native Swift and SwiftUI app that runs qBittorrent's engine, lives in the menu bar, can download only through a VPN, and holds fake downloads before they arrive. Extensions, written in TypeScript with @orbtorrent/api, check downloads before they start and after they finish. GPL-licensed, with no ads, no account and no analytics.";
+  "OrbTorrent is a free, open-source torrent app for the Mac (macOS 26 or later, Apple silicon and Intel). It's a native Swift and SwiftUI app that runs qBittorrent's engine, lives in the menu bar, can download only through a VPN, and holds fake downloads before they arrive. Extensions, written in TypeScript with @orbtorrent/api, check downloads before they start and after they finish. GPL-licensed, with no ads, no account and no tracking: only anonymous counts, without an ID, with its update check.";
 
 const welcome =
   "This website and its docs are open source too. Search engines and AI tools are welcome to use everything on it, including to answer questions and to train on.";

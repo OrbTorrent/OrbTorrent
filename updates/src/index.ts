@@ -1,10 +1,12 @@
 import { env } from "cloudflare:workers";
+import { blobs, doubles } from "./counts.ts";
 
 // OrbTorrent's update feed. Each installed copy asks for /appcast.xml once a
 // day. The feed is passed on exactly as it was signed, and each request is
-// counted by the version and build in its user agent, such as
-// "OrbTorrent/1.0 (2) Sparkle/2.10.0", and nothing else: not the address it
-// came from, so we know how many Macs use each version and nothing about who.
+// counted: by the version and build in its user agent, such as
+// "OrbTorrent/1.0 (2) Sparkle/2.10.0", and the anonymous counts in its
+// address (counts.ts), and nothing else. Not the address it came from: we
+// know how many Macs use each version, and nothing about who.
 //
 // /test/appcast.xml is a feed for trying updates in OrbTorrent Dev.
 
@@ -41,5 +43,10 @@ function count(request: Request, feed: string) {
 	const agent = request.headers.get("User-Agent") ?? "";
 	const [, app = "other", version = "", build = ""] =
 		agent.match(/^(OrbTorrent(?: Dev)?)\/(\S+) \((\d+)\)/) ?? [];
-	env.CHECKS.writeDataPoint({ indexes: [feed], blobs: [app, version, build], doubles: [1] });
+	const params = new URL(request.url).searchParams;
+	env.CHECKS.writeDataPoint({
+		indexes: [feed],
+		blobs: [app, version, build, ...blobs(params)],
+		doubles: [1, ...doubles(params)],
+	});
 }

@@ -42,7 +42,12 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         model.adder.showMenuBarDownloads = { [weak confirmationPanel] in
             confirmationPanel?.showDownloads()
         }
-        if !launchedAsLoginItem {
+        model.counts.appDidLaunch()
+        // Back from installing an update, it stays in the menu bar, unless
+        // it was restarted from its window.
+        if let showsWindow = model.updates.takeRelaunchAfterUpdate() {
+            if showsWindow { model.showMainWindow() }
+        } else if !launchedAsLoginItem {
             model.showMainWindow()
         }
         Task { await model.launch() }
@@ -68,6 +73,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         isTerminating = true
         Task {
             await model.shutdown()
+            model.counts.appWillQuit()
             NSApp.reply(toApplicationShouldTerminate: true)
         }
         return .terminateLater

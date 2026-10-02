@@ -103,6 +103,11 @@ final class ChecksStore {
         update(record, for: hash)
     }
 
+    /// Whether any check is running, or waiting to.
+    var isRunning: Bool {
+        entries.values.contains { $0.records.contains { !$0.status.isFinished } }
+    }
+
     func gate(for hash: String) -> Gate? {
         entries[hash]?.gate
     }

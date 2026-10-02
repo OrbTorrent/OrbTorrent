@@ -3,7 +3,7 @@ title: Privacy
 description: What other people can see when you download, everything OrbTorrent connects to, and what stays on your Mac.
 ---
 
-OrbTorrent collects nothing about you. There's no account, no analytics and no crash reporting, and your library, settings and extension passwords stay on your Mac. [The privacy page](/privacy) is the full statement, for the app and this website.
+OrbTorrent knows nothing about you. There's no account, no ID and no crash reporting, and your library, settings and extension passwords stay on your Mac. Its daily update check carries a few anonymous counts. [The privacy page](/privacy) is the full statement, for the app and this website.
 
 ## What peers can see
 
@@ -20,11 +20,17 @@ BitTorrent is public by design. Everyone downloading a torrent can see the IP ad
 | **raw.githubusercontent.com** | Once a day, for a public list of trackers, while **Find more peers for public torrents** is on. |
 | **Web addresses you add torrents from** | To fetch the `.torrent` file. |
 | **The sites an extension lists** | While it's on. Each extension's page shows them, and it can't reach any others. |
-| **updates.orbtorrent.com** | Once a day, to check for a new version, while **Check for updates automatically** is on. It sends OrbTorrent's version and build number, and nothing else. The address a check comes from isn't kept. |
+| **updates.orbtorrent.com** | Once a day, to check for a new version, while **Check for updates automatically** is on. It says which version of OrbTorrent it is, with [anonymous counts](#what-orbtorrent-counts). The address a check comes from isn't kept. |
 | **github.com** | To download an update you install. |
 | **download.db-ip.com** | Once a month, for a database of which country each IP address is in, to show peers' flags. Peers are looked up in it on your Mac, and never sent anywhere. |
 
 That's everything. The same list is in the app, under **About OrbTorrent › Privacy**.
+
+## What OrbTorrent counts
+
+The update check adds a few anonymous counts, so we know how many Macs use OrbTorrent and whether a version has a problem: your version of macOS, whether your Mac has Apple silicon or Intel, the week OrbTorrent was installed, whether this is its first check this week or month, and how often it quit unexpectedly. None of them is an ID, and none is about your downloads or how you use OrbTorrent.
+
+**Settings › General › See What's Sent** shows exactly what the next check sends, and **Send anonymous counts with update checks** turns them off. [The privacy page](/privacy#counts) lists every value.
 
 ## What stays on your Mac
 

@@ -20,7 +20,14 @@ Extensions' own settings are on the [Extensions page](/docs/guides/checks), not 
 |---|---|---|
 | **Check Now** | Checks for a new version now. The section shows your version and when it last checked. | |
 | **Check for updates automatically** | Checks once a day. | On |
-| **Download and install updates automatically** | Downloads updates as they're found, and installs them the next time OrbTorrent quits. | Off |
+| **Download and install updates automatically** | Downloads updates as they're found, and restarts OrbTorrent to install them while you're not using it. Downloads carry on where they left off. | On |
+
+### Help improve OrbTorrent
+
+| Setting | What it does | At first |
+|---|---|---|
+| **Send anonymous counts with update checks** | Adds your version of macOS, the kind of Mac, the week OrbTorrent was installed and how often it quit unexpectedly to the daily update check. Never an ID, your IP address, or anything about your downloads or how you use OrbTorrent. | On |
+| **See What's Sent…** | Shows exactly what the next check sends, value by value. [Privacy](/docs/guides/privacy#what-orbtorrent-counts) explains each. | |
 
 ### Adding torrents
 

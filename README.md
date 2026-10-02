@@ -167,9 +167,9 @@ them gone too. Your downloaded files stay where they are.
 
 ## Privacy
 
-OrbTorrent collects nothing about you. There's no account, no analytics and no
-crash reporting, and your library, settings and extension passwords stay on
-your Mac. It connects only to:
+OrbTorrent knows nothing about you. There's no account, no ID and no crash
+reporting, and your library, settings and extension passwords stay on your
+Mac. It connects only to:
 
 - **Peers and trackers** for the downloads you add, as every torrent app does.
   They can see your IP address, unless you download through a VPN.
@@ -179,9 +179,13 @@ your Mac. It connects only to:
 - **The sites an extension lists**, while it's on. Each extension's page shows
   them, and it can't reach any others.
 - **updates.orbtorrent.com**, once a day, to check for a new version, while
-  "Check for updates automatically" is on. It sends OrbTorrent's version and
-  build number, which is how we count the Macs on each version. The address a
-  check comes from isn't kept.
+  "Check for updates automatically" is on. It says which version of
+  OrbTorrent it is, with a few anonymous counts: your version of macOS, the
+  kind of Mac, the week OrbTorrent was installed and how often it quit
+  unexpectedly. None of them is an ID or says how you use it
+  ([AnonymousCounts.swift](OrbTorrent/Updates/AnonymousCounts.swift)),
+  and **Settings → General** shows exactly what's sent. The address a check
+  comes from isn't kept.
 - **github.com**, to download an update you install.
 - **download.db-ip.com**, once a month, for a database of which country each
   IP address is in, to show peers' flags. Peers are looked up in it on your
@@ -190,8 +194,8 @@ your Mac. It connects only to:
 Report a Problem, in the Help menu, only opens your own mail app with the
 report filled in, and nothing is sent until you send it. The same note is in
 the app, under **About OrbTorrent → Privacy**, and on
-[orbtorrent.com/privacy](https://orbtorrent.com/privacy), with what the website
-counts.
+[orbtorrent.com/privacy](https://orbtorrent.com/privacy), with every value the
+app counts and what the website counts.
 
 ## Questions
 
