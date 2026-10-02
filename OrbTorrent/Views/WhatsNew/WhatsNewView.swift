@@ -2,8 +2,8 @@ import SwiftUI
 
 /// What's new in the version just installed, from its release notes on
 /// GitHub. Shown once in the main window after an update, and from the Help
-/// menu. The orb greets it with its peers circling, as in the welcome, and
-/// each part of the notes rises into place after it.
+/// menu. The orb greets it, as in the welcome, and each part of the notes
+/// rises into place after it.
 ///
 /// The whole page scrolls. As the orb and title scroll away, they shrink and
 /// fade, and a slim bar with a small orb and the title takes their place.
@@ -101,19 +101,15 @@ struct WhatsNewView: View {
 
     private var header: some View {
         VStack(spacing: 0) {
-            ZStack {
-                OrbOrbits(side: .far, diameter: Self.orbSize)
-                LiveOrb(state: .idle, turnSpeed: turnSpeed)
-                    .frame(width: Self.orbSize, height: Self.orbSize)
-                OrbOrbits(side: .near, diameter: Self.orbSize)
-            }
-            .frame(height: Self.orbSize * 1.2)
-            .scaleEffect(shows(.orb) ? 1 : 0.8)
-            .opacity(shows(.orb) ? 1 : 0)
-            .blur(radius: shows(.orb) ? 0 : 14)
-            // Shrinking towards the bar as it scrolls away.
-            .scaleEffect(1 - 0.4 * collapse, anchor: .bottom)
-            .opacity(1 - collapse)
+            LiveOrb(state: .idle, turnSpeed: turnSpeed)
+                .frame(width: Self.orbSize, height: Self.orbSize)
+                .frame(height: Self.orbSize * 1.2)
+                .scaleEffect(shows(.orb) ? 1 : 0.8)
+                .opacity(shows(.orb) ? 1 : 0)
+                .blur(radius: shows(.orb) ? 0 : 14)
+                // Shrinking towards the bar as it scrolls away.
+                .scaleEffect(1 - 0.4 * collapse, anchor: .bottom)
+                .opacity(1 - collapse)
 
             VStack(spacing: 4) {
                 Text("What's New in \(AppIdentity.name)")

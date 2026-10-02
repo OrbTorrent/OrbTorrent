@@ -34,12 +34,6 @@ struct WelcomeView: View {
     var body: some View {
         ZStack(alignment: .top) {
             backdrop
-            if step == .welcome {
-                OrbOrbits(side: .far, diameter: Self.orbSize)
-                    .position(orbCenter)
-                    .opacity(shows(.everything) ? 1 : 0)
-                    .transition(.opacity.animation(.smooth(duration: 0.4)))
-            }
             if step == .bringOver, let offer = imports.offer {
                 ImportFlow(sources: offer.sources, chosen: imports.chosen, speed: flowSpeed,
                            isFlowing: !imports.phase.isFinished, iconCenters: iconCenters(offer.sources.count),
@@ -47,12 +41,6 @@ struct WelcomeView: View {
                     .transition(StepTransition())
             }
             orb
-            if step == .welcome {
-                OrbOrbits(side: .near, diameter: Self.orbSize)
-                    .position(orbCenter)
-                    .opacity(shows(.everything) ? 1 : 0)
-                    .transition(.opacity.animation(.smooth(duration: 0.4)))
-            }
             content
             footer
         }
