@@ -1,0 +1,5 @@
+node_modules/
+out/
+dist/
+# The music and sound effects, downloaded by render.mjs. They aren't ours to share.
+audio/

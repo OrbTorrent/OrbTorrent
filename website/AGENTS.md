@@ -51,6 +51,13 @@ Consult these guides before working on related tasks:
   since hovering over a link fetches it ahead of time.
 - The site never shows a version number, so publishing a release never needs
   the site rebuilt. Only the Worker reads the update feed, live.
+- The homepage's "Watch the film" (`src/components/Film.astro`) plays the
+  launch film from `public/film/`, made in `../video/`, whose README says
+  how. Workers' static assets ignore byte ranges, which Safari needs to play
+  a video, so the Worker sees `/film/*` first and answers them
+  (`src/lib/ranges.ts`, tested by `npm test`), with each film's size from
+  `/film/sizes.json`, measured at build. A file there can be at most 25 MiB,
+  and a new cut needs a new name, set in `site.film`.
 - Pages are counted by Cloudflare Web Analytics (`src/components/Analytics.astro`),
   only on orbtorrent.com. The privacy page says what's counted: change it when
   that changes.

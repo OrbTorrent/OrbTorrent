@@ -71,6 +71,23 @@ export function breadcrumbs(trail: { name: string; path: string }[]) {
   };
 }
 
+/** The launch film, with the picture its player shows first. */
+export function film(thumbnail: string) {
+  return {
+    "@type": "VideoObject",
+    "@id": id("film"),
+    name: "OrbTorrent, the film",
+    description: site.film.description,
+    thumbnailUrl: `${site.url}${thumbnail}`,
+    contentUrl: `${site.url}${site.film.src}`,
+    uploadDate: `${site.film.made}T00:00:00+08:00`,
+    duration: `PT${site.film.seconds}S`,
+    inLanguage: "en-GB",
+    publisher: { "@id": id("organization") },
+    about: { "@id": id("app") },
+  };
+}
+
 export function faqPage(items: { question: string; answer: string }[]) {
   return {
     "@type": "FAQPage",

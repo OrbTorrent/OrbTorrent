@@ -1,0 +1,16 @@
+{
+  "name": "orbtorrent-launch-video",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "preview": "node render.mjs --preview",
+    "render": "node render.mjs",
+    "check": "tsc -p ."
+  },
+  "devDependencies": {
+    "@fontsource-variable/geist": "^5.2.8",
+    "esbuild": "^0.25.0",
+    "playwright": "^1.63.0",
+    "typescript": "^5.9.0"
+  }
+}

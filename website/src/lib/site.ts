@@ -26,6 +26,17 @@ export const site = {
   /** Cloudflare Web Analytics' public token for orbtorrent.com; see Analytics.astro. */
   analytics: "ed0da937eec94cd9934789a93e8bfbd7",
   engine: { qbittorrent: "5.2.3", libtorrent: "1.2.20", qt: "6.10.3", openssl: "3.6.4", boost: "1.86.0" },
+  /**
+   * The launch film, in the site's light colours, made in video/ and played
+   * by Film.astro. A new cut needs a new file name: browsers keep this one a day.
+   */
+  film: {
+    src: "/film/orbtorrent.mp4",
+    seconds: 57,
+    made: "2026-10-03",
+    description:
+      "OrbTorrent's launch film, with music and no speech. It shows the orb and its panel in the menu bar, the library window, a magnet link that starts downloading, the VPN dropping and downloading stopping with it, a fake download held before it starts, and extensions checking every download. It ends on what OrbTorrent is: open source and native, with no ads and no account, and free for macOS 26 or later.",
+  },
 } as const;
 
 /** The orb's colours, for the page's light and the story's status dots. */

@@ -15,5 +15,8 @@
 /press/*
   Cache-Control: public, max-age=86400
 
+/film/*
+  Cache-Control: public, max-age=86400
+
 /og/*
   Cache-Control: public, max-age=86400

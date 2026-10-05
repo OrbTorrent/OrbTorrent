@@ -1,0 +1,31 @@
+{
+  "music": {
+    "title": "This Minimal Technology",
+    "artist": "Coma-Media",
+    "page": "https://pixabay.com/music/corporate-this-minimal-technology-pure-12327/",
+    "url": "https://cdn.pixabay.com/audio/2021/12/17/audio_93d90514a5.mp3",
+    "file": "this-minimal-technology.wav",
+    "gain": -7.3
+  },
+  "effects": {
+    "sparkle": 2350,
+    "swirl": 1493,
+    "impact": 2655,
+    "whoosh": 1490,
+    "pop": 3005,
+    "sweep": 166,
+    "click": 2997,
+    "pour": 3114,
+    "air": 1489,
+    "glitch": 2951,
+    "fail": 2939,
+    "powerUp": 2602,
+    "zoom": 772,
+    "scan": 2529,
+    "error": 1022,
+    "select": 2573,
+    "swoosh": 3115,
+    "typing": 2531,
+    "tick": 2568
+  }
+}

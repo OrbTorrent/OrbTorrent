@@ -5,6 +5,7 @@ import SectionHeader from "../components/SectionHeader.astro";
 import Shot from "../components/Shot.astro";
 import GitHubMark from "../components/GitHubMark.astro";
 import DownloadButton from "../components/DownloadButton.astro";
+import Film from "../components/Film.astro";
 import VpnDiagram from "../components/VpnDiagram.astro";
 import CodeSample from "../components/CodeSample.astro";
 import Faq from "../components/Faq.astro";
@@ -23,7 +24,7 @@ import Plug from "@lucide/astro/icons/plug";
 import Gauge from "@lucide/astro/icons/gauge";
 import { site, tints } from "../lib/site";
 import { faqs } from "../lib/faqs";
-import { application, graph, organization, website } from "../lib/schema";
+import { application, film, graph, organization, website } from "../lib/schema";
 import held from "../assets/shots/held.png";
 import finished from "../assets/shots/finished.png";
 import library from "../assets/shots/library.png";
@@ -31,6 +32,7 @@ import overview from "../assets/shots/overview-screen.png";
 import overviewPhone from "../assets/shots/overview-phone.png";
 import { getImage } from "astro:assets";
 import extensionsPage from "../assets/shots/extensions-page.png";
+import filmPoster from "../assets/film/poster.jpg";
 
 // The opening's picture, and on a phone just the part around the panel.
 const overviewAlt = "OrbTorrent on a Mac: the library window, with a download's files and its checks, and the panel opened from the orb in the menu bar, with live speeds and downloads";
@@ -41,7 +43,9 @@ const overviewSet = async (src: ImageMetadata, widths: number[]) => {
 const overviewDesk = await overviewSet(overview, [640, 960, 1280, 1600, 2000, 2400]);
 const overviewSmall = await overviewSet(overviewPhone, [320, 480, 630]);
 const overviewFallback = await getImage({ src: overview, width: 1280, format: "jpg", quality: 82 });
-const schema = graph(organization, website, application);
+// The film's opening title, for search engines; the player itself needs none.
+const filmThumbnail = await getImage({ src: filmPoster, width: 1280, format: "jpg", quality: 85 });
+const schema = graph(organization, website, application, film(filmThumbnail.src));
 
 const states = [
   {
@@ -121,7 +125,10 @@ const features = [
           OrbTorrent lives in your menu bar, keeps your downloads on your VPN, and stops fake downloads before they arrive.
           Underneath, qBittorrent's engine does the downloading.
         </p>
-        <DownloadButton class="mt-8" />
+        <div class="hero-actions mt-8">
+          <DownloadButton />
+          <Film />
+        </div>
         <p class="mt-4 text-sm faint">{site.requirements} · Apple silicon and Intel</p>
       </div>
     </div>
@@ -415,6 +422,12 @@ const features = [
     .hero h1, .title-orb { font-size: min(5rem, 5.5vw); }
   }
   .hero-aside .serif { max-width: 32rem; }
+  .hero-actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.75rem;
+  }
   /* The orb, in place of the o. The letter stays, unseen, so the word still
      reads, and is found, as "torrent", and it's spaced a little wider to fit
      the orb, which is a touch bigger than the letter. The orb is pinned to it

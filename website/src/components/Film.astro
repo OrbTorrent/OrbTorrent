@@ -1,0 +1,146 @@
+---
+// "Watch the film": the launch film, on the page's own paper, with its sound.
+// It starts on that paper too, so it needs no picture first, and nothing of it
+// loads until it's asked for. The Worker answers its byte ranges, which Safari
+// plays from (src/lib/ranges.ts). Without JavaScript, the link opens the film
+// itself. Use it once on a page; its classes are named for it alone.
+import Play from "@lucide/astro/icons/play";
+import X from "@lucide/astro/icons/x";
+import { site } from "../lib/site";
+
+interface Props {
+  class?: string;
+}
+const { class: className } = Astro.props;
+---
+
+<a href={site.film.src} class:list={["btn btn-soft btn-lg film-open", className]} aria-haspopup="dialog" data-film-open data-astro-prefetch="false">
+  <span class="film-open-icon"><Play size={11} fill="currentColor" /></span>
+  Watch the film
+</a>
+
+<dialog class="film-player" aria-label="OrbTorrent, the film" aria-describedby="film-about" data-film>
+  <div class="film-frame">
+    <video src={site.film.src} controls playsinline preload="none" width="1920" height="1080"></video>
+  </div>
+  <p id="film-about" class="sr-only">{site.film.description}</p>
+  <button type="button" class="film-close" aria-label="Close" data-film-close><X size={18} /></button>
+</dialog>
+
+<script>
+  const player = document.querySelector<HTMLDialogElement>("[data-film]");
+  const video = player?.querySelector("video");
+
+  if (player && video) {
+    let opener: HTMLElement | null = null;
+    document.addEventListener("click", (event) => {
+      const link = event.target instanceof Element ? event.target.closest("a[data-film-open]") : null;
+      if (!link || event.defaultPrevented || event.button !== 0) return;
+      // Command-click and the like keep their usual meaning.
+      if (event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
+      event.preventDefault();
+      opener = link as HTMLElement;
+      player.showModal();
+      // The click lets it play with sound. If the browser still says no, its
+      // controls are there to start it.
+      video.play().catch(() => {});
+    });
+    player.querySelector("[data-film-close]")?.addEventListener("click", () => player.close());
+    // A click on the paper around the film closes it, as Escape does.
+    player.addEventListener("click", (event) => {
+      if (event.target === player) player.close();
+    });
+    player.addEventListener("close", () => {
+      video.pause();
+      // Safari leaves focus on the page, not the link that opened it.
+      opener?.focus({ preventScroll: true });
+    });
+  }
+</script>
+
+<style>
+  /* One soft pill beside the Download button, as tall, with the play button
+     inside it, as far from its edge as from its top. */
+  .film-open {
+    gap: 0.7rem;
+    padding-inline: 0.875rem 1.5rem;
+  }
+  .film-open-icon {
+    display: grid;
+    place-items: center;
+    width: 1.75rem;
+    height: 1.75rem;
+    border-radius: 999px;
+    background: var(--ink);
+    color: var(--paper);
+    transition: transform 0.25s var(--ease-out-soft);
+  }
+  /* The triangle's weight sits left of its box. */
+  .film-open-icon :global(svg) { translate: 1px 0; }
+  .film-open:hover .film-open-icon { transform: scale(1.08); }
+
+  /* The whole window, the film in the middle at 16:9, as big as fits. */
+  .film-player {
+    --film-room: clamp(1rem, 5vw, 4.5rem);
+    width: 100%;
+    height: 100%;
+    max-width: none;
+    max-height: none;
+    margin: 0;
+    padding: var(--film-room);
+    border: 0;
+    overflow: hidden;
+    background: transparent;
+    color: var(--ink);
+  }
+  .film-player[open] {
+    display: grid;
+    place-items: center;
+  }
+  /* The page's paper; the backdrop can't see the page's colours. */
+  .film-player::backdrop {
+    background: rgb(246 245 241 / 0.94);
+    backdrop-filter: blur(24px);
+  }
+  .film-frame {
+    width: min(100%, (100dvh - 2 * var(--film-room)) * 16 / 9);
+    aspect-ratio: 16 / 9;
+    border-radius: clamp(0.75rem, 1.6vw, 1.5rem);
+    overflow: hidden;
+    background: #f6f5f1;
+    box-shadow: 0 0 0 1px var(--line), 0 40px 100px -40px rgb(19 19 22 / 0.35);
+  }
+  .film-frame video {
+    width: 100%;
+    height: 100%;
+    background: #f6f5f1;
+  }
+  .film-close {
+    position: fixed;
+    top: max(1rem, env(safe-area-inset-top));
+    right: max(1rem, env(safe-area-inset-right));
+    display: grid;
+    place-items: center;
+    width: 2.75rem;
+    height: 2.75rem;
+    border: 0;
+    border-radius: 999px;
+    background: var(--card);
+    color: var(--ink);
+    box-shadow: inset 0 0 0 1px var(--line), var(--shadow);
+    cursor: pointer;
+    transition: background-color 0.2s;
+  }
+  .film-close:hover { background: var(--paper-2); }
+
+  .film-player[open], .film-player[open]::backdrop { animation: film-fade 0.35s var(--ease-out-soft); }
+  .film-player[open] .film-frame { animation: film-rise 0.6s var(--ease-out-soft); }
+  @keyframes film-fade { from { opacity: 0; } }
+  @keyframes film-rise { from { opacity: 0; scale: 0.97; } }
+  @media (prefers-reduced-motion: reduce) {
+    .film-player[open], .film-player[open]::backdrop, .film-player[open] .film-frame { animation: none; }
+  }
+
+  /* The page stays put behind it. */
+  :global(html:has(.film-player[open])) { overflow: hidden; }
+</style>

@@ -2,10 +2,12 @@
 // and served as a file; this only answers /download/mac, which goes to the
 // newest disk image in the update feed, so the download button never needs
 // editing (until a release is in the feed, it goes to the releases page on
-// GitHub), and the email sign-up's posts (src/lib/newsletter.ts).
+// GitHub), the email sign-up's posts (src/lib/newsletter.ts), and the film's
+// byte ranges (src/lib/ranges.ts).
 
 import confirmEmail from "../emails/dist/confirm.json";
 import { answer, forgetUnconfirmed, type Database, type Newsletter } from "./lib/newsletter";
+import { withRange } from "./lib/ranges";
 import { parseFeed } from "./lib/release";
 import { site } from "./lib/site";
 
@@ -89,9 +91,24 @@ function count(request: Request, env: Env, version: string) {
   env.DOWNLOADS?.writeDataPoint({ indexes: ["mac"], blobs: [from, version, country], doubles: [1] });
 }
 
+/** A film, in the byte ranges Safari asks for (src/lib/ranges.ts). */
+async function film(request: Request, env: Env): Promise<Response> {
+  const response = await env.ASSETS.fetch(request);
+  if (!request.headers.has("Range")) return withRange(request, response);
+  let sizes: Record<string, number> = {};
+  try {
+    sizes = await (await env.ASSETS.fetch(new Request(new URL("/film/sizes.json", request.url)))).json();
+  } catch {
+    // Then the whole file, which is still a correct answer.
+  }
+  return withRange(request, response, sizes[new URL(request.url).pathname.slice("/film/".length)]);
+}
+
 export default {
   async fetch(request: Request, env: Env): Promise<Response> {
-    if (new URL(request.url).pathname === site.download) {
+    const { pathname } = new URL(request.url);
+    if (pathname.startsWith("/film/")) return film(request, env);
+    if (pathname === site.download) {
       const { url, version } = await newestDiskImage();
       count(request, env, version);
       return new Response(null, {
