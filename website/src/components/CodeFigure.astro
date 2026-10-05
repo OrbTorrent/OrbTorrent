@@ -1,0 +1,64 @@
+---
+// A few lines of OrbTorrent's own code, as they are in the repository, with
+// the file they're from, linked.
+import { Code } from "astro:components";
+import { site } from "../lib/site";
+
+interface Props {
+  code: string;
+  lang: "swift" | "ts" | "xml" | "yaml";
+  /** The file's path in the repository. */
+  file: string;
+}
+const { code, lang, file } = Astro.props;
+---
+
+<figure class="code-figure">
+  <figcaption class="code-figure-bar">
+    <span class="code-figure-lights" aria-hidden="true"><i></i><i></i><i></i></span>
+    <a href={`${site.repo}/blob/main/${file}`}>{file}</a>
+  </figcaption>
+  <Code code={code.trim()} lang={lang} theme="github-light-default" wrap={false} />
+</figure>
+
+<style>
+  .code-figure {
+    margin-block: 1.75rem;
+    border-radius: 1rem;
+    overflow: hidden;
+    background: var(--card);
+    box-shadow: inset 0 0 0 1px var(--line), var(--shadow);
+  }
+  .code-figure-bar {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    min-width: 0;
+    padding: 0.7rem 1.1rem;
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    color: var(--ink-3);
+    border-bottom: 1px solid var(--line);
+    background: var(--paper-2);
+  }
+  .code-figure-bar a {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    color: inherit;
+    text-decoration: none;
+  }
+  .code-figure-bar a:hover { color: var(--ink); }
+  .code-figure-lights { display: inline-flex; flex: none; gap: 0.4rem; }
+  .code-figure-lights i { width: 0.65rem; height: 0.65rem; border-radius: 999px; background: var(--line-2); }
+  .code-figure :global(pre) {
+    margin: 0;
+    padding: 1.1rem 1.25rem 1.25rem;
+    background: transparent !important;
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    line-height: 1.7;
+    overflow-x: auto;
+    scrollbar-width: thin;
+  }
+</style>

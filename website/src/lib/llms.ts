@@ -58,6 +58,7 @@ export async function llmsIndex(): Promise<string> {
     `- [Privacy](${site.url}/privacy): everything the app and the website connect to.`,
     `- [FAQ](${site.url}/faq): questions and answers.`,
     `- [Press kit](${site.url}/press): facts, descriptions and images.`,
+    `- [How OrbTorrent is built](${site.url}/how-its-built): the app, qBittorrent's engine, the VPN cut-off and port forwarding, the extension sandbox and signed updates, with excerpts of the code.`,
     ...sections(await docs()),
     "",
     "## Optional",

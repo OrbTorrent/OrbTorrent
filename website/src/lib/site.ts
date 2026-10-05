@@ -7,6 +7,7 @@ export const site = {
   description:
     "OrbTorrent is a free, open-source torrent client for Mac, with no ads. It runs qBittorrent's engine, lives in your menu bar, stays on your VPN and stops fakes.",
   author: "Sanjevi Rau",
+  authorUrl: "https://github.com/sanjevirau",
   email: "help@orbtorrent.com",
   repo: "https://github.com/sanjevirau/OrbTorrent",
   releases: "https://github.com/sanjevirau/OrbTorrent/releases",

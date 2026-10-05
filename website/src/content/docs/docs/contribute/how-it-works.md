@@ -3,7 +3,7 @@ title: How OrbTorrent works
 description: How OrbTorrent is put together, from its SwiftUI app and qBittorrent's engine to the sandboxed extension host and signed updates.
 ---
 
-OrbTorrent is a native Mac app, written in Swift and SwiftUI, that runs qBittorrent's download engine in the background. Here's how the parts fit.
+OrbTorrent is a native Mac app, written in Swift and SwiftUI, that runs qBittorrent's download engine in the background. Here's how the parts fit. [How OrbTorrent is built](/how-its-built) tells the longer story, with the reasons and excerpts of the code.
 
 ## The parts
 

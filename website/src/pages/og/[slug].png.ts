@@ -15,6 +15,7 @@ const pages: Record<string, { title: string; subtitle: string }> = {
   privacy: { title: "It knows nothing about you.", subtitle: "Everything OrbTorrent connects to and counts, and why." },
   faq: { title: "Questions, answered.", subtitle: "Is it free? Is it legal? Does it work with my VPN?" },
   press: { title: "Press kit", subtitle: "Facts, descriptions, the icon and screenshots of OrbTorrent." },
+  "how-its-built": { title: "How OrbTorrent is built.", subtitle: "A SwiftUI app around qBittorrent's engine, tied to your VPN, with extensions in a sandbox." },
   "404": { title: "This page isn't here.", subtitle: "OrbTorrent, the torrent app made for your Mac." },
 };
 

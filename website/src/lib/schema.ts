@@ -71,6 +71,33 @@ export function breadcrumbs(trail: { name: string; path: string }[]) {
   };
 }
 
+/** A long read, such as how OrbTorrent is built, by its developer, about the app. */
+export function article({ path, title, description, published, modified = published }: {
+  path: string;
+  title: string;
+  description: string;
+  /** As YYYY-MM-DD. */
+  published: string;
+  modified?: string;
+}) {
+  const url = `${site.url}${path}`;
+  return {
+    "@type": "TechArticle",
+    "@id": `${url}#article`,
+    headline: title,
+    description,
+    url,
+    mainEntityOfPage: url,
+    image: `${site.url}/og${path}.png`,
+    datePublished: published,
+    dateModified: modified,
+    inLanguage: "en-GB",
+    author: { "@type": "Person", name: site.author, url: site.authorUrl },
+    publisher: { "@id": id("organization") },
+    about: { "@id": id("app") },
+  };
+}
+
 /** The launch film, with the picture its player shows first. */
 export function film(thumbnail: string) {
   return {

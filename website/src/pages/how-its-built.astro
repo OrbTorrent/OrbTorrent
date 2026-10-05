@@ -1,0 +1,635 @@
+---
+// How OrbTorrent is built: the technical write-up that Show HN, developer
+// newsletters and r/swift link to. Every fact in it is checked against the
+// source, and each excerpt is the code as it is in the repository. When the
+// code it describes changes, change this too, and `modified` below.
+import Base from "../layouts/Base.astro";
+import PageHero from "../components/PageHero.astro";
+import CodeFigure from "../components/CodeFigure.astro";
+import LiveOrb from "../components/LiveOrb.astro";
+import Shot from "../components/Shot.astro";
+import DownloadButton from "../components/DownloadButton.astro";
+import GitHubMark from "../components/GitHubMark.astro";
+import panel from "../assets/shots/panel.png";
+import { site, tints } from "../lib/site";
+import { application, article, breadcrumbs, graph, organization } from "../lib/schema";
+
+const path = "/how-its-built";
+const title = "How OrbTorrent is built";
+const description =
+  "A SwiftUI app around qBittorrent's engine, tied to your VPN, with extensions in a sandbox and signed updates. How the parts fit, and why.";
+const published = "2026-10-03";
+const modified = published;
+const shown = (date: string) =>
+  new Date(`${date}T00:00:00Z`).toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric", timeZone: "UTC" });
+
+const schema = graph(organization, application, breadcrumbs([{ name: title, path }]), article({ path, title, description, published, modified }));
+const source = (file: string) => `${site.repo}/blob/main/${file}`;
+
+const sections = [
+  { id: "why", title: "Why I built it" },
+  { id: "shape", title: "Three programs in one app" },
+  { id: "engine", title: "qBittorrent's engine, from source" },
+  { id: "private", title: "A private engine" },
+  { id: "app", title: "A Mac app around it" },
+  { id: "vpn", title: "Only through the VPN" },
+  { id: "port", title: "The forwarded port" },
+  { id: "fakes", title: "Holding fakes before they arrive" },
+  { id: "extensions", title: "Extensions in a sandbox" },
+  { id: "updates", title: "Signed updates" },
+  { id: "orb", title: "The orb" },
+  { id: "next", title: "What it doesn't do, yet" },
+];
+
+const states = [
+  { label: "Downloading", tint: tints.active, state: { kind: "downloading", progress: 0.64, energy: 0.8 } },
+  { label: "Waiting for the VPN", tint: tints.waiting, state: { kind: "waiting", progress: 0.64 } },
+  { label: "Paused", tint: tints.paused, state: { kind: "paused", progress: 0.64 } },
+  { label: "Finished", tint: tints.finished, state: { kind: "finished" } },
+  { label: "Failed", tint: tints.failed, state: { kind: "failed", progress: 0.64 } },
+];
+
+const engineSettings = String.raw`
+ini.set("WebUI\\Enabled", "true", in: "Preferences")
+ini.set("WebUI\\Address", "127.0.0.1", in: "Preferences")
+ini.set("WebUI\\Port", String(credentials.port), in: "Preferences")
+ini.set("WebUI\\Username", credentials.username, in: "Preferences")
+ini.set("WebUI\\Password_PBKDF2", "\"\(passwordHash(credentials.password))\"", in: "Preferences")
+ini.set("WebUI\\LocalHostAuth", "true", in: "Preferences")
+ini.set("WebUI\\UseUPnP", "false", in: "Preferences")
+ini.set("WebUI\\AlternativeUIEnabled", "false", in: "Preferences")
+ini.set("WebUI\\CSRFProtection", "true", in: "Preferences")
+ini.set("WebUI\\HostHeaderValidation", "true", in: "Preferences")
+ini.set("WebUI\\ServerDomains", "127.0.0.1;localhost", in: "Preferences")`;
+
+const binding = String.raw`
+/// An interface name that can't exist, for when no VPN is connected: bound
+/// to it, the engine has no connection at all.
+static let noVPN = "orbtorrent-no-vpn"
+
+// …
+
+/// The interface the engine should use: empty for any.
+static func interface(vpnOnly: Bool, connection: VPNMonitor.Connection?) -> String {
+    guard vpnOnly else { return "" }
+    return connection?.interface ?? noVPN
+}`;
+
+const natpmp = String.raw`
+static func mappingRequest(_ portProtocol: PortProtocol, internalPort: UInt16 = 0, suggestedPort: UInt16 = 1,
+                           lifetime: UInt32 = lifetime) -> [UInt8] {
+    [0, portProtocol.rawValue, 0, 0] + bytes(internalPort) + bytes(suggestedPort) + bytes(lifetime)
+}`;
+
+const stopCondition = String.raw`
+private func apply(_ options: AddOptions, to form: inout MultipartForm) {
+    if let savePath = options.savePath { form.add("savepath", savePath) }
+    let stopped = options.startImmediately ? "false" : "true"
+    form.add("stopped", stopped)
+    form.add("paused", stopped) // qBittorrent 4.x name
+    form.add("sequentialDownload", options.sequentialDownload ? "true" : "false")
+    form.add("firstLastPiecePrio", options.firstAndLastPiecesFirst ? "true" : "false")
+    if options.stopsWhenFilesAreKnown { form.add("stopCondition", "MetadataReceived") }
+}`;
+
+const entitlements = String.raw`
+<dict>
+	<!-- No file or network access of its own: OrbTorrent answers every request. -->
+	<key>com.apple.security.app-sandbox</key>
+	<true/>
+	<!-- JavaScriptCore runs about 40 times faster with its JIT. -->
+	<key>com.apple.security.cs.allow-jit</key>
+	<true/>
+</dict>`;
+
+const sparkle = String.raw`
+SUFeedURL: https://updates.orbtorrent.com/appcast.xml
+# …
+SURequireSignedFeed: true
+SUVerifyUpdateBeforeExtraction: true
+SUEnableAutomaticChecks: true
+SUScheduledCheckInterval: 86400
+# Updates download in the background, and OrbTorrent restarts to
+# install them while it isn't in use (see Updates.swift).
+SUAutomaticallyUpdate: true`;
+
+const worker = String.raw`
+function count(request: Request, feed: string) {
+	const agent = request.headers.get("User-Agent") ?? "";
+	const [, app = "other", version = "", build = ""] =
+		agent.match(/^(OrbTorrent(?: Dev)?)\/(\S+) \((\d+)\)/) ?? [];
+	const params = new URL(request.url).searchParams;
+	env.CHECKS.writeDataPoint({
+		indexes: [feed],
+		blobs: [app, version, build, ...blobs(params)],
+		doubles: [1, ...doubles(params)],
+	});
+}`;
+---
+
+<Base title={title} description={description} schema={schema} imageAlt="How OrbTorrent is built: a SwiftUI app around qBittorrent's engine">
+  <PageHero label="How it's built" title="How OrbTorrent" tone="is built.">
+    A native SwiftUI app around qBittorrent's engine, tied to your VPN, with extensions in a sandbox and updates signed twice over. Here's how the parts fit, and why they're built the way they are.
+  </PageHero>
+
+  <div class="rule"></div>
+
+  <div class="wrap inset built-layout">
+    <nav class="built-contents reveal" aria-label="Contents">
+      <p class="label">Contents</p>
+      <ol class="built-contents-list mt-4">
+        {sections.map((section, index) => (
+          <li><a href={`#${section.id}`} data-section={section.id}><span class="built-contents-number">{String(index + 1).padStart(2, "0")}</span>{section.title}</a></li>
+        ))}
+      </ol>
+      <div class="built-contents-source">
+        <a class="arrow-link text-sm" href={site.repo}><GitHubMark size={15} /> The source on GitHub</a>
+      </div>
+    </nav>
+
+    <article class="prose built-prose reveal" style="--delay: 0.06s">
+      <p class="built-byline">
+        <span>By <a href={site.authorUrl}>{site.author}</a></span>
+        <span aria-hidden="true">·</span>
+        <time datetime={published}>{shown(published)}</time>
+        <span aria-hidden="true">·</span>
+        <span>About 13 minutes to read</span>
+      </p>
+
+      <h2 id="why">Why I built it</h2>
+      <p>
+        My internet provider, like more and more of them, puts its customers behind a shared IP address, known as carrier-grade NAT. No port can be opened, so other peers can't connect to me, and I can only reach peers that accept connections themselves. When a torrent's seeders were behind shared addresses too, Transmission had no way to reach them.
+      </p>
+      <p>
+        qBittorrent did. Its engine, libtorrent, supports <a href="https://www.bittorrent.org/beps/bep_0055.html">hole punching</a>: when two peers can't reach each other, a peer they're both connected to introduces them, and they connect to each other at the same moment over µTP. It gets through many of these routers, though not all, and libtorrent has done it for more than a decade. Transmission has since <a href="https://github.com/transmission/transmission/pull/8884">added it</a> for its next version, 4.2, but the version out today, 4.1.3, doesn't have it.
+      </p>
+      <p>
+        But qBittorrent on a Mac is the same Qt app as on Windows and Linux, and it never felt at home on mine. So OrbTorrent is qBittorrent's engine in a Mac app. Once I was building it, three more things kept coming up:
+      </p>
+      <ul>
+        <li><strong>Staying on a VPN.</strong> If the VPN drops, a torrent app should stop, not carry on over your normal connection. Transmission's Mac app can only be tied to one through a <a href="https://github.com/transmission/transmission/blob/4.1.3/macosx/Controller.mm#L475-L483">hidden preference</a>, set from Terminal. qBittorrent lets you choose the VPN's network interface, but on a Mac <a href="https://safelyo.com/how-to-bind-qbittorrent-to-vpn/">its name can change</a> when the VPN reconnects or the Mac wakes, and downloads stall until you choose it again.</li>
+        <li><strong>Keeping a VPN's forwarded port.</strong> VPNs that forward a port often hand out a new one when you reconnect, and the torrent app has to be told each time. People run background scripts for it. A forwarded port is also the way out of a shared address: hole punching reaches many peers, but a forwarded port lets every peer reach you.</li>
+        <li><strong>Fakes.</strong> A “film” that's really a program is an old trick, and it still works.</li>
+      </ul>
+      <p>
+        The biggest decision was the one it started with: not to write a new BitTorrent engine. OrbTorrent uses qBittorrent's, which already does the hard protocol work well, and spends the effort on everything around it.
+      </p>
+
+      <h2 id="shape">Three programs in one app</h2>
+      <p>
+        OrbTorrent.app holds three programs: the app you see, qBittorrent's engine, and a small helper that runs extensions. Sparkle, inside the app too, keeps them up to date.
+      </p>
+      <figure class="built-diagram" aria-labelledby="diagram-caption">
+        <div class="built-diagram-app">
+          <p class="label">OrbTorrent</p>
+          <p class="built-diagram-text">The app you see, in Swift and SwiftUI: the menu bar, the window and settings. It finds the VPN, forwards its port, guards disk space and runs the checks.</p>
+        </div>
+        <div class="built-diagram-columns">
+          <div class="built-diagram-column">
+            <p class="built-diagram-link">qBittorrent's Web API on 127.0.0.1, behind a random password</p>
+            <div class="built-diagram-node">
+              <p class="label">qbittorrent-nox</p>
+              <p class="built-diagram-text">qBittorrent's engine, statically linked. Does the BitTorrent work.</p>
+            </div>
+            <p class="built-diagram-link">Only through the VPN's network interface</p>
+            <div class="built-diagram-node is-outside">
+              <p class="label">Peers</p>
+            </div>
+          </div>
+          <div class="built-diagram-column">
+            <p class="built-diagram-link">One JSON message a line, over stdin and stdout</p>
+            <div class="built-diagram-node">
+              <p class="label">orb-extension-host</p>
+              <p class="built-diagram-text">A fresh process for each run of an extension, in the App Sandbox.</p>
+            </div>
+            <p class="built-diagram-link is-back">Every file and request it wants, asked of OrbTorrent and checked</p>
+          </div>
+          <div class="built-diagram-column">
+            <p class="built-diagram-link">Once a day</p>
+            <div class="built-diagram-node">
+              <p class="label">Sparkle</p>
+              <p class="built-diagram-text">Checks for updates and installs them, after checking their signatures.</p>
+            </div>
+            <p class="built-diagram-link">A signed feed, and signed disk images</p>
+            <div class="built-diagram-node is-outside">
+              <p class="label">updates.orbtorrent.com</p>
+              <p class="built-diagram-text">A Cloudflare Worker, and GitHub Releases.</p>
+            </div>
+          </div>
+        </div>
+        <figcaption id="diagram-caption" class="built-caption">Inside OrbTorrent.app, and what each part talks to. The engine is statically linked, so the app depends on nothing but macOS.</figcaption>
+      </figure>
+
+      <h2 id="engine">qBittorrent's engine, from source</h2>
+      <p>
+        Most of a BitTorrent client is protocol work: µTP, the DHT, peer exchange, encryption, trackers, getting through routers and hole punching past them, and years of odd peers in the wild. libtorrent does all of it, and qBittorrent wraps it in <code>qbittorrent-nox</code>, a version without an interface that's driven entirely through a Web API. That API is what qBittorrent's own web interface, phone remotes and tools like Sonarr use, so it's well trodden.
+      </p>
+      <p>
+        Running the engine as it is, rather than building an app on libtorrent directly, has two more advantages. Its files are qBittorrent's own, so someone coming from qBittorrent brings their downloads over as they are, progress and all. And a new engine is a new version number, not a port.
+      </p>
+      <p>
+        <a href={source("engine/build.sh")}><code>engine/build.sh</code></a> builds qBittorrent {site.engine.qbittorrent} with libtorrent {site.engine.libtorrent}, Qt {site.engine.qt}, OpenSSL {site.engine.openssl} and Boost {site.engine.boost}: the versions qBittorrent's own Mac release uses, with OpenSSL a patch release newer. Each source archive is pinned by its SHA-256 and checked before it's unpacked. Nothing comes from Homebrew: the script borrows only <code>cmake</code> and <code>ninja</code> from the Mac, takes <code>pkg-config</code> off the path and tells CMake to ignore <code>/opt/homebrew</code> and <code>/usr/local</code>, so the result links against nothing but macOS. Release builds are universal, for Apple silicon and Intel.
+      </p>
+      <p>
+        The build takes about 15 minutes and needs a single patch, to Qt: a missing include that newer versions of Apple's compiler insist on. qBittorrent itself is unchanged. Every release's notes list the engine's versions and licences and what changed since the release before, with the sources attached. OrbTorrent isn't affiliated with the qBittorrent project, which deserves the credit for the engine.
+      </p>
+
+      <h2 id="private">A private engine</h2>
+      <p>
+        The engine runs as a child process of OrbTorrent, with its own profile in <code>~/Library/Application Support/OrbTorrent/Engine</code>, so it never touches a qBittorrent you also have. Before it starts, OrbTorrent writes the few settings it needs in order to be reached, and to be reached by nothing else:
+      </p>
+      <CodeFigure file="OrbTorrent/Engine/EngineConfiguration.swift" lang="swift" code={engineSettings} />
+      <ul>
+        <li>The Web API listens on <code>127.0.0.1</code> only, on a free port picked at random, so nothing on your network can reach it.</li>
+        <li>It needs a password, also random, kept in a file only you can read. The engine gets it as a PBKDF2-SHA512 hash with 100,000 rounds, the way qBittorrent stores its own.</li>
+        <li>Even on this Mac, it asks for the password, and qBittorrent's protections against cross-site requests and DNS rebinding stay on.</li>
+        <li>The engine's own way of running a program when a download finishes is off. OrbTorrent has its own, which only you can choose, and which runs your program without a shell.</li>
+      </ul>
+      <p>
+        Everything else is set through the API once it's running. If the engine stops by itself, OrbTorrent starts it again two seconds later, and gives up with a message if it stops more than three times in two minutes. Quitting asks it to shut down through the API, so it saves every download's progress, and waits up to 20 seconds before insisting. If OrbTorrent itself crashed last time, it finds the engine it left behind from a PID file, checks the process really is <code>qbittorrent-nox</code>, and stops it before starting another.
+      </p>
+      <p>
+        The app asks the engine for the state of every download once a second. The engine only updates what it reports every 1.5 seconds by default, so OrbTorrent sets that to half a second, and a pause or a change of speed shows at once.
+      </p>
+
+      <h2 id="app">A Mac app around it</h2>
+      <p>
+        The app is SwiftUI, in Swift 6 with complete concurrency checking, for macOS 26 and its Liquid Glass. The menu bar panel is a <code>MenuBarExtra</code>, and the library an ordinary window. Much of what makes it feel like a Mac app is small:
+      </p>
+      <figure class="art art-blue built-shot">
+        <Shot src={panel} alt="OrbTorrent's menu bar panel: two downloads in progress and three seeding, each with its progress, and Open App, Pause All and Add Link at the bottom" width={360} />
+      </figure>
+      <ul>
+        <li><strong>The menu bar icon</strong> is an 18-point template image, so it takes the menu bar's own colour. Its light fills in 40 steps as downloads progress, each drawn once and kept, and it never animates, so it costs nothing while it sits there.</li>
+        <li><strong>Where the icon is.</strong> SwiftUI doesn't say where a <code>MenuBarExtra</code>'s icon is, and AppKit's windows for it can't be trusted with several displays, as each display's menu bar has its own copy. Accessibility reports where it really is, and an app may always ask it about itself.</li>
+        <li><strong>Updates wait for you.</strong> One that's downloaded installs once OrbTorrent hasn't been used for a minute, and nothing is being imported, checked or moved.</li>
+        <li><strong>Reduce Motion</strong> holds the orb still.</li>
+      </ul>
+      <p>
+        And what only OrbTorrent does, it does itself, outside the engine. It counts what each unfinished download still needs and pauses downloads before a disk fills. When you drag a download's files into the order you want, it turns that order into the engine's four priorities, as each file finishes. It adds a public list of trackers to public torrents only, never private ones. It reads Transmission's files and qBittorrent's directly to import them. And it keeps the engine on your VPN.
+      </p>
+
+      <h2 id="vpn">Only through the VPN</h2>
+      <p>
+        libtorrent can be told to use a single network interface for everything, and qBittorrent exposes that as a setting. If that interface goes away, the engine doesn't fall back to another: it has no connection at all. That's the whole of the cut-off. The work is in choosing the right interface, and in never letting the engine run on the wrong one, even for a moment.
+      </p>
+      <p>
+        <strong>Finding the VPN.</strong> OrbTorrent reads the Mac's network state from SystemConfiguration: the VPNs set up in System Settings or by VPN apps, and which are connected. That isn't enough on its own. Tunnelblick and <code>wg-quick</code>, for example, can route all traffic through themselves without becoming the Mac's primary connection, so OrbTorrent also listens on a routing socket for routes and addresses coming and going. To see which interface really carries internet traffic, it connects a UDP socket towards a public address and asks which local address the system chose. Connecting a UDP socket sends nothing; it only picks the route.
+      </p>
+      <p>
+        <strong>Binding to it.</strong> The interface is written into the engine's settings before it launches, so it never starts on another. With no VPN connected, it's bound to one that can't exist:
+      </p>
+      <CodeFigure file="OrbTorrent/Store/VPNBinding.swift" lang="swift" code={binding} />
+      <p>
+        Two details took finding. When the binding narrows, from any connection to the VPN's, the engine keeps the connections to peers it already has, so OrbTorrent drops them and they come back over the VPN. And libtorrent doesn't start the DHT on listening sockets made while it runs, so after the interface or port changes, OrbTorrent turns the DHT off and on again. Without that, a magnet link with no trackers would find no peers until the next launch.
+      </p>
+      <p>
+        In testing, downloading stopped within 0.2 seconds of one VPN app disconnecting, and within a second with Private Internet Access, through sleep and wake, Wi-Fi dropping and coming back, and a bare <code>wg-quick</code> tunnel with no VPN set up in macOS at all.
+      </p>
+
+      <h2 id="port">The forwarded port</h2>
+      <p>
+        Through a VPN, your router's port forwarding is no use: for other peers to connect to you, the VPN has to forward a port. Behind a shared address, it's the only way to open one at all. Many VPNs do that over NAT-PMP (<a href="https://www.rfc-editor.org/rfc/rfc6886">RFC 6886</a>), and some give you a new port each time you connect, which is what the background scripts are for.
+      </p>
+      <p>
+        OrbTorrent asks the VPN's gateway itself, on UDP port 5351, the way documented NAT-PMP clients do: first for its public address, then for a mapping, for UDP and TCP. A request is twelve bytes:
+      </p>
+      <CodeFigure file="OrbTorrent/System/NATPMP.swift" lang="swift" code={natpmp} />
+      <p>
+        Some gateways pick the port themselves, and others forward the one asked for, so OrbTorrent asks for the port the engine already listens on. Mappings last 60 seconds and are renewed every 45. A renewal that goes unanswered isn't the end: the port stays in use until its mapping runs out, and only then does the engine go back to its own. Where NAT-PMP doesn't answer, OrbTorrent reads the port from Private Internet Access's own command-line tool, or uses one you've reserved in your VPN account, as AirVPN and Windscribe have you do.
+      </p>
+      <p>
+        Against a WireGuard server with a NAT-PMP gateway, the forwarded port was in use about two seconds after connecting, and a peer outside reached the engine through it.
+      </p>
+
+      <h2 id="fakes">Holding fakes before they arrive</h2>
+      <p>
+        A fake does its damage once its program is on your Mac, so the check has to come before any of it arrives. The catch is that a magnet link carries no list of files: that comes from peers, as the torrent's metadata. qBittorrent has a stop condition for exactly this moment, so OrbTorrent adds the download running, and has the engine stop it the moment its files are known:
+      </p>
+      <CodeFigure file="OrbTorrent/API/QBittorrentClient.swift" lang="swift" code={stopCondition} />
+      <p>
+        The checks then run on the file list. If they pass, OrbTorrent starts the download. If one fails, it's held, and the button reads Download Anyway. A check gets 15 seconds, and one that doesn't finish lets the download start, so a broken extension never blocks downloads.
+      </p>
+      <p>
+        The Fake Download Check is the first of these checks. It looks only at names and sizes, on your Mac, and sends nothing anywhere. It first works out what a download is from where most of its size is: a film, music or a book, none of which need a program. Then it looks for what fakes share:
+      </p>
+      <ul>
+        <li>a program disguised as something else, such as a video;</li>
+        <li>invisible characters that reverse how part of a name reads, to hide its real extension;</li>
+        <li>a film, an album or a book that comes with a program or an installer;</li>
+        <li>a video locked in an archive, with the password in a file beside it;</li>
+        <li>a film far too small for the quality its name claims, or from a year that hasn't happened;</li>
+        <li>video only as <code>.wmv</code> or <code>.asf</code>, the classic “codec required” fake;</li>
+        <li>files telling you to download or watch it somewhere else.</li>
+      </ul>
+      <p>
+        It has 61 test cases. More than half are real downloads it has to leave alone, from a 4K remux to a game named with its year, since a check that cries wolf gets turned off.
+      </p>
+
+      <h2 id="extensions">Extensions in a sandbox</h2>
+      <p>
+        Checks like that one are extensions, written in TypeScript, and anyone can write one. The <code>orb</code> command-line tool bundles each with esbuild into a single script, and OrbTorrent runs it in <code>orb-extension-host</code>, a small helper with JavaScriptCore and two entitlements:
+      </p>
+      <CodeFigure file="ExtensionHost/ExtensionHost.entitlements" lang="xml" code={entitlements} />
+      <p>
+        The App Sandbox, with no exceptions, means the helper can't open a file, connect to anything or even look up a host name, and any program it started would be just as stuck. JavaScriptCore's JIT is on only in the helper, never in OrbTorrent.
+      </p>
+      <p>
+        A fresh helper runs each hook and exits when it returns. It talks to OrbTorrent only through its standard input and output, one JSON message a line. <code>fetch</code>, file fingerprints and storage are all requests that OrbTorrent answers, after checking them against the permissions in the extension's <code>package.json</code>, which you saw before you installed it.
+      </p>
+      <ul>
+        <li><strong>The network:</strong> HTTPS only, to the hosts the extension lists. OrbTorrent looks each host up and refuses one on the Mac or the local network. Then it connects through a relay of its own on <code>127.0.0.1</code>, which connects to the very address that was checked, so a host can't pass the check and switch to a local address for the connection. TLS still runs from the request to the host, through the relay.</li>
+        <li><strong>Files:</strong> an extension never gets a path. OrbTorrent reads a download's files itself, to fingerprint or upload them, and writes any it's allowed to add, such as subtitles, only next to that download.</li>
+        <li><strong>Limits:</strong> 15 seconds, 10 seconds of computing and 512 MB before a download starts. After one finishes, up to six hours, for a scan that paces itself for a service's rate limit.</li>
+      </ul>
+      <p>
+        <code>orb test</code> runs the built script in Node's <code>vm</code> module with only the host's few APIs, and answers every request from the test's mocks under the same rules and messages as OrbTorrent, so a test behaves as the app would. The SDK, <a href="https://www.npmjs.com/package/@orbtorrent/api"><code>@orbtorrent/api</code></a>, is MIT-licensed, and comes with an <code>AGENTS.md</code> and an Agent Skill, so a coding agent can build an extension too. It can't install one, though, or allow a folder of them for development. Only you can, in OrbTorrent's own windows. The <a href="/docs/extensions/security">security model</a> has the rest.
+      </p>
+
+      <h2 id="updates">Signed updates</h2>
+      <p>
+        OrbTorrent updates itself with <a href="https://sparkle-project.org">Sparkle</a>. Once a day it reads a feed from <code>updates.orbtorrent.com</code>. The feed and each update are signed with an EdDSA key, and the app accepts neither without a good signature, checking an update's before it's even unpacked:
+      </p>
+      <CodeFigure file="project.yml" lang="yaml" code={sparkle} />
+      <p>
+        The feed comes from a Cloudflare Worker, which passes it on from Workers KV exactly as it was signed, and counts the request: the version and build in Sparkle's user agent, and a few anonymous counts in the address. Not the IP address it came from.
+      </p>
+      <CodeFigure file="updates/src/index.ts" lang="ts" code={worker} />
+      <p>
+        The counts are your version of macOS, whether your Mac has Apple silicon or Intel, the week OrbTorrent was installed, whether this is its first check ever, this week or this month, and how many times it or its engine quit unexpectedly since the last check. There's no ID: Macs are counted by those first checks. <strong>Settings › General › See What's Sent</strong> shows exactly what the next check will send, and the counts can be turned off there. <a href="/privacy#counts">Privacy</a> lists them all.
+      </p>
+      <p>
+        The updates themselves are disk images on GitHub Releases. One script adds a release to the feed, and can mark it critical, so it can't be skipped; phase it in, to a seventh more Macs each day over a week; or withdraw it, which also points the download page and the Homebrew tap back at the version before.
+      </p>
+
+      <h2 id="orb">The orb</h2>
+      <p>
+        The orb shows OrbTorrent's state at a glance. It fills as downloads progress, and its colour says what's going on: blue while downloading, amber while waiting for the VPN, grey when paused, green when finished, red when something has failed.
+      </p>
+      <figure class="stage built-orb" data-orb-stage>
+        <LiveOrb size="clamp(7rem, 22vw, 9.5rem)" state={states[0].state} id="built-orb" />
+        <div class="built-orb-states" role="group" aria-label="The orb's state">
+          {states.map((item, index) => (
+            <button type="button" class="built-orb-state" style={`--dot: ${item.tint}`} data-state={JSON.stringify(item.state)} data-tint={item.tint} aria-pressed={index === 0 ? "true" : "false"}>{item.label}</button>
+          ))}
+        </div>
+        <figcaption class="built-orb-caption">The website's orb, drawn live with WebGL. Choose a state.</figcaption>
+      </figure>
+      <p>
+        In the app it's SwiftUI: pools of colour on a slowly turning globe, sampled on a grid and drawn as a <code>MeshGradient</code>, masked to a level with a gentle wave on its surface, lit with plus-lighter highlights, inside a clear Liquid Glass circle. A <code>TimelineView</code> redraws it up to 60 times a second.
+      </p>
+      <p>
+        The website draws the same orb in a single WebGL fragment shader, ported from the app's <code>OrbView</code> layer by layer, with Catmull-Rom smoothing standing in for the mesh gradient's smooth colours. It pauses when it's off screen or in a background tab, and holds still for anyone who has asked for less motion, as the app's does.
+      </p>
+
+      <h2 id="next">What it doesn't do, yet</h2>
+      <p>
+        Some things are left out on purpose. There's no built-in torrent search, for the legal risk and because search plugins need constant upkeep. There are no downloads from RSS feeds, since people who want them use Sonarr and Radarr. And BitTorrent v2 and WebTorrent wait on the engine.
+      </p>
+      <p>
+        Next are playing a video while it downloads, and an opt-in way to control OrbTorrent from your own network, so phone remotes and Sonarr can use it. The <a href={site.roadmap}>roadmap</a> has the rest, with the requests behind each.
+      </p>
+      <p>
+        OrbTorrent is free and open source, under the GNU GPL, and the extension SDK is MIT. The <a href={site.repo}>source is on GitHub</a>, and <a href="/docs/contribute">Contribute</a> explains how to build it. Questions, bugs and ideas are all welcome there.
+      </p>
+    </article>
+  </div>
+
+  <section class="wrap inset pb-4">
+    <div class="dossier built-end reveal">
+      <div>
+        <p class="label">Try it</p>
+        <h2 class="heading mt-4">Free, for your Mac.</h2>
+        <p class="mt-4 muted max-w-xl">No account and no ads. It brings your downloads over from Transmission or qBittorrent in one step.</p>
+      </div>
+      <div class="built-end-actions">
+        <DownloadButton />
+        <a class="btn btn-soft btn-lg" href={site.repo}><GitHubMark size={18} /> Source code</a>
+      </div>
+    </div>
+  </section>
+</Base>
+
+<style>
+  .built-layout {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 2.5rem;
+    padding-block: clamp(3rem, 7vw, 5rem) clamp(4rem, 8vw, 6rem);
+  }
+  @media (min-width: 1024px) {
+    .built-layout { grid-template-columns: 15rem minmax(0, 1fr); gap: 5rem; }
+    .built-contents { position: sticky; top: 6rem; align-self: start; }
+  }
+
+  /* The contents, beside the article on wide screens. */
+  .built-contents-list { display: grid; gap: 0.15rem; counter-reset: none; }
+  .built-contents-list a {
+    display: flex;
+    gap: 0.75rem;
+    padding: 0.32rem 0;
+    font-size: 0.9rem;
+    line-height: 1.35;
+    color: var(--ink-2);
+    transition: color 0.2s;
+  }
+  .built-contents-list a:hover,
+  .built-contents-list a[aria-current="true"] { color: var(--ink); }
+  .built-contents-number {
+    flex: none;
+    width: 1.4rem;
+    font-family: var(--font-mono);
+    font-size: 0.72rem;
+    line-height: 1.75;
+    color: var(--ink-3);
+  }
+  .built-contents-list a[aria-current="true"] .built-contents-number { color: var(--color-blue); }
+  .built-contents-source { margin-top: 1.5rem; padding-top: 1.25rem; border-top: 1px solid var(--line-2); }
+  @media (max-width: 1023px) {
+    .built-contents { padding: 1.4rem 1.6rem; border-radius: 1.25rem; background: var(--paper-2); }
+    .built-contents-list { grid-template-columns: repeat(auto-fill, minmax(min(100%, 15rem), 1fr)); column-gap: 1.5rem; }
+  }
+
+  /* The article. */
+  /* Words at a comfortable measure, and figures wider, out to the frame. */
+  .built-prose { max-width: none; font-size: 1.0625rem; line-height: 1.7; }
+  .built-prose > :global(:not(figure)) { max-width: 42rem; }
+  .built-prose > :global(h2) { scroll-margin-top: 6rem; }
+  .built-prose > :global(h2:not(:first-of-type)) { margin-top: 3.5rem; }
+  .built-prose :global(a) { overflow-wrap: anywhere; }
+  .built-prose :global(:not(pre) > code) {
+    font-family: var(--font-mono);
+    font-size: 0.86em;
+    padding: 0.08em 0.36em;
+    border-radius: 0.4rem;
+    background: var(--paper-2);
+    box-shadow: inset 0 0 0 1px var(--line);
+    color: var(--ink);
+    overflow-wrap: anywhere;
+  }
+  .built-prose :global(a > code) { color: inherit; }
+  .built-byline {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.25rem 0.6rem;
+    margin-top: 0 !important;
+    margin-bottom: 2.25rem !important;
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: var(--ink-3);
+  }
+  .built-prose .built-byline a { color: var(--ink-2); text-decoration: none; }
+  .built-prose .built-byline a:hover { color: var(--ink); }
+  .built-caption { margin-top: 1rem; font-size: 0.875rem; line-height: 1.5; color: var(--ink-3); }
+
+  /* The diagram: the app on top, and what it runs below, each with what it
+     talks to. Side by side on wide screens, one under another on phones. */
+  .built-diagram {
+    margin-block: 2rem;
+    padding: clamp(1.1rem, 3vw, 1.6rem);
+    border-radius: 1.25rem;
+    background: var(--paper-3);
+  }
+  .built-diagram .label { color: var(--ink); text-transform: none; letter-spacing: 0; font-size: 0.8125rem; }
+  .built-diagram-app,
+  .built-diagram-node {
+    padding: 0.9rem 1rem;
+    border-radius: 0.85rem;
+    background: var(--card);
+    box-shadow: inset 0 0 0 1px var(--line), 0 1px 2px rgb(19 19 22 / 0.05);
+  }
+  .built-diagram-app { box-shadow: inset 0 0 0 1.5px var(--color-blue), 0 1px 2px rgb(19 19 22 / 0.05); }
+  .built-diagram-node.is-outside { background: transparent; box-shadow: inset 0 0 0 1px var(--line-2); }
+  .built-diagram-text { margin: 0.35rem 0 0 !important; font-size: 0.84rem; line-height: 1.45; color: var(--ink-2); }
+  .built-diagram-columns { display: grid; gap: 0 1rem; }
+  @media (min-width: 640px) {
+    .built-diagram-columns { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  }
+  .built-diagram-column { display: flex; flex-direction: column; }
+  /* A link between two parts: a line down, with what it carries beside it. */
+  .built-diagram-link {
+    position: relative;
+    margin: 0 !important;
+    padding: 0.8rem 0 0.8rem 1.25rem;
+    font-family: var(--font-mono);
+    font-size: 0.7rem;
+    line-height: 1.45;
+    color: var(--ink-3);
+  }
+  .built-diagram-link::before {
+    content: "";
+    position: absolute;
+    left: 0.45rem;
+    top: 0;
+    bottom: 0.3rem;
+    border-left: 1.5px dashed var(--ink-3);
+    opacity: 0.6;
+  }
+  .built-diagram-link::after {
+    content: "";
+    position: absolute;
+    left: calc(0.45rem - 3.5px);
+    bottom: 0.25rem;
+    border: 4px solid transparent;
+    border-top: 5px solid var(--ink-3);
+    border-bottom: 0;
+    opacity: 0.8;
+  }
+  /* What goes back up to the app. */
+  .built-diagram-link.is-back::after { top: 0; bottom: auto; border-top: 0; border-bottom: 5px solid var(--ink-3); }
+
+  /* The menu bar panel, on a painted backdrop. */
+  .built-shot {
+    display: grid;
+    place-items: center;
+    margin-block: 2rem;
+    padding: clamp(1.5rem, 5vw, 2.75rem);
+  }
+  .built-shot :global(img) { width: min(100%, 22.5rem); height: auto; }
+
+  /* The live orb, on a night stage. */
+  .built-orb {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2rem;
+    margin-block: 2rem;
+    padding: clamp(2.5rem, 7vw, 3.75rem) 1.25rem 1.5rem;
+    overflow: visible;
+  }
+  .built-orb-states { display: flex; flex-wrap: wrap; justify-content: center; gap: 0.5rem; }
+  .built-orb-state {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    height: 2.1rem;
+    padding-inline: 0.85rem;
+    border-radius: 999px;
+    font-family: var(--font-sans);
+    font-size: 0.8125rem;
+    font-weight: 500;
+    color: rgb(231 235 255 / 0.78);
+    box-shadow: inset 0 0 0 1px rgb(255 255 255 / 0.16);
+    cursor: pointer;
+    transition: background-color 0.2s, color 0.2s;
+  }
+  .built-orb-state::before { content: ""; width: 0.45rem; height: 0.45rem; border-radius: 2px; background: var(--dot); }
+  .built-orb-state:hover { color: #fff; background: rgb(255 255 255 / 0.06); }
+  .built-orb-state[aria-pressed="true"] { color: #fff; background: rgb(255 255 255 / 0.12); }
+  .no-js .built-orb-states { display: none; }
+  .built-orb-caption { font-family: var(--font-sans); font-size: 0.8125rem; color: rgb(222 228 255 / 0.56); text-align: center; }
+
+  /* The end: download, or read the source. */
+  .built-end {
+    display: grid;
+    gap: 2rem;
+    align-items: end;
+    padding: clamp(1.75rem, 4vw, 2.75rem);
+  }
+  .built-end-actions { display: flex; flex-wrap: wrap; gap: 0.75rem; }
+  @media (min-width: 900px) {
+    .built-end { grid-template-columns: 1fr auto; }
+  }
+</style>
+
+<script>
+  import type { Orb, OrbState } from "../scripts/orb";
+
+  // The orb's state, chosen with the buttons beside it. The stage's light
+  // follows its colour.
+  const stage = document.querySelector<HTMLElement>("[data-orb-stage]");
+  const element = document.querySelector<HTMLElement & { orb?: Orb }>("#built-orb");
+  if (stage && element) {
+    const buttons = [...stage.querySelectorAll<HTMLButtonElement>("[data-state]")];
+    for (const button of buttons) {
+      button.addEventListener("click", () => {
+        for (const other of buttons) other.setAttribute("aria-pressed", String(other === button));
+        stage.style.setProperty("--tint", button.dataset.tint!);
+        element.orb?.setState(JSON.parse(button.dataset.state!) as OrbState);
+      });
+    }
+  }
+
+  // The contents mark the section being read.
+  const links = new Map(
+    [...document.querySelectorAll<HTMLAnchorElement>("[data-section]")].map((link) => [link.dataset.section!, link]),
+  );
+  const headings = [...links.keys()].map((id) => document.getElementById(id)).filter((heading): heading is HTMLElement => !!heading);
+  const mark = () => {
+    let current = headings[0];
+    for (const heading of headings) if (heading.getBoundingClientRect().top < window.innerHeight * 0.3) current = heading;
+    for (const [id, link] of links) link.setAttribute("aria-current", String(id === current?.id));
+  };
+  let pending = false;
+  addEventListener("scroll", () => {
+    if (pending) return;
+    pending = true;
+    requestAnimationFrame(() => {
+      pending = false;
+      mark();
+    });
+  }, { passive: true });
+  mark();
+</script>

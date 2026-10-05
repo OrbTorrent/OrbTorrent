@@ -63,7 +63,8 @@ Consult these guides before working on related tasks:
   that changes.
 - The app's anonymous counts (`OrbTorrent/Updates/AnonymousCounts.swift`) are
   listed value by value on the privacy page (`#counts`) and summed up in
-  `guides/privacy.md`, `guides/updates.md` and the FAQ. The app's About ›
+  `guides/privacy.md`, `guides/updates.md`, the FAQ and
+  `src/pages/how-its-built.astro`. The app's About ›
   Privacy and "See What's Sent", the README and `updates/src/counts.ts` say the
   same. Change them all together.
 - The email sign-up, "Hear about big releases", is in the footer
