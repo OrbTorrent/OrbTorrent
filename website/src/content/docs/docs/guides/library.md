@@ -39,15 +39,23 @@ Each download shows its name, progress, speed, and a line saying what it's doing
 | **Files Missing** | Its files were moved or deleted outside OrbTorrent. |
 | **Error** | Something went wrong, such as a disk that's full or no longer connected. |
 
+### Tidy names
+
+Downloads named the way releases usually are show as what they are: `Orbit.Station.S02.2160p.HDR…` as **Orbit Station · Season 2**, and `Sintel.2010.1080p.x264` as **Sintel (2010)**. A badge after the name shows the picture's quality when the name gives it: **4K**, **1080p** or **720p**, and **HDR** for HDR10, HDR10+ and Dolby Vision, such as **4K HDR**. A website's name in front, such as `www.example.org - `, is left out. In a download's files, each episode shows as its number, such as **S02E01**, with its title if the file has one, and three or more files in a folder whose names start with the same words, such as a course's lectures, leave those words out.
+
+Hold the pointer over a name to see it in full. It's also on the download's **Details** tab, and **Copy Name** copies it.
+
+OrbTorrent reads names on your Mac, and only changes how they look: the files keep their names. A name it can't read clearly shows as it is, such as `ubuntu-26.04-desktop-amd64.iso`. Two copies of a film in different qualities are told apart by their badges, and two that would look exactly the same show their names in full. To see every name in full, turn off **Show tidy download names** in [Settings › General](/docs/reference/settings#appearance).
+
 **Double-click** a download to open it. Select several with <kbd class="key">⌘</kbd>-click or <kbd class="key">⇧</kbd>-click, or all of them with <kbd class="key">⌘A</kbd>.
 
 ## The toolbar
 
 - **Add (+)** adds a magnet link. Hold it, or click its arrow, for **Open Torrent File…**.
 - **Pause** or **Resume**, and **Remove**, act on the selected downloads.
-- **Sort and Group** orders the list by **Date Added**, **Name**, **Progress**, **Size** or **Download Speed**, and splits it into groups by **Date Added** or **Status**, as Finder does.
+- **Sort and Group** orders the list by **Date Added**, **Name** (as it's shown), **Progress**, **Size** or **Download Speed**, and splits it into groups by **Date Added** or **Status**, as Finder does.
 - **Inspector** shows or hides [a download's details](/docs/guides/download-details) on the right (<kbd class="key">⌘I</kbd>).
-- **Search Downloads** finds downloads by name.
+- **Search Downloads** finds downloads by name, as it's shown or in full, or by quality, such as **4K**.
 
 ## The right-click menu
 
@@ -56,7 +64,7 @@ Right-click a download, or several, for:
 - **Open** and **Show in Finder**
 - **Pause** or **Resume**
 - **Download Sequentially**, which downloads its pieces in order, to watch a video while it downloads
-- **Copy Magnet Link**
+- **Copy Name**, its full name, and **Copy Magnet Link**
 - **More › Ask Trackers for More Peers**, **Verify Local Data** and **Move To…**
 - **Remove…**
 

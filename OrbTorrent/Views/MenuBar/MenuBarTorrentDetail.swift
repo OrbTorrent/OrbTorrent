@@ -33,7 +33,7 @@ struct MenuBarTorrentDetail: View {
                     .keyboardShortcut(.cancelAction)
                     .help("Back to downloads")
                 VStack(alignment: .leading, spacing: 2) {
-                    Text(torrent.name)
+                    DownloadNameText(name: torrent.name)
                         .font(.headline)
                         .lineLimit(1)
                         .truncationMode(.middle)
@@ -116,9 +116,11 @@ struct MenuBarTorrentDetail: View {
     private var fileList: some View {
         let moveAction: ((IndexSet, Int) -> Void)? = files.isOrdering ? { files.move(from: $0, to: $1) } : nil
         let problems = model.extensions.fileProblems(of: torrent.hash)
+        let names = model.settings.shownFileNames(of: files.files)
         return List {
             ForEach(files.displayedFiles) { file in
-                FileRowView(file: file, torrent: torrent, files: files, opensOnClick: true, problems: problems[file.index] ?? [])
+                FileRowView(file: file, torrent: torrent, files: files, opensOnClick: true, shownName: names[file.index],
+                            problems: problems[file.index] ?? [])
                     .listRowSeparator(.hidden)
                     .listRowInsets(EdgeInsets(top: 1, leading: 0, bottom: 1, trailing: 0))
             }

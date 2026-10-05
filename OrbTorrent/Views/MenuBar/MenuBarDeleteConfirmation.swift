@@ -15,7 +15,7 @@ struct MenuBarDeleteConfirmation: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 10) {
             VStack(alignment: .leading, spacing: 3) {
-                Text("Delete “\(torrent.name)”?")
+                Text("Delete “\(model.store.shownName(torrent.name))”?")
                     .font(.callout.weight(.semibold))
                     .lineLimit(2)
                     .truncationMode(.middle)

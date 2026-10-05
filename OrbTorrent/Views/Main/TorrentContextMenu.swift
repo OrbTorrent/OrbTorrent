@@ -25,6 +25,10 @@ struct TorrentContextMenu: View {
                    systemImage: "list.number") {
                 Task { await model.store.toggleSequentialDownload(single) }
             }
+            Button("Copy Name", systemImage: "doc.on.doc") {
+                NSPasteboard.general.clearContents()
+                NSPasteboard.general.setString(single.name, forType: .string)
+            }
             Button("Copy Magnet Link", systemImage: "link") {
                 NSPasteboard.general.clearContents()
                 NSPasteboard.general.setString(single.magnetURI, forType: .string)

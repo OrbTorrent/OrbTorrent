@@ -53,9 +53,11 @@ struct FilesTabView: View {
     private var fileList: some View {
         let moveAction: ((IndexSet, Int) -> Void)? = files.isOrdering ? { files.move(from: $0, to: $1) } : nil
         let problems = model.extensions.fileProblems(of: torrent.hash)
+        let names = model.settings.shownFileNames(of: files.files)
         return List(selection: $selection) {
             ForEach(files.displayedFiles) { file in
-                FileRowView(file: file, torrent: torrent, files: files, problems: problems[file.index] ?? [])
+                FileRowView(file: file, torrent: torrent, files: files, shownName: names[file.index],
+                            problems: problems[file.index] ?? [])
                     .listRowSeparator(.hidden)
                     // Line the checkboxes up with the select-all checkbox above.
                     .listRowInsets(EdgeInsets(top: 1, leading: 0, bottom: 1, trailing: 0))

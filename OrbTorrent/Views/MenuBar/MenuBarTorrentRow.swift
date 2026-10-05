@@ -38,7 +38,7 @@ struct MenuBarTorrentRow: View {
                     }
                 }
             VStack(alignment: .leading, spacing: 4) {
-                Text(torrent.name)
+                DownloadNameText(name: torrent.name)
                     .font(.callout.weight(.medium))
                     .lineLimit(1)
                     .truncationMode(.middle)
@@ -86,6 +86,10 @@ struct MenuBarTorrentRow: View {
         let stopped = torrent.state.isStopped
         Button(stopped ? "Resume" : "Pause", systemImage: stopped ? "play" : "pause") {
             Task { await model.store.togglePause([torrent]) }
+        }
+        Button("Copy Name", systemImage: "doc.on.doc") {
+            NSPasteboard.general.clearContents()
+            NSPasteboard.general.setString(torrent.name, forType: .string)
         }
         Button("Copy Magnet Link", systemImage: "link") {
             NSPasteboard.general.clearContents()

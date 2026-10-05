@@ -16,12 +16,13 @@ enum TorrentSort: String, CaseIterable, Identifiable {
         }
     }
 
-    func areInIncreasingOrder(_ lhs: Torrent, _ rhs: Torrent) -> Bool {
+    /// `name` gives the name a download is shown by.
+    func areInIncreasingOrder(_ lhs: Torrent, _ rhs: Torrent, name: (String) -> String = { $0 }) -> Bool {
         switch self {
         case .dateAdded:
             (lhs.addedOn ?? .distantPast) > (rhs.addedOn ?? .distantPast)
         case .name:
-            lhs.name.localizedStandardCompare(rhs.name) == .orderedAscending
+            name(lhs.name).localizedStandardCompare(name(rhs.name)) == .orderedAscending
         case .progress:
             lhs.progress > rhs.progress
         case .size:

@@ -59,6 +59,11 @@ final class AppSettings {
         didSet { defaults.set(showDockIcon, forKey: Keys.showDockIcon) }
     }
 
+    /// Show release names tidied, such as "Orbit Station · Season 2": see ShownNames.
+    var tidiesNames: Bool {
+        didSet { defaults.set(tidiesNames, forKey: Keys.tidiesNames) }
+    }
+
     var preventSleepWhileDownloading: Bool {
         didSet { defaults.set(preventSleepWhileDownloading, forKey: Keys.preventSleepWhileDownloading) }
     }
@@ -115,7 +120,7 @@ final class AppSettings {
     }
 
     /// A new install asks before downloading, deletes to the Trash, finds
-    /// more peers for public torrents, and sends anonymous counts.
+    /// more peers for public torrents, tidies names, and sends anonymous counts.
     init(defaults: UserDefaults = .standard) {
         self.defaults = defaults
         defaults.register(defaults: [
@@ -124,6 +129,7 @@ final class AppSettings {
             Keys.openWindowOnAdd: true,
             Keys.notifyOnCompletion: true,
             Keys.showDockIcon: true,
+            Keys.tidiesNames: true,
             Keys.preventSleepWhileDownloading: true,
             Keys.pauseWhenDiskFull: true,
             Keys.findMorePeers: true,
@@ -135,6 +141,7 @@ final class AppSettings {
         openWindowOnAdd = defaults.bool(forKey: Keys.openWindowOnAdd)
         notifyOnCompletion = defaults.bool(forKey: Keys.notifyOnCompletion)
         showDockIcon = defaults.bool(forKey: Keys.showDockIcon)
+        tidiesNames = defaults.bool(forKey: Keys.tidiesNames)
         preventSleepWhileDownloading = defaults.bool(forKey: Keys.preventSleepWhileDownloading)
         pauseWhenDiskFull = defaults.bool(forKey: Keys.pauseWhenDiskFull)
         findMorePeers = defaults.bool(forKey: Keys.findMorePeers)
@@ -148,6 +155,18 @@ final class AppSettings {
         appliedEngineDefaults = defaults.bool(forKey: Keys.appliedEngineDefaults)
     }
 
+    /// What to show for each of a download's files, or nil for its name as it is.
+    func shownFileNames(_ paths: [String]) -> [String?] {
+        tidiesNames ? ShownNames.files(paths) : paths.map { _ in nil }
+    }
+
+    /// The files shown by something other than their names, by index.
+    func shownFileNames(of files: [TorrentFile]) -> [Int: String] {
+        var shown: [Int: String] = [:]
+        for (file, name) in zip(files, shownFileNames(files.map(\.name))) { shown[file.index] = name }
+        return shown
+    }
+
     private enum Keys {
         static let addBehavior = "addBehavior"
         static let deleteBehavior = "deleteBehavior"
@@ -155,6 +174,7 @@ final class AppSettings {
         static let openWindowOnAdd = "openWindowOnAdd"
         static let notifyOnCompletion = "notifyOnCompletion"
         static let showDockIcon = "showDockIcon"
+        static let tidiesNames = "tidiesNames"
         static let preventSleepWhileDownloading = "preventSleepWhileDownloading"
         static let pauseWhenDiskFull = "pauseWhenDiskFull"
         static let findMorePeers = "findMorePeers"

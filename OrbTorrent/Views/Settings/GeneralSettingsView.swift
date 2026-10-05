@@ -51,6 +51,10 @@ struct GeneralSettingsView: View {
 
             Section("Appearance") {
                 Toggle("Show OrbTorrent in the Dock while its window is open", isOn: $settings.showDockIcon)
+                Toggle(isOn: $settings.tidiesNames) {
+                    Text("Show tidy download names")
+                    Text("“Orbit.Station.S02.2160p.HDR” shows as “Orbit Station · Season 2” with a “4K HDR” badge, and its episodes as “S02E01”. Hold the pointer over a name to see it in full.")
+                }
             }
 
             Section("Notifications") {

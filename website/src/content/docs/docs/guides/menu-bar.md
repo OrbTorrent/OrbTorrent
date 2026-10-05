@@ -46,7 +46,7 @@ Each download has a button at its end: **Pause** or **Resume** while it's downlo
 
 - **Open** and **Show in Finder**
 - **Pause** or **Resume**
-- **Copy Magnet Link**
+- **Copy Name**, its full name, and **Copy Magnet Link**
 - **Show in OrbTorrent**, which opens it in the window
 - **Delete…**
 

@@ -48,6 +48,7 @@ Extensions' own settings are on the [Extensions page](/docs/guides/checks), not 
 | Setting | What it does | At first |
 |---|---|---|
 | **Show OrbTorrent in the Dock while its window is open** | Turn off to keep OrbTorrent in the menu bar only. | On |
+| **Show tidy download names** | Shows release names as what they are, such as **Orbit Station · Season 2** with a **4K HDR** badge, and episodes by their numbers. Turn off to see every name in full. [Tidy names](/docs/guides/library#tidy-names) explains. | On |
 
 ### Notifications
 

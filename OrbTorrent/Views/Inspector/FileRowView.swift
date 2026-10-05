@@ -12,6 +12,9 @@ struct FileRowView: View {
     /// menu. In the inspector, the list selects rows, and opens and shows the
     /// menu for the selected files.
     var opensOnClick = false
+    /// What tells it apart from the download's other files, such as
+    /// "S02E01", when that's shown instead of its name.
+    var shownName: String?
     /// What checks found wrong with it, worst first.
     var problems: [FileFinding] = []
 
@@ -66,7 +69,7 @@ struct FileRowView: View {
 
             VStack(alignment: .leading, spacing: 2) {
                 HStack(spacing: 5) {
-                    Text(file.fileName)
+                    Text(shownName ?? file.fileName)
                         .lineLimit(1)
                         .truncationMode(.middle)
                         .foregroundStyle(file.isWanted ? .primary : .secondary)

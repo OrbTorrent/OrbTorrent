@@ -6,7 +6,9 @@ import SwiftUI
 @MainActor
 @Observable
 final class TorrentStore {
-    private(set) var torrents: [Torrent] = []
+    private(set) var torrents: [Torrent] = [] {
+        didSet { if torrents.map(\.name) != oldValue.map(\.name) { indexTidyNames() } }
+    }
     private(set) var transfer: TransferInfo = .zero
     private(set) var hasLoaded = false
     /// Downloads receiving data now or within the last minute. A download
@@ -73,13 +75,47 @@ final class TorrentStore {
         waitingForSpace = diskGuard.waiting
     }
 
+    // MARK: Names
+
+    @ObservationIgnored private var library = ShownNames.Library()
+
+    private func indexTidyNames() {
+        library = ShownNames.Library(torrents.map(\.name))
+    }
+
+    /// A download's name as OrbTorrent shows it: tidied, with its quality
+    /// for a badge, if that's on. Two downloads that would look the same,
+    /// such as two copies of a film in one quality, show their names, so
+    /// they can be told apart.
+    func shown(_ name: String) -> ShownNames.Name {
+        guard settings.tidiesNames, let release = ShownNames.release(name) else { return ShownNames.Name(text: name) }
+        if library.isShared(release.shownName, quality: release.quality, by: name) { return ShownNames.Name(text: name) }
+        return ShownNames.Name(text: release.shownName, quality: release.quality)
+    }
+
+    /// A download's name in text alone, such as a notification: tidied,
+    /// with its quality only when another copy differs in it.
+    func shownName(_ name: String) -> String {
+        let shown = shown(name)
+        guard let quality = shown.quality, library.hasOther(shown.text, by: name) else { return shown.text }
+        return "\(shown.text) · \(quality)"
+    }
+
     // MARK: Derived state
 
+    /// Searching finds a download by its name or by how it's shown, quality
+    /// included, and sorting by name sorts by how it's shown.
     var visibleTorrents: [Torrent] {
         let query = searchText.trimmingCharacters(in: .whitespaces)
+        let shown = self.shown
         return torrents
-            .filter { filter.includes($0) && (query.isEmpty || $0.name.localizedCaseInsensitiveContains(query)) }
-            .sorted(by: sort.areInIncreasingOrder)
+            .filter { torrent in
+                guard filter.includes(torrent) else { return false }
+                guard !query.isEmpty, !torrent.name.localizedCaseInsensitiveContains(query) else { return true }
+                let name = shown(torrent.name)
+                return "\(name.text) \(name.quality ?? "")".localizedCaseInsensitiveContains(query)
+            }
+            .sorted { sort.areInIncreasingOrder($0, $1, name: { shown($0).text }) }
     }
 
     func count(for filter: SidebarFilter) -> Int {

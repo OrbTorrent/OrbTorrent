@@ -222,7 +222,7 @@ struct MenuBarPanel: View {
                 HStack(spacing: 8) {
                     Image(systemName: "hand.raised.fill")
                         .foregroundStyle(.orange)
-                    Text(held.count == 1 ? "“\(first.name)” is held by a check" : "\(held.count) downloads are held by checks")
+                    Text(held.count == 1 ? "“\(model.store.shownName(first.name))” is held by a check" : "\(held.count) downloads are held by checks")
                         .lineLimit(1)
                         .truncationMode(.middle)
                     Spacer(minLength: 6)

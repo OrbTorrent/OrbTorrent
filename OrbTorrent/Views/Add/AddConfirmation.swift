@@ -107,7 +107,7 @@ struct AddConfirmation: View {
             TorrentIcon(symbol: FileKind(torrentName: pending.name).symbol, size: largeIcon,
                         isLoading: isGettingFiles)
             VStack(alignment: .leading, spacing: isWindow ? 3 : 2) {
-                Text(pending.name)
+                DownloadNameText(name: pending.name)
                     .font(isWindow ? .title3.weight(.semibold) : .headline)
                     .lineLimit(2)
                     .truncationMode(.middle)
@@ -156,6 +156,7 @@ struct AddConfirmation: View {
         // the sizes keep a little space from it.
         let scroller = scrolls(metadata) && NSScroller.preferredScrollerStyle == .legacy
         let problems = model.extensions.fileProblems(of: metadata.infoHash)
+        let names = model.settings.shownFileNames(metadata.files.map(\.path))
         return VStack(alignment: .leading, spacing: isWindow ? 6 : 4) {
             HStack {
                 Text("Files")
@@ -170,8 +171,8 @@ struct AddConfirmation: View {
 
             ScrollView {
                 VStack(spacing: 0) {
-                    ForEach(metadata.files) { file in
-                        fileRow(file, problems: problems[file.id] ?? [])
+                    ForEach(Array(zip(metadata.files, names)), id: \.0.id) { file, name in
+                        fileRow(file, shownName: name, problems: problems[file.id] ?? [])
                     }
                 }
                 .padding(.trailing, scroller ? 8 : 0)
@@ -183,7 +184,7 @@ struct AddConfirmation: View {
     }
 
     /// A file to pick, marked if a check found something wrong with it.
-    private func fileRow(_ file: TorrentMetadata.File, problems: [FileFinding]) -> some View {
+    private func fileRow(_ file: TorrentMetadata.File, shownName: String?, problems: [FileFinding]) -> some View {
         HStack(spacing: glyphGap) {
             Toggle("Download", isOn: Binding(
                 get: { !pending.skippedFiles.contains(file.id) },
@@ -194,9 +195,10 @@ struct AddConfirmation: View {
             .toggleStyle(.checkbox)
             .labelsHidden()
             .frame(width: glyph, alignment: .leading)
-            Text((file.path as NSString).lastPathComponent)
+            Text(shownName ?? (file.path as NSString).lastPathComponent)
                 .lineLimit(1)
                 .truncationMode(.middle)
+                .help((file.path as NSString).lastPathComponent)
             if let worst = problems.first {
                 CheckStatusIcon(status: worst.result.status, size: 12, help: problems.map(\.line).joined(separator: "\n"))
                     .accessibilityLabel(worst.line)

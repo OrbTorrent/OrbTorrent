@@ -24,7 +24,7 @@ struct TorrentRowView: View {
 
             VStack(alignment: .leading, spacing: 5) {
                 HStack(alignment: .firstTextBaseline, spacing: 8) {
-                    Text(torrent.name)
+                    DownloadNameText(name: torrent.name)
                         .font(.body.weight(.medium))
                         .lineLimit(1)
                         .truncationMode(.middle)

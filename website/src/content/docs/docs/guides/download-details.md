@@ -37,7 +37,7 @@ A magnet link has no files to show until peers send its details: "The file list 
 
 **Location** shows the folder its files are saved in, with **Show** to open it in Finder.
 
-**Torrent** has when it was added and completed, when the torrent was made and by what, its pieces, whether it's **Private** (from a private tracker), its comment, and its **Info Hash**, the fingerprint that identifies it.
+**Torrent** has its full **Name**, when it was added and completed, when the torrent was made and by what, its pieces, whether it's **Private** (from a private tracker), its comment, and its **Info Hash**, the fingerprint that identifies it.
 
 ## Peers
 
@@ -70,4 +70,5 @@ These are in the **More** submenu when you right-click a download, and some are 
 - **Ask Trackers for More Peers.** Asks every tracker for peers straight away.
 - **Verify Local Data.** Checks every piece already on disk against the torrent, and downloads again any that don't match. Use it after moving files outside OrbTorrent, or if you think something's damaged.
 - **Move To….** Moves the download's files to another folder, and carries on from there. Use this rather than moving them in Finder, so OrbTorrent keeps track of them.
+- **Copy Name.** Copies the download's full name, even when it [shows a tidy one](/docs/guides/library#tidy-names).
 - **Copy Magnet Link.** Copies a link anyone can use to download the same thing.

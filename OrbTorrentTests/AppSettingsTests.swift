@@ -27,4 +27,16 @@ final class AppSettingsTests {
         #expect(reopened.addBehavior == .startImmediately)
         #expect(reopened.deleteBehavior == .deletePermanently)
     }
+
+    @Test func tidiesNamesUntilTurnedOff() {
+        let defaults = UserDefaults(suiteName: suite)!
+        let settings = AppSettings(defaults: defaults)
+        let files = ["Show/Show.Name.S01E01.mkv", "Show/Show.Name.S01E02.mkv"]
+        #expect(settings.tidiesNames)
+        #expect(settings.shownFileNames(files) == ["S01E01", "S01E02"])
+
+        settings.tidiesNames = false
+        #expect(settings.shownFileNames(files) == [nil, nil])
+        #expect(AppSettings(defaults: defaults).tidiesNames == false)
+    }
 }

@@ -15,7 +15,7 @@ struct InspectorHeader: View {
                     // Each download's orb starts fresh rather than easing from the last one's.
                     .id(torrent.hash)
                 VStack(alignment: .leading, spacing: 3) {
-                    Text(torrent.name)
+                    DownloadNameText(name: torrent.name)
                         .font(.headline)
                         .lineLimit(2)
                         .textSelection(.enabled)

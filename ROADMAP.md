@@ -228,6 +228,14 @@ Cheap, mostly settings the engine already supports.
   files runs its checks again on the new ones, without repeating a
   notification, and an extension can report on the checks once they're done
   (extension API 1.2, `afterChecks`). (5 Oct)
+- [x] **Tidy names.** Release names show as what they are ("Orbit Station ·
+  Season 2", "Sintel (2010)") with a quality badge ("4K HDR", "1080p"), and a
+  season's files by episode ("S02E01"), read on the Mac by `ReleaseName`,
+  with no list of titles. A name it can't read clearly, or that two
+  downloads would show exactly alike, shows in full. Measured against
+  guessit's, Sonarr's, Radarr's and parse-torrent-name's test names: every
+  real torrent name's title and resolution right, and 1% of guessit's hard
+  cases wrong. On by default, in Settings › General. (5 Oct)
 
 ## Official extensions
 

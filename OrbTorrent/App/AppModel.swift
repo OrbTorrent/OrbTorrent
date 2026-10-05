@@ -75,6 +75,7 @@ final class AppModel {
         adder.installExtension = { [weak self] url in self?.requestInstall(from: url) }
         notifier.onAction = { [weak self] action, hash in self?.handleNotification(action, hash: hash) }
         notifier.onUpdate = { [weak self] in self?.updates.checkForUpdates() }
+        notifier.shownName = { [weak self] name in self?.store.shownName(name) ?? name }
         updates.onWaitingChange = { [weak self] name in self?.notifier.postUpdateAvailable(name) }
         updates.onReady = { [weak self] in self?.installUpdateWhenIdle() }
         updates.countsForCheck = { [weak self] manual in self?.countsForCheck(manual: manual) ?? [] }

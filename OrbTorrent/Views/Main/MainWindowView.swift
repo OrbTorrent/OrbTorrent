@@ -217,7 +217,7 @@ struct MainWindowView: View {
     private var removalTitle: String {
         let items = model.removalCandidates
         return items.count == 1
-            ? "Remove “\(items[0].name)”?"
+            ? "Remove “\(model.store.shownName(items[0].name))”?"
             : "Remove \(items.count) Downloads?"
     }
 

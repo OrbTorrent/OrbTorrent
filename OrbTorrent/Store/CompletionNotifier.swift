@@ -18,6 +18,8 @@ final class CompletionNotifier: NSObject, UNUserNotificationCenterDelegate {
     var onAction: ((Action, String) -> Void)?
     /// Called when someone clicks the notice of a new version.
     var onUpdate: (() -> Void)?
+    /// A download's name as OrbTorrent shows it.
+    var shownName: (String) -> String = { $0 }
 
     private var knownCompletion: [String: Bool]?
     private let center = UNUserNotificationCenter.current()
@@ -69,7 +71,7 @@ final class CompletionNotifier: NSObject, UNUserNotificationCenterDelegate {
     private func post(for torrent: Torrent) {
         let content = UNMutableNotificationContent()
         content.title = "Download Finished"
-        content.body = torrent.name
+        content.body = shownName(torrent.name)
         content.sound = .default
         content.categoryIdentifier = Self.category
         content.userInfo = ["hash": torrent.hash]
@@ -81,7 +83,7 @@ final class CompletionNotifier: NSObject, UNUserNotificationCenterDelegate {
         guard let first = records.first else { return }
         let content = UNMutableNotificationContent()
         content.title = "Download Held"
-        content.subtitle = torrent.name
+        content.subtitle = shownName(torrent.name)
         content.body = "\(first.extensionTitle): \(first.summary)"
         content.sound = .default
         content.categoryIdentifier = Self.heldCategory
@@ -93,7 +95,7 @@ final class CompletionNotifier: NSObject, UNUserNotificationCenterDelegate {
     func postFound(_ torrent: Torrent, _ record: CheckRecord) {
         let content = UNMutableNotificationContent()
         content.title = record.extensionTitle
-        content.subtitle = torrent.name
+        content.subtitle = shownName(torrent.name)
         content.body = record.summary
         content.sound = .default
         content.categoryIdentifier = Self.checkCategory
@@ -106,7 +108,7 @@ final class CompletionNotifier: NSObject, UNUserNotificationCenterDelegate {
     func postNotice(hash: String, download: String, _ record: CheckRecord) {
         let content = UNMutableNotificationContent()
         content.title = record.extensionTitle
-        content.subtitle = download
+        content.subtitle = shownName(download)
         content.body = record.summary
         if record.status == .warning || record.status == .failed { content.sound = .default }
         content.categoryIdentifier = Self.checkCategory

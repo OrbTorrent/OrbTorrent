@@ -59,6 +59,10 @@ struct DetailsTabView: View {
             }
 
             Section("Torrent") {
+                LabeledContent("Name") {
+                    Text(torrent.name)
+                        .textSelection(.enabled)
+                }
                 LabeledContent("Added", value: Format.date(torrent.addedOn))
                 if torrent.completedOn != nil {
                     LabeledContent("Completed", value: Format.date(torrent.completedOn))
@@ -91,6 +95,10 @@ struct DetailsTabView: View {
             }
 
             Section {
+                Button("Copy Name", systemImage: "doc.on.doc") {
+                    NSPasteboard.general.clearContents()
+                    NSPasteboard.general.setString(torrent.name, forType: .string)
+                }
                 Button("Copy Magnet Link", systemImage: "link") {
                     NSPasteboard.general.clearContents()
                     NSPasteboard.general.setString(torrent.magnetURI, forType: .string)
