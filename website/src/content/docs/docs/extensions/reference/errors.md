@@ -32,7 +32,7 @@ Thrown by `files.sha256`, `files.formData` and `files.save`.
 |---|---|
 | Reading files isn't allowed. Add "files": "contents" to permissions in package.json. | Add `"files": "contents"` to `permissions`. |
 | Adding files isn't allowed. Add "files": "add" to permissions in package.json, or ["contents", "add"] to read files too. | Add `"add"` to `permissions.files`. |
-| File *n* isn't available: it isn't downloaded yet, or it isn't part of this download. | Use files only in `afterFinish` hooks, and only files from `download.files` the user chose to download. |
+| File *n* isn't available: it isn't downloaded yet, or it isn't part of this download. | Use files only once the download has finished, in `afterFinish` hooks or `afterChecks` hooks when it isn't held, and only files from `download.files` the user chose to download. |
 | "*suffix*" can't be added to a file's name. A suffix starts with ".", "-", "_" or a space, and ends with an extension, such as ".en.srt". | Use a suffix such as `.en.srt` or `-poster.jpg`, with no `/`. |
 | Extensions can't add .*x* files, only subtitles, text, images and checksums: … | Add only the kinds listed. |
 | "*name*" already exists. An extension can't replace a file it didn't add. | Something's there already, such as subtitles that came with the download. Report it, and don't try again. |
@@ -60,6 +60,9 @@ Shown in the Checks tab, and by `orb run`.
 | Didn't finish: it kept the processor busy for over 10 s | Do less work in loops. Waiting doesn't count. |
 | Didn't finish: it used more than 512 MB of memory | Hold less in memory at once. |
 | Didn't finish: It returned something that isn't a result: return { status, summary }. | Return a `status` and a non-empty `summary`. |
+| Didn't finish: Its result's "files" isn't a list. Return files: [{ file, status, summary }]. | Return `files` as a list. |
+| Didn't finish: Its result's "files" names a file that isn't part of this download. Pass a file from download.files, or its index. | Name only files from `download.files`. |
+| Didn't finish: Its result gives *name* a status that isn't "passed", "warning" or "failed". | A file can't be `skipped`: leave it out instead. |
 | Didn't finish: The extension crashed (signal …). | Its log may say why. If it keeps happening, [report it](/docs/help/report-a-problem). |
 | OrbTorrent doesn't know "*method*". Update OrbTorrent, or check the @orbtorrent/api version. | The extension uses a newer API than this OrbTorrent has. Update OrbTorrent. |
 
@@ -84,6 +87,7 @@ Shown in the Checks tab, and by `orb run`.
 | the extension has no "verify" in package.json | Add `"verify"`, or remove `"verify": true` from the test. |
 | It didn't finish within 10 s. | The hook is waiting on something that never comes, such as a promise that never settles. Or raise `timeout`. |
 | There are no tests. | Add a JSON file to `tests/`. |
+| its result can't be shown: … | The hook returned something OrbTorrent would show as **Didn't finish**, for the reason given. |
 
 ## Connecting to OrbTorrent
 
@@ -97,6 +101,7 @@ From `orb dev`, `orb run`, `orb downloads` and `orb install`.
 | No download matches "*name*". Your downloads: | Use part of one of the names listed, or `npx orb downloads`. |
 | "*name*" matches 3 downloads. Use one of these names or info hashes: | Use more of the name, or the info hash. |
 | "*name*" hasn't finished downloading, so its files aren't all there. Choose a finished download. | An `afterFinish` hook needs a finished download. |
+| "*name*" hasn't finished, and no check is holding it, so there's nothing to report yet. Choose a finished or held download. | An `afterChecks` hook needs a download that's finished, or held by a check. |
 | The user chose not to install it. | The install was cancelled in OrbTorrent. |
 | OrbTorrent closed the connection. | OrbTorrent quit, or development extensions were turned off. |
 

@@ -20,7 +20,7 @@ async function run(args, { cwd, home }) {
   }
 }
 
-const hello = { type: "hello", app: "OrbTorrent", version: "1.0", api: "1.1.0" };
+const hello = { type: "hello", app: "OrbTorrent", version: "1.0", api: "1.2.0" };
 
 /**
  * A stand-in for OrbTorrent's development socket, answering each request
@@ -92,7 +92,7 @@ test("orb downloads lists OrbTorrent's downloads", async () => {
 test("orb doctor says an extension is allowed and installed", async () => {
   const app = await fakeApp({
     hello,
-    status: { type: "status", api: "1.1.0", allowed: true, active: { source: "installed", version: "1.0.0", on: true }, installed: { version: "1.0.0" } },
+    status: { type: "status", api: "1.2.0", allowed: true, active: { source: "installed", version: "1.0.0", on: true }, installed: { version: "1.0.0" } },
   });
   try {
     const folder = makeExtension(app.home);

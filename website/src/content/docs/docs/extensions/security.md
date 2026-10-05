@@ -13,6 +13,7 @@ Exactly what its `package.json` says, which users see before they install it:
 |---|---|
 | See the names and sizes of the files in your downloads | Always |
 | Hold a download before it starts, until you decide | With a `beforeStart` hook |
+| See what other extensions found in your downloads | With an `afterChecks` hook |
 | Read the contents of your downloads | With `"files": "contents"` |
 | Add files, such as subtitles, next to your downloads | With `"files": "add"` |
 | Connect to a site | For each host in `permissions.network` |
@@ -24,7 +25,7 @@ OrbTorrent enforces the list. An extension can't read other files, change or del
 - **Where your downloads are saved.** Paths are relative to each download's folder.
 - **Your downloads' trackers,** which can carry a private tracker's personal key.
 - **Your other downloads,** only the one it's checking.
-- **Other extensions' settings and storage,** only its own.
+- **Other extensions' settings and storage,** only its own. Only an `afterChecks` hook sees their results on the download it's reporting on.
 - **Your IP address, your library, or OrbTorrent's settings.**
 
 ## The extension host

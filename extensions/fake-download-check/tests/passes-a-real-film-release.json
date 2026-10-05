@@ -31,6 +31,9 @@
   },
   "expect": {
     "status": "passed",
-    "summaryIncludes": "No signs of a fake"
+    "summaryIncludes": "No signs of a fake",
+    "files": {
+      "*": "none"
+    }
   }
 }

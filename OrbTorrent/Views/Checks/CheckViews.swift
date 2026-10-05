@@ -173,11 +173,12 @@ extension CheckRecord {
 
 extension Extensions {
     /// A download's checks, and the hooks that are on but haven't run on it.
-    /// Every view asks for both, so a ring reads the same everywhere.
+    /// Every view asks for both, so a ring reads the same everywhere. Reports
+    /// on the checks aren't checks themselves, so they're left out.
     func summary(of torrent: Torrent) -> CheckSummary {
         // Off, checks don't show anywhere.
         guard isOn else { return CheckSummary(records: [], gate: nil) }
-        let records = checks.records(for: torrent.hash)
+        let records = checks.records(for: torrent.hash).filter { $0.event != .afterChecks }
         let gate = checks.gate(for: torrent.hash)
         var upcoming: [CheckSummary.Upcoming] = []
         let ran = Set(records.map(\.id))
@@ -194,6 +195,51 @@ extension Extensions {
             }
         }
         return CheckSummary(records: records, gate: gate, upcoming: upcoming)
+    }
+
+    /// The reports on a download's checks, and those that are on but haven't
+    /// run on it, for its Checks tab.
+    func reports(of torrent: Torrent) -> (records: [CheckRecord], upcoming: [CheckSummary.Upcoming]) {
+        guard isOn else { return ([], []) }
+        let records = checks.records(for: torrent.hash).filter { $0.event == .afterChecks }
+        let ran = Set(records.map(\.id))
+        var upcoming: [CheckSummary.Upcoming] = []
+        for item in registry.extensions where registry.isEnabled(item) && item.isCompatible {
+            for hook in item.manifest.hooks(for: .afterChecks) where !ran.contains("\(item.name)/\(hook.name)") {
+                upcoming.append(.init(item: item, hook: hook, runsLater: !canRun(hook, on: torrent)))
+            }
+        }
+        return (records.sorted { $0.extensionTitle < $1.extensionTitle }, upcoming)
+    }
+
+    /// The problems checks found with each of a download's files, by index,
+    /// worst first.
+    func fileProblems(of hash: String) -> [Int: [FileFinding]] {
+        guard isOn else { return [:] }
+        var problems: [Int: [FileFinding]] = [:]
+        for record in checks.records(for: hash) {
+            for file in record.files ?? [] where file.status == .failed || file.status == .warning {
+                problems[file.index, default: []].append(FileFinding(extensionTitle: record.extensionTitle, result: file))
+            }
+        }
+        return problems.mapValues { $0.sorted { $0.result.status.rank < $1.result.status.rank } }
+    }
+}
+
+/// What one check found about a file, with the extension that found it.
+struct FileFinding: Equatable {
+    let extensionTitle: String
+    let result: CheckRecord.FileResult
+
+    /// Such as "VirusTotal Scan: 5 of 70 engines call it malicious".
+    var line: String {
+        "\(extensionTitle): \(result.summary ?? result.status.title)"
+    }
+
+    /// The reason first, for a row too narrow for all of it, such as
+    /// "5 of 70 engines call it malicious · VirusTotal Scan".
+    var reason: String {
+        "\(result.summary ?? result.status.title) · \(extensionTitle)"
     }
 }
 

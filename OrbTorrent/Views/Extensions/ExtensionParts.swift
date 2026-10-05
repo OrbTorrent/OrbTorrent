@@ -41,6 +41,7 @@ extension ExtensionManifest.Event {
         switch self {
         case .beforeStart: "Before it starts"
         case .afterFinish: "After it finishes"
+        case .afterChecks: "After its checks"
         }
     }
 
@@ -48,6 +49,7 @@ extension ExtensionManifest.Event {
         switch self {
         case .beforeStart: "hand.raised"
         case .afterFinish: "flag.checkered"
+        case .afterChecks: "bell"
         }
     }
 }
@@ -56,6 +58,7 @@ extension ExtensionManifest {
     static func symbol(for ability: String) -> String {
         if ability.hasPrefix("Connect") { return "network" }
         if ability.hasPrefix("Hold") { return "hand.raised" }
+        if ability.hasPrefix("See what") { return "checklist" }
         if ability.hasPrefix("Read") { return "doc.text.magnifyingglass" }
         return "list.bullet"
     }

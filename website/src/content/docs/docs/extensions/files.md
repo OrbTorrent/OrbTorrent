@@ -21,7 +21,7 @@ Every hook gets the **names and sizes** of a download's files. To do more, an ex
 
 Users see what it asks for on the extension's page, and before they install it.
 
-Files only exist once a download has finished, so only `afterFinish` hooks can use them. A `beforeStart` hook that asks gets an error: "File 0 isn't available: it isn't downloaded yet, or it isn't part of this download."
+Files only exist once a download has finished, so only `afterFinish` hooks can use them, and `afterChecks` hooks once the download has finished. A `beforeStart` hook that asks gets an error: "File 0 isn't available: it isn't downloaded yet, or it isn't part of this download."
 
 Extensions never read or write files directly, and never see where they're saved. They ask OrbTorrent, which does it for them, after checking the request.
 

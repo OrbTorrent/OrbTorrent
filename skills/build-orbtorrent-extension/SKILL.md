@@ -47,11 +47,15 @@ permissions.
 
 ## Key facts
 
-- Hooks are `beforeStart` (15 s; `failed` holds the download) or `afterFinish`
-  (6 h; file contents available).
-- A hook returns `{ status: "passed" | "warning" | "failed" | "skipped", summary, details?, link?, notify? }`.
+- Hooks are `beforeStart` (15 s; `failed` holds the download), `afterFinish`
+  (6 h; file contents available; runs again when the user chooses more files,
+  with `isNew` on the ones that just finished) or `afterChecks` (reports on the
+  other checks in `download.checks`, after they finish or when one holds it,
+  with `download.isHeld`).
+- A hook returns `{ status: "passed" | "warning" | "failed" | "skipped", summary, details?, link?, notify?, files? }`.
   The summary is one line that says which file and why. `notify: true` also
-  shows it as a notification.
+  shows it as a notification. `files: [{ file, status, summary }]` marks the
+  files it's about in OrbTorrent.
 - Network access needs each exact host in `permissions.network`. Reading files
   needs `"files": "contents"`, and adding them `"files": "add"`.
 - `files.save(file, ".en.srt", contents)` adds a file next to a finished

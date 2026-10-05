@@ -1,4 +1,4 @@
-import { Download, DownloadFile, Result } from "@orbtorrent/api";
+import { Download, DownloadFile, FileResult, Result } from "@orbtorrent/api";
 
 // Looks at the names and sizes of a download's files, before any of it
 // downloads, for the signs fakes share. Everything here is local: it sends
@@ -75,6 +75,9 @@ interface Finding {
   level: "failed" | "warning";
   summary: string;
   detail: string;
+  /** The files it's about, marked in OrbTorrent with `because`. */
+  files?: DownloadFile[];
+  because?: string;
 }
 
 const words = (text: string) => text.toLowerCase().replace(/[^a-z0-9]+/g, " ").trim();
@@ -153,6 +156,8 @@ export function findings(download: Download): Finding[] {
   /** Files and folders already reported, with everything inside them. */
   const reported = new Set<string>();
   const isReported = (path: string) => [...reported].some((done) => path === done || path.startsWith(`${done}/`));
+  /** A file, or a folder's files, such as a Mac app's. */
+  const filesAt = (path: string) => files.filter((file) => file.path === path || file.path.startsWith(`${path}/`));
 
   // Any download: a name that hides what a file, or a Mac app, really is.
   for (const file of files) {
@@ -165,6 +170,8 @@ export function findings(download: Download): Finding[] {
           level: "failed",
           summary: `Hides a file's real type with an invisible character: ${visible(part)}`,
           detail: `\`${visible(path)}\` uses a character that makes its name read backwards, so its real extension doesn't show.`,
+          files: filesAt(path),
+          because: "Its name hides what it really is",
         });
         reported.add(path);
         break;
@@ -178,6 +185,8 @@ export function findings(download: Download): Finding[] {
           level: "failed",
           summary: `Contains a program disguised as a ${pretendsToBe}: ${cleaned(part)}`,
           detail: `\`${cleaned(path)}\` ends in .${real}, so it's a program, not a ${pretendsToBe}.`,
+          files: filesAt(path),
+          because: `A program disguised as a ${pretendsToBe}`,
         });
         reported.add(path);
         break;
@@ -194,16 +203,21 @@ export function findings(download: Download): Finding[] {
   const programNames = [...programs.map((file) => cleaned(nameOf(file.path))), ...bundles.map(nameOf)];
   if (programNames.length > 0) {
     const included = `It includes ${programNames.map((name) => `\`${name}\``).join(", ")}.`;
+    const programFiles = [...programs, ...bundles.flatMap(filesAt)];
     found.push(isCourse
       ? {
           level: "warning",
           summary: `A course that includes a program: ${listed(programNames)}`,
           detail: `Courses sometimes include the software they teach, but get it from its maker rather than open this one. ${included}`,
+          files: programFiles,
+          because: "A program: get it from its maker instead",
         }
       : {
           level: "failed",
           summary: `${{ video: "A video", music: "A music", book: "A book" }[kind]} download that includes a program: ${listed(programNames)}`,
           detail: `${{ video: "A film or episode never needs a program to play.", music: "Music never needs a program to play.", book: "A book never needs a program to read." }[kind]} ${included}`,
+          files: programFiles,
+          because: `A program, which ${{ video: "a video", music: "music", book: "a book" }[kind]} never needs`,
         });
   }
 
@@ -214,6 +228,8 @@ export function findings(download: Download): Finding[] {
       level: "warning",
       summary: `Tells you to download or watch it elsewhere: ${nameOf(lures[0].path)}`,
       detail: `${lures.map((file) => `\`${nameOf(file.path)}\``).join(", ")} ${lures.length === 1 ? "is a link" : "are links"} to another site. Don't open ${lures.length === 1 ? "it" : "them"}.`,
+      files: lures,
+      because: "A link to download or watch it elsewhere",
     });
   }
 
@@ -244,6 +260,8 @@ export function findings(download: Download): Finding[] {
       level: "failed",
       summary: `The video is locked in an archive, with the password elsewhere: ${nameOf(passwords[0].path)}`,
       detail: `The video is inside ${listed(archiveFiles.map((file) => `\`${nameOf(file.path)}\``))}, next to \`${nameOf(passwords[0].path)}\`. Fakes lock the video and sell or hide the password.`,
+      files: [...archiveFiles, passwords[0]],
+      because: "A locked archive, with the password elsewhere",
     });
   }
 
@@ -281,6 +299,8 @@ export function findings(download: Download): Finding[] {
       level: "warning",
       summary: `Its only video is .${extensionOf(videoFiles[0].path)}, a common sign of a “codec required” fake`,
       detail: "Fakes often use .wmv or .asf video that asks you to download a codec or player, which is malware.",
+      files: videoFiles,
+      because: "Video that may ask you to download a codec",
     });
   }
 
@@ -309,9 +329,13 @@ export default async function check(download: Download): Promise<Result> {
   const advice = failed.length > 0
     ? "OrbTorrent is holding it so nothing downloads. If you didn't expect this, remove it; otherwise choose Download Anyway."
     : "It's downloading. Take a look before you open its files.";
+  // Each file it's about, marked beside the file, the worst first.
+  const files: FileResult[] = [...failed, ...warnings].flatMap((finding) =>
+    (finding.files ?? []).map((file) => ({ file, status: finding.level, summary: finding.because })));
   return {
     status: failed.length > 0 ? "failed" : "warning",
     summary: (failed[0] ?? warnings[0]).summary,
     details: `${reasons}\n\n${advice}`,
+    ...(files.length > 0 && { files }),
   };
 }

@@ -44,7 +44,7 @@ To run some tests only, name them: `npx orb test tests/holds-a-screensaver.json`
 
 [Test files](/docs/extensions/reference/tests) lists every field. The ones you'll use most:
 
-- **`download`**: its `name` and `files`, each with a `path`, a `size`, and `"wanted": false` for a file the user skipped.
+- **`download`**: its `name` and `files`, each with a `path`, a `size`, and `"wanted": false` for a file the user skipped. Once it's finished, `"isNew": false` marks a file a hook saw on an earlier run.
 - **`preferences`**: the settings. Any you leave out take their defaults.
 - **`expect`**: what the result should be.
 
@@ -99,6 +99,40 @@ Reading files follows OrbTorrent's rules too: without `"files": "contents"`, in 
 - **`files.save`** follows OrbTorrent's rules and messages, and keeps what it adds instead of writing it. `expect` checks it with `saved` and `savedIncludes`, and `download.alsoOnDisk` lists files already there, which it won't replace. [Read and add files](/docs/extensions/files#test-it) has an example.
 - **Bytes:** a mock with `base64` answers with bytes, such as an image, for `response.bytes()`.
 
+## Files a result names
+
+`expect.files` checks what the result says about each file, by path, with `*` matching any text:
+
+```json
+{ "expect": { "status": "failed", "files": { "Tool 2.0/setup.exe": "failed", "*.txt": "none" } } }
+```
+
+`"none"` means the result says nothing about it. A result is checked as OrbTorrent checks it: it can only name the download's files, and it counts as no better than its worst file.
+
+## Reports on the checks
+
+An `afterChecks` hook gets other extensions' results from `download.checks`, and `"held": true` makes the download one a check is holding:
+
+```json title="tests/says-what-virustotal-found.json"
+{
+  "hook": "notify",
+  "download": {
+    "name": "Tool 2.0",
+    "files": [{ "path": "Tool 2.0/setup.exe" }],
+    "checks": [
+      {
+        "extension": { "name": "virustotal", "title": "VirusTotal Scan" },
+        "status": "failed",
+        "summary": "12 of 70 engines flag setup.exe",
+        "files": [{ "path": "Tool 2.0/setup.exe", "status": "failed" }]
+      }
+    ]
+  },
+  "mocks": { "fetch": [{ "method": "POST", "url": "https://ntfy.sh/*" }] },
+  "expect": { "status": "passed", "fetched": ["https://ntfy.sh/*"] }
+}
+```
+
 ## Time
 
 Timers run on a **virtual clock**. `setTimeout` and `sleep` fire as soon as nothing else is pending, and `Date.now()` moves on by the time waited. A hook that waits 15 seconds between requests for a rate limit is tested in moments, and a test of a minute's back-off takes no time at all.
@@ -127,6 +161,7 @@ To test the settings check, set `"verify": true` and the `preferences` to check,
 | `summaryMatches` | The summary matches the regular expression. |
 | `detailsIncludes` | The details include the text. |
 | `fetched` | Each URL was requested. `*` matches any text. |
+| `files` | Each file the result names has this status, by path, or `"none"`. |
 | `throws` | The hook threw an error including the text. |
 | `ok` and `messageIncludes` | For `verify`: whether it accepted the settings, and its message. |
 | `not` | The expectation inside it fails. |

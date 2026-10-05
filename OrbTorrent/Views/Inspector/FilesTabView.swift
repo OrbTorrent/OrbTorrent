@@ -4,6 +4,7 @@ import SwiftUI
 /// "download in this order" mode. Files can be selected, to open or change
 /// several at once.
 struct FilesTabView: View {
+    @Environment(AppModel.self) private var model
     let torrent: Torrent
     @State private var files: TorrentFilesModel
     @State private var selection = Set<TorrentFile.ID>()
@@ -51,9 +52,10 @@ struct FilesTabView: View {
 
     private var fileList: some View {
         let moveAction: ((IndexSet, Int) -> Void)? = files.isOrdering ? { files.move(from: $0, to: $1) } : nil
+        let problems = model.extensions.fileProblems(of: torrent.hash)
         return List(selection: $selection) {
             ForEach(files.displayedFiles) { file in
-                FileRowView(file: file, torrent: torrent, files: files)
+                FileRowView(file: file, torrent: torrent, files: files, problems: problems[file.index] ?? [])
                     .listRowSeparator(.hidden)
                     // Line the checkboxes up with the select-all checkbox above.
                     .listRowInsets(EdgeInsets(top: 1, leading: 0, bottom: 1, trailing: 0))

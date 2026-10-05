@@ -4,7 +4,7 @@ import Foundation
 /// built with a newer minor version may use something missing here, and one
 /// with a newer major version certainly does.
 enum ExtensionAPI {
-    static let version = (major: 1, minor: 1)
+    static let version = (major: 1, minor: 2)
     static var versionString: String { "\(version.major).\(version.minor).0" }
 
     /// Whether an extension built with `version` of `@orbtorrent/api` can run here.
@@ -23,12 +23,16 @@ struct ExtensionManifest: Sendable, Equatable {
     enum Event: String, Sendable, CaseIterable {
         case beforeStart
         case afterFinish
+        /// Once a download's other checks are done: after it finishes, and
+        /// when a check holds it before it starts.
+        case afterChecks
 
         /// For the Extensions page's "Runs" list.
         var title: String {
             switch self {
             case .beforeStart: "Before a download starts, and can hold it"
             case .afterFinish: "After a download finishes"
+            case .afterChecks: "Once a download's checks are done, to report what they found"
             }
         }
     }
@@ -134,7 +138,7 @@ struct ExtensionManifest: Sendable, Equatable {
                 continue
             }
             guard let event = entry["event"]?.string.flatMap(Event.init(rawValue:)) else {
-                problems.append("\(label) (“\(hookName)”) needs an “event”: “beforeStart” or “afterFinish”.")
+                problems.append("\(label) (“\(hookName)”) needs an “event”: “beforeStart”, “afterFinish” or “afterChecks”.")
                 continue
             }
             if hooks.contains(where: { $0.name == hookName }) {
@@ -241,6 +245,9 @@ struct ExtensionManifest: Sendable, Equatable {
         var lines = ["See the names and sizes of the files in your downloads"]
         if hooks.contains(where: { $0.event == .beforeStart }) {
             lines.append("Hold a download before it starts, until you decide")
+        }
+        if hooks.contains(where: { $0.event == .afterChecks }) {
+            lines.append("See what other extensions found in your downloads")
         }
         if permissions.readsFileContents {
             lines.append("Read the contents of your downloads")

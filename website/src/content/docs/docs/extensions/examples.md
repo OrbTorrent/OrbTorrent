@@ -232,7 +232,8 @@ Ideas the **Develop** tab suggests, and a few more. Each is a good first extensi
 |---|---|---|
 | **Hold `.scr` files**, which are programs in disguise. [The tutorial](/docs/extensions/getting-started) builds it. | `beforeStart` | Nothing |
 | **Warn about tiny films,** smaller than 700 MB, since they're probably fake or poor quality. | `beforeStart` | Nothing |
-| **Post to Discord when a download finishes.** | `afterFinish` | `discord.com`, and a webhook setting |
+| **Post to Discord when a download finishes,** with what its checks found. | `afterChecks` | `discord.com`, and a webhook setting |
+| **Send a message to your phone** when a download finishes or is held, through ntfy.sh or Pushover. | `afterChecks` | `ntfy.sh` or `api.pushover.net`, and a topic or key setting |
 | **Hold downloads over a size** while you're on a metered connection. | `beforeStart` | A setting |
 | **Save synced lyrics** next to each song, as `.lrc` files players show line by line. | `afterFinish` | `"files": "add"`, and a lyrics service's host |
 | **Save a poster** next to a film, for media servers, with `response.bytes()`. | `afterFinish` | `"files": "add"`, and the host of the artwork |

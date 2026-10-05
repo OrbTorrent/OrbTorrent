@@ -2,7 +2,7 @@ import { existsSync, readdirSync, readFileSync } from "node:fs";
 import { basename, join, relative, resolve } from "node:path";
 import { BuildResult, build } from "./build.js";
 import { defaultPreferences } from "./manifest.js";
-import { FetchMock, HarnessRun, runInHarness } from "./harness.js";
+import { FetchMock, HarnessRun, asShown, runInHarness } from "./harness.js";
 import { CommandError, printJSON, style } from "./output.js";
 
 // A test is a JSON file in tests/: a download (or settings, for verify), fake
@@ -18,9 +18,14 @@ interface TestFile {
     id?: string;
     name?: string;
     isPrivate?: boolean;
-    files?: { path: string; size?: number; wanted?: boolean; sha256?: string }[];
+    /** `isNew` is true unless it says otherwise, once the download has finished. */
+    files?: { path: string; size?: number; wanted?: boolean; sha256?: string; isNew?: boolean }[];
     /** Other files already next to the download's, relative to its folder, which `files.save` won't replace. */
     alsoOnDisk?: string[];
+    /** For an afterChecks hook: other extensions' results. Their files can be named by `path` alone. */
+    checks?: Record<string, any>[];
+    /** For an afterChecks hook: a check is holding it, rather than it having finished. */
+    held?: boolean;
   };
   preferences?: Record<string, unknown>;
   storage?: Record<string, unknown>;
@@ -43,6 +48,8 @@ interface Expectation {
   savedIncludes?: string;
   /** Whether the result asks to be a notification. */
   notify?: boolean;
+  /** What it should find about files: a path (`*` matches any text) and its status, or "none" for no result. */
+  files?: Record<string, "passed" | "warning" | "failed" | "none">;
   /** Part of the error it should throw. */
   throws?: string;
   /** For verify: whether the settings are accepted. */
@@ -76,7 +83,7 @@ function check(expectation: Expectation, run: HarnessRun): string[] {
     else if (!outcome.message.includes(expectation.throws)) failures.push(`expected an error including “${expectation.throws}”, got “${outcome.message}”`);
     return failures;
   }
-  if (!outcome.ok) return [`it threw: ${outcome.message}`];
+  if (!outcome.ok) return [outcome.invalid ? `its result can't be shown: ${outcome.message}` : `it threw: ${outcome.message}`];
   const value = (outcome.value ?? {}) as Record<string, unknown>;
   const summary = typeof value.summary === "string" ? value.summary : "";
   const details = typeof value.details === "string" ? value.details : "";
@@ -113,6 +120,17 @@ function check(expectation: Expectation, run: HarnessRun): string[] {
       if (!saved.text?.includes(expectation.savedIncludes)) failures.push(`expected ${saved.path} to include “${expectation.savedIncludes}”`);
     }
   }
+  const fileResults = Array.isArray(value.files) ? value.files as { path: string; status: string }[] : [];
+  for (const [pattern, expected] of Object.entries(expectation.files ?? {})) {
+    const found = fileResults.filter((file) => matchesURL(pattern, file.path));
+    if (expected === "none") {
+      if (found.length > 0) failures.push(`expected no result for ${pattern}, got “${found[0].status}”`);
+    } else if (found.length === 0) {
+      failures.push(`expected ${pattern} to be “${expected}”, but the result says nothing about it`);
+    } else if (found.some((file) => file.status !== expected)) {
+      failures.push(`expected ${pattern} to be “${expected}”, got “${found.find((file) => file.status !== expected)!.status}”`);
+    }
+  }
   if (expectation.notify !== undefined && (value.notify === true) !== expectation.notify) {
     failures.push(expectation.notify ? "expected the result to ask for a notification (notify: true)" : "expected the result not to ask for a notification");
   }
@@ -121,6 +139,22 @@ function check(expectation: Expectation, run: HarnessRun): string[] {
     if (inner.length === 0) failures.push(`expected not ${JSON.stringify(expectation.not)}, but it matched`);
   }
   return failures;
+}
+
+/** Another extension's result, as a test gives it, filled in the way OrbTorrent sends it. */
+function checkResult(check: Record<string, any>, files: { index: number; path: string }[]): Record<string, unknown> {
+  return {
+    extension: { name: "another-extension", title: "Another Extension" },
+    hook: "check",
+    event: "afterFinish",
+    ...check,
+    ...(Array.isArray(check.files) && {
+      files: check.files.map((file: Record<string, any>) => {
+        const match = files.find((candidate) => candidate.index === file.index || candidate.path === file.path);
+        return { ...file, index: match?.index ?? file.index, path: match?.path ?? file.path };
+      }),
+    }),
+  };
 }
 
 async function runTest(path: string, built: BuildResult): Promise<TestReport> {
@@ -139,7 +173,7 @@ async function runTest(path: string, built: BuildResult): Promise<TestReport> {
   let args: unknown[];
   let entryPoint: Parameters<typeof runInHarness>[2]["entryPoint"];
   const files = (test.download?.files ?? []).map((file, index) => ({
-    index, path: file.path, size: file.size ?? 0, wanted: file.wanted ?? true, sha256: file.sha256,
+    index, path: file.path, size: file.size ?? 0, wanted: file.wanted ?? true, sha256: file.sha256, isNew: file.isNew,
   }));
   if (test.verify) {
     if (!built.verify) return fail("the extension has no “verify” in package.json");
@@ -154,12 +188,19 @@ async function runTest(path: string, built: BuildResult): Promise<TestReport> {
     }
     script = readFileSync(built.hooks[hook.name], "utf8");
     entryPoint = { type: "hook", name: hook.name, event: hook.event };
+    // As OrbTorrent gives it: once it's finished, which files are new, and
+    // for a report on the checks, what they found.
+    const finished = hook.event === "afterFinish" || (hook.event === "afterChecks" && !test.download?.held);
     args = [{
       id: test.download?.id ?? "0123456789abcdef0123456789abcdef01234567",
       name: test.download?.name ?? "Download",
       size: files.filter((file) => file.wanted).reduce((sum, file) => sum + file.size, 0),
       isPrivate: test.download?.isPrivate ?? false,
-      files: files.map(({ sha256: _, ...file }) => file),
+      files: files.map(({ sha256: _, isNew, ...file }) => (finished ? { ...file, isNew: file.wanted && (isNew ?? true) } : file)),
+      ...(hook.event === "afterChecks" && {
+        checks: (test.download?.checks ?? []).map((check) => checkResult(check, files)),
+        isHeld: test.download?.held ?? false,
+      }),
     }];
   }
 
@@ -167,16 +208,28 @@ async function runTest(path: string, built: BuildResult): Promise<TestReport> {
     return { ...defaultPreferences(manifest), ...test.preferences };
   }
 
+  const harnessFiles = Object.fromEntries(files.map((file) => [file.index, { path: file.path, wanted: file.wanted, sha256: file.sha256 }]));
   const run = await runInHarness(script, args, {
     manifest,
     entryPoint,
+    held: test.download?.held,
     preferences: preferencesFor(test),
     fetchMocks: test.mocks?.fetch ?? [],
-    files: Object.fromEntries(files.map((file) => [file.index, { path: file.path, wanted: file.wanted, sha256: file.sha256 }])),
+    files: harnessFiles,
     alsoOnDisk: test.download?.alsoOnDisk,
     storage: test.storage ?? {},
     timeout: test.timeout ?? 10_000,
   });
+  // The result as OrbTorrent would show it.
+  if (entryPoint.type === "hook" && run.outcome.ok) {
+    const shown = asShown(run.outcome.value, harnessFiles);
+    if ("problem" in shown) {
+      run.outcome = { ok: false, message: shown.problem, stack: "", invalid: true };
+    } else {
+      run.outcome = { ok: true, value: shown.result };
+      if (shown.warning) run.logs.push({ level: "warn", message: shown.warning });
+    }
+  }
   const failures = test.expect ? check(test.expect, run) : run.outcome.ok ? [] : [`it threw: ${run.outcome.message}`];
   return {
     file: relativePath,

@@ -1,4 +1,4 @@
-import { Download, DownloadFile, Result, files, getPreferenceValues, progress, storage } from "@orbtorrent/api";
+import { Download, DownloadFile, FileResult, Result, files, getPreferenceValues, progress, storage } from "@orbtorrent/api";
 import { Lookup, Stats, VirusTotal, VirusTotalError, reportURL } from "./virustotal";
 
 const programs = new Set(["exe", "msi", "dll", "scr", "com", "bat", "cmd", "ps1", "vbs", "js", "jar", "lnk", "dmg", "pkg", "app", "command", "sh", "apk", "deb", "rpm", "appimage", "bin"]);
@@ -64,6 +64,10 @@ export default async function scan(download: Download): Promise<Result> {
     let lookup: Lookup;
     if (cached && Date.now() - cached.at < (cached.stats ? week : day)) {
       lookup = cached.stats ? { kind: "found", stats: cached.stats } : { kind: "unknown" };
+    } else if (stopped) {
+      // After a limit or an error, only answers it remembers, so files it
+      // flagged before, such as before more of the download was chosen, still show.
+      continue;
     } else {
       try {
         lookup = await client.lookup(sha256);
@@ -74,7 +78,7 @@ export default async function scan(download: Download): Promise<Result> {
       } catch (error) {
         if (!(error instanceof VirusTotalError)) throw error;
         stopped = error;
-        break;
+        continue;
       }
       cache[sha256] = lookup.kind === "found" ? { at: Date.now(), stats: lookup.stats } : { at: Date.now() };
     }
@@ -83,7 +87,18 @@ export default async function scan(download: Download): Promise<Result> {
   await progress({ done: checked.length, total: candidates.length });
   const newest = Object.entries(cache).sort(([, a], [, b]) => b.at - a.at).slice(0, cacheSize);
   await storage.set(cacheKey, Object.fromEntries(newest));
-  return result(checked, candidates.length, stopped);
+  return { ...result(checked, candidates.length, stopped), ...fileResults(checked) };
+}
+
+/** Each file VirusTotal knows, shown beside it in OrbTorrent. */
+function fileResults(checked: Checked[]): { files?: FileResult[] } {
+  const results = checked.flatMap(({ file, sha256, lookup }): FileResult[] => {
+    if (lookup.kind !== "found") return [];
+    const { malicious, suspicious } = lookup.stats;
+    const status = malicious >= 3 ? "failed" : malicious > 0 || suspicious > 0 ? "warning" : "passed";
+    return [{ file, status, summary: verdict(lookup.stats), link: { title: "VirusTotal Report", url: reportURL(sha256) } }];
+  });
+  return results.length > 0 ? { files: results } : {};
 }
 
 function result(checked: Checked[], total: number, stopped: VirusTotalError | undefined): Result {
@@ -92,22 +107,19 @@ function result(checked: Checked[], total: number, stopped: VirusTotalError | un
     .filter(({ stats }) => stats.malicious > 0 || stats.suspicious > 0)
     .sort((a, b) => b.stats.malicious - a.stats.malicious || b.stats.suspicious - a.stats.suspicious);
   const unknown = checked.filter((entry) => entry.lookup.kind === "unknown");
-  const clean = found.length - flagged.length;
 
-  const lines = flagged.map(({ file, sha256, stats }) => {
-    const suspicious = stats.suspicious > 0 ? `, ${stats.suspicious} suspicious` : "";
-    return `- \`${nameOf(file.path)}\`: ${stats.malicious} of ${stats.total} engines call it malicious${suspicious}. [Report](${reportURL(sha256)})`;
-  });
-  if (clean > 0) lines.push(`- ${plural(clean, "file")}: no engine flagged ${clean === 1 ? "it" : "them"}.`);
+  // What VirusTotal said about each file shows beside it, so the details
+  // are for files it couldn't say anything about.
+  const lines: string[] = [];
   if (unknown.length > 0) {
     const names = unknown.slice(0, 10).map((entry) => `\`${nameOf(entry.file.path)}\``).join(", ");
     lines.push(`- Not known to VirusTotal: ${names}${unknown.length > 10 ? ` and ${unknown.length - 10} more` : ""}. New files often aren't.`);
   }
   if (stopped && checked.length < total) {
-    lines.push(`- ${plural(total - checked.length, "file")} weren't checked: ${stopped.message}.`);
+    const left = total - checked.length;
+    lines.push(`- ${plural(left, "file")} ${left === 1 ? "wasn't" : "weren't"} checked: ${stopped.message}.`);
   }
-  const details = lines.join("\n");
-
+  const details = lines.length > 0 ? lines.join("\n") : undefined;
   const worst = flagged[0];
   if (worst) {
     const others = flagged.length > 1 ? ` and ${plural(flagged.length - 1, "more file")}` : "";
@@ -134,4 +146,14 @@ function result(checked: Checked[], total: number, stopped: VirusTotalError | un
   const unknownNote = unknown.length > 0 ? ` (${unknown.length} not known to VirusTotal)` : "";
   const summary = checked.length === 1 ? `No engine flagged ${nameOf(checked[0].file.path)}` : `No engine flagged these ${checked.length} files${unknownNote}`;
   return { status: "passed", summary, details };
+}
+
+/** What the engines said about one file. */
+function verdict(stats: Stats): string {
+  if (stats.malicious > 0) {
+    const suspicious = stats.suspicious > 0 ? `, ${stats.suspicious} suspicious` : "";
+    return `${stats.malicious} of ${stats.total} engines call it malicious${suspicious}`;
+  }
+  if (stats.suspicious > 0) return `${stats.suspicious} of ${stats.total} engines call it suspicious`;
+  return `None of ${stats.total} engines flag it`;
 }

@@ -10,7 +10,7 @@
 // MARK: The environment
 
 /** When a hook runs. */
-export type HookEvent = "beforeStart" | "afterFinish";
+export type HookEvent = "beforeStart" | "afterFinish" | "afterChecks";
 
 interface Context {
   extension: { name: string; title: string; isDevelopment: boolean };
@@ -148,6 +148,12 @@ export interface DownloadFile {
   size: number;
   /** Whether the user chose to download it. */
   wanted: boolean;
+  /**
+   * Once the download has finished: whether this file finished since the hook
+   * last ran on it, such as one the user chose to download later. Every file
+   * is new the first time, and when the user runs the hook again.
+   */
+  isNew?: boolean;
 }
 
 /** The download a hook runs on. */
@@ -160,6 +166,10 @@ export interface Download {
   /** Whether it's from a private tracker. */
   isPrivate: boolean;
   files: DownloadFile[];
+  /** For an `afterChecks` hook: what the other extensions' checks found, worst first. */
+  checks?: CheckResult[];
+  /** For an `afterChecks` hook: whether a check is holding it before it starts. Otherwise it's finished. */
+  isHeld?: boolean;
 }
 
 /**
@@ -184,6 +194,38 @@ export interface Result {
    * download held before it starts, are notifications already.
    */
   notify?: boolean;
+  /**
+   * What it found about particular files. OrbTorrent marks each problem
+   * beside its file, and the result counts as no better than its worst file.
+   * Each result replaces the hook's last one, so name every file you know
+   * about, not only the new ones.
+   */
+  files?: FileResult[];
+}
+
+/** What a hook found about one of the download's files. */
+export interface FileResult {
+  /** A file from `download.files`, or its index. */
+  file: DownloadFile | number;
+  status: "passed" | "warning" | "failed";
+  /** Why, in a few words, such as "5 of 70 engines call it malicious". */
+  summary?: string;
+  link?: { title: string; url: string };
+}
+
+/** Another extension's result on the download, as an `afterChecks` hook sees it. */
+export interface CheckResult {
+  extension: { name: string; title: string };
+  /** The hook's name. */
+  hook: string;
+  event: "beforeStart" | "afterFinish";
+  /** `didNotFinish` when it threw, crashed or went over a limit. */
+  status: Status | "didNotFinish";
+  summary: string;
+  details?: string;
+  link?: { title: string; url: string };
+  /** What it found about particular files, problems first. */
+  files?: { index: number; path: string; status: "passed" | "warning" | "failed"; summary?: string; link?: { title: string; url: string } }[];
 }
 
 /** A hook: the default export of `src/<hook name>.ts`. */

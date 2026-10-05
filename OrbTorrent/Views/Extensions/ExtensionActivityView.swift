@@ -124,8 +124,7 @@ struct ExtensionActivityView: View {
             if let item {
                 Button("Show \(item.title)") { model.showExtensions(item.name) }
             }
-            if let item, let hook, let torrent, check.record.status.isFinished,
-               hook.event == .beforeStart || torrent.isComplete {
+            if let item, let hook, let torrent, check.record.status.isFinished, model.extensions.canRun(hook, on: torrent) {
                 Button("Run Again") { Task { await model.extensions.runAgain(item, hook, on: torrent) } }
             }
             Divider()

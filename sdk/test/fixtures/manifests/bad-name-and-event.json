@@ -13,6 +13,6 @@
   },
   "problems": [
     "“name” must be lowercase letters, digits and hyphens, such as “fake-download-check”.",
-    "hooks[0] (“check”) needs an “event”: “beforeStart” or “afterFinish”."
+    "hooks[0] (“check”) needs an “event”: “beforeStart”, “afterFinish” or “afterChecks”."
   ]
 }

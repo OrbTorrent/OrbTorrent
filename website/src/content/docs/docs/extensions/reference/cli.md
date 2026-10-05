@@ -210,7 +210,7 @@ Lists the downloads in OrbTorrent, to run a hook on.
 npx orb run [hook] --download "<name or info hash>"
 ```
 
-Builds and loads the extension, runs a hook in OrbTorrent on one of your downloads, and prints what it logged and returned. The hook can be left out when there's only one. `--download` takes part of a name, or a whole info hash. An `afterFinish` hook needs a finished download.
+Builds and loads the extension, runs a hook in OrbTorrent on one of your downloads, and prints what it logged and returned. The hook can be left out when there's only one. `--download` takes part of a name, or a whole info hash. An `afterFinish` hook needs a finished download, and an `afterChecks` hook one that's finished or held. It prints what the hook found about each file, too.
 
 ```json title="--json"
 {

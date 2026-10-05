@@ -18,6 +18,19 @@ struct CheckRecord: Codable, Identifiable, Sendable, Equatable {
         let url: URL
     }
 
+    /// What it found about one of the download's files.
+    struct FileResult: Codable, Sendable, Equatable {
+        let index: Int
+        /// As the download lists it, for showing without asking the engine.
+        let path: String
+        /// Passed, warning or failed.
+        let status: Status
+        var summary: String?
+        var link: Link?
+
+        var name: String { (path as NSString).lastPathComponent }
+    }
+
     let extensionName: String
     var extensionTitle: String
     let hookName: String
@@ -35,8 +48,31 @@ struct CheckRecord: Codable, Identifiable, Sendable, Equatable {
     var addedFiles: [String]?
     /// Whether the result asked to be a notification.
     var notify: Bool?
+    /// What it found about particular files, problems first.
+    var files: [FileResult]?
+    /// The files it has seen finished, by index, so a later run can tell
+    /// the hook which are new, such as ones the user chose since.
+    var seenFiles: [Int]?
 
     var id: String { "\(extensionName)/\(hookName)" }
+
+    /// A warning or failure, which is worth telling the user about.
+    var isFlagged: Bool { status == .failed || status == .warning }
+
+    /// Whether it found something `previous`, the same hook's last result on
+    /// the download, didn't: a worse result, or a file it hadn't flagged.
+    /// Finishing more files of a download shouldn't repeat what the user was
+    /// already told.
+    func flagsMore(than previous: CheckRecord?) -> Bool {
+        guard isFlagged else { return false }
+        guard let previous, previous.isFlagged else { return true }
+        if status.rank < previous.status.rank { return true }
+        let before = Dictionary((previous.files ?? []).map { ($0.index, $0.status) }, uniquingKeysWith: { $1 })
+        return (files ?? []).contains { file in
+            guard file.status == .failed || file.status == .warning else { return false }
+            return before[file.index].map { file.status.rank < $0.rank } ?? true
+        }
+    }
 
     init(extension item: InstalledExtension, hook: ExtensionManifest.Hook, status: Status, summary: String) {
         extensionName = item.name
@@ -137,7 +173,8 @@ final class ChecksStore {
     func badge(for hash: String) -> Badge? {
         guard let entry = entries[hash] else { return nil }
         if entry.gate == .held { return .held }
-        let statuses = entry.records.map(\.status)
+        // Reports on the checks aren't checks themselves.
+        let statuses = entry.records.filter { $0.event != .afterChecks }.map(\.status)
         if statuses.contains(.failed) { return .failed }
         if statuses.contains(.warning) { return .warning }
         if entry.gate == .waiting || entry.gate == .checkOnly || statuses.contains(where: { !$0.isFinished }) { return .checking }

@@ -47,10 +47,14 @@ A test is a JSON file in an extension's `tests/` folder. `orb test` runs them al
 | `name` | `"Download"` | The download's name. |
 | `id` | A made-up info hash | Its info hash. |
 | `isPrivate` | `false` | Whether it's from a private tracker. |
-| `files` | `[]` | Its files, in order: each `path`, `size` (0 unless given), `wanted` (true unless given), and `sha256`, which `files.sha256` returns for it. |
+| `files` | `[]` | Its files, in order: each `path`, `size` (0 unless given), `wanted` (true unless given), `sha256`, which `files.sha256` returns for it, and `isNew` (true unless given, once it's finished). |
 | `alsoOnDisk` | `[]` | Other files already next to its files, as paths like theirs, such as subtitles the user added. `files.save` won't replace them. |
+| `checks` | `[]` | For an `afterChecks` hook: other extensions' results, as [`CheckResult`](/docs/extensions/reference/api#checkresult). `extension`, `hook` and `event` can be left out, and their files named by `path` alone. |
+| `held` | `false` | For an `afterChecks` hook: `true` for a download a check is holding, so none of its files are on disk. |
 
-The download's `size` is the sum of its wanted files' sizes. Each file's `index` is its place in the list, from 0. As in OrbTorrent, a hook can only use the files that are wanted.
+The download's `size` is the sum of its wanted files' sizes. Each file's `index` is its place in the list, from 0. As in OrbTorrent, a hook can only use the files that are wanted, and only once the download has finished.
+
+The result is checked as OrbTorrent checks it: its `files` must name files of the download, and it counts as no better than its worst file, with the same warning in the test's logs.
 
 Files a hook adds with `files.save` aren't written anywhere: the test keeps them, for `saved` and `savedIncludes` to check.
 
@@ -83,6 +87,7 @@ A request takes the first mock that matches. A request with no mock throws, and 
 | `saved` | Each of these files was added with `files.save`, by its path. `*` matches any text. |
 | `savedIncludes` | Each file it added includes this text. |
 | `notify` | Whether the result asks to be a notification, with `notify: true`. |
+| `files` | Each file the result names has this status, by path: `{ "Pack/setup.exe": "failed" }`. `*` matches any text, and `"none"` means the result says nothing about it. |
 | `throws` | The hook threw an error that includes this text. The rest of `expect` is then ignored. |
 | `ok` | For `verify`: whether it accepted the settings. |
 | `messageIncludes` | For `verify`: its message includes this text. |

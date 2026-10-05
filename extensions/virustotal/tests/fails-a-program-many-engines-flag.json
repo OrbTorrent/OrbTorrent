@@ -41,6 +41,9 @@
   "expect": {
     "status": "failed",
     "summaryIncludes": "12 of 70 engines flag setup.exe",
-    "detailsIncludes": "https://www.virustotal.com/gui/file/aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+    "files": {
+      "Tool 2.0/setup.exe": "failed",
+      "Tool 2.0/readme.txt": "none"
+    }
   }
 }

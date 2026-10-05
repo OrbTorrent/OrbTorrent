@@ -12,6 +12,8 @@ struct FileRowView: View {
     /// menu. In the inspector, the list selects rows, and opens and shows the
     /// menu for the selected files.
     var opensOnClick = false
+    /// What checks found wrong with it, worst first.
+    var problems: [FileFinding] = []
 
     /// Every file row has this height; lists use it for their minimum row height.
     static let height: CGFloat = 42
@@ -63,16 +65,31 @@ struct FileRowView: View {
                 .frame(width: 20)
 
             VStack(alignment: .leading, spacing: 2) {
-                Text(file.fileName)
-                    .lineLimit(1)
-                    .truncationMode(.middle)
-                    .foregroundStyle(file.isWanted ? .primary : .secondary)
-                Text(detail)
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
-                    .monospacedDigit()
-                    .lineLimit(1)
-                    .truncationMode(.head)
+                HStack(spacing: 5) {
+                    Text(file.fileName)
+                        .lineLimit(1)
+                        .truncationMode(.middle)
+                        .foregroundStyle(file.isWanted ? .primary : .secondary)
+                    if let worst = problems.first {
+                        CheckStatusIcon(status: worst.result.status, size: 12, help: problems.map(\.line).joined(separator: "\n"))
+                            .accessibilityLabel(worst.line)
+                    }
+                }
+                if let worst = problems.first {
+                    // What a check found matters more than the size.
+                    Text(worst.reason)
+                        .font(.caption)
+                        .foregroundStyle(worst.result.status == .failed ? AnyShapeStyle(.red) : AnyShapeStyle(.secondary))
+                        .lineLimit(1)
+                        .truncationMode(.tail)
+                } else {
+                    Text(detail)
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                        .monospacedDigit()
+                        .lineLimit(1)
+                        .truncationMode(.head)
+                }
                 if file.isWanted && !file.isComplete {
                     ProgressCapsule(value: file.progress, height: 3)
                         .padding(.top, 2)
@@ -98,7 +115,7 @@ struct FileRowView: View {
         .background(opensOnClick && isHovering && canOpen ? AnyShapeStyle(.quaternary.opacity(0.6)) : AnyShapeStyle(.clear),
                     in: .rect(cornerRadius: 8))
         .onHover { isHovering = $0 }
-        .help(file.name)
+        .help(([file.name] + problems.map(\.line)).joined(separator: "\n"))
     }
 
     private var detail: String {

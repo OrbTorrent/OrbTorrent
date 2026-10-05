@@ -66,12 +66,13 @@ npx orb run check --download "Big Buck Bunny"
 finished   276.0 MB  Big Buck Bunny  dd8255ecdc7ca55fb0bbf81323d87062db1f6d1c
 42%          6.0 GB  ubuntu-26.04-desktop-amd64.iso  0d6a0b7f4b3e2e4a8b9c1d2e3f405162738495a6
 
-Run a hook on one with `npx orb run <hook> --download "<name or info hash>"`. An afterFinish hook needs a finished one.
+Run a hook on one with `npx orb run <hook> --download "<name or info hash>"`. An afterFinish hook needs a finished one, and an afterChecks hook one that's finished or held.
 ```
 
 - **`--download`** takes part of a download's name, or its whole info hash. If it matches more than one, `orb run` lists them, so you can be more specific.
 - **The hook's name** can be left out when the extension has only one.
-- **An `afterFinish` hook needs a finished download,** since it reads files that are all there.
+- **An `afterFinish` hook needs a finished download,** since it reads files that are all there. An `afterChecks` hook needs one that's finished or held by a check, and gets the checks' results as they are.
+- **Run by hand, every file is new,** so `isNew` is `true` for each finished file.
 
 `orb run` builds the extension, loads it, runs the hook inside OrbTorrent, and prints what it logged and returned:
 

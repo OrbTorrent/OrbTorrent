@@ -115,9 +115,10 @@ struct MenuBarTorrentDetail: View {
     /// A native list, so files can be dragged into order like in the inspector.
     private var fileList: some View {
         let moveAction: ((IndexSet, Int) -> Void)? = files.isOrdering ? { files.move(from: $0, to: $1) } : nil
+        let problems = model.extensions.fileProblems(of: torrent.hash)
         return List {
             ForEach(files.displayedFiles) { file in
-                FileRowView(file: file, torrent: torrent, files: files, opensOnClick: true)
+                FileRowView(file: file, torrent: torrent, files: files, opensOnClick: true, problems: problems[file.index] ?? [])
                     .listRowSeparator(.hidden)
                     .listRowInsets(EdgeInsets(top: 1, leading: 0, bottom: 1, trailing: 0))
             }

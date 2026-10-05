@@ -11,6 +11,7 @@ OrbTorrent enforces these limits, and stops a hook that goes over one. A hook th
 |---|---|---|---|
 | `beforeStart` hook | 15 s | 10 s | 512 MB |
 | `afterFinish` hook | 6 h | 2 min | 512 MB |
+| `afterChecks` hook | 6 h | 2 min | 512 MB |
 | `verify` | 15 s | 10 s | 512 MB |
 
 **CPU time** is time spent computing. Waiting, for a response or with `sleep`, doesn't count, and nor does `files.sha256`, which OrbTorrent computes itself. That's how an `afterFinish` hook can pace itself for a rate limit for hours with 2 minutes of CPU time.
@@ -18,7 +19,7 @@ OrbTorrent enforces these limits, and stops a hook that goes over one. A hook th
 ## Running together
 
 - **Before a download starts,** every extension's `beforeStart` hooks run at the same time.
-- **After a download finishes,** each extension's `afterFinish` runs go one at a time, and up to 4 hooks run at once across all extensions.
+- **After a download finishes,** each extension's `afterFinish` and `afterChecks` runs go one at a time, and up to 4 hooks run at once across all extensions. `afterChecks` hooks run once the `afterFinish` hooks are done.
 
 ## Network
 
@@ -36,7 +37,7 @@ OrbTorrent enforces these limits, and stops a hook that goes over one. A hook th
 
 | | |
 |---|---|
-| When | `afterFinish` hooks, next to a file the user chose to download |
+| When | `afterFinish` hooks, and `afterChecks` hooks once the download has finished, next to a file the user chose to download |
 | Kinds | Subtitles, text, images and checksums, by extension |
 | A file | 10 MB |
 | A run | 200 files and 50 MB |
@@ -58,6 +59,7 @@ OrbTorrent enforces these limits, and stops a hook that goes over one. A hook th
 | `details` | 20,000 characters |
 | `link.title` | 60 characters |
 | `link.url` | `https://` or `http://` |
+| `files` | 1,000 files, problems first, each `summary` 300 characters |
 | A `progress` message | 200 characters |
 | A log entry | 10,000 characters |
 

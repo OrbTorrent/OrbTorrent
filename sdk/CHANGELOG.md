@@ -1,5 +1,30 @@
 # @orbtorrent/api Changelog
 
+## 1.2.0
+
+Extension API 1.2, which needs an OrbTorrent that supports it. OrbTorrent says
+so if it's too old.
+
+- **`files` in a result** says what a hook found about particular files:
+  `files: [{ file, status, summary, link }]`. OrbTorrent marks each problem
+  beside its file, in the Files tab, the menu bar and the confirmation before a
+  download starts, and lists them in the check with **Show in Finder**. A
+  result counts as no better than its worst file.
+- **`afterFinish` hooks run each time a download finishes,** including when the
+  user chooses more of its files later. **`isNew`** on each file says which
+  finished since the hook last ran, and a later run that flags nothing new
+  sends no notification.
+- **`afterChecks` hooks** report on the other checks, once they're done: after
+  a download finishes, and when a check holds it. They get the results in
+  **`download.checks`**, and **`download.isHeld`**. Their results show apart
+  from the checks, and the install sheet says the extension can "See what
+  other extensions found in your downloads".
+- **`files.sha256`** is remembered while a file stays as it was, so a download
+  checked again isn't read again.
+- **`orb test`** checks results as OrbTorrent does. Tests can give
+  `download.files[].isNew`, `download.checks` and `download.held`, and `expect`
+  can check `files`. **`orb run`** prints each file's result.
+
 ## 1.1.0
 
 Extension API 1.1, which needs an OrbTorrent that supports it. OrbTorrent says

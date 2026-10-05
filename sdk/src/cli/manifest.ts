@@ -4,7 +4,7 @@ import { join } from "node:path";
 // Mirrors OrbTorrent's own checks (ExtensionManifest.swift), with the same
 // messages, so `orb build` catches what OrbTorrent would refuse.
 
-export type HookEvent = "beforeStart" | "afterFinish";
+export type HookEvent = "beforeStart" | "afterFinish" | "afterChecks";
 
 export interface Hook {
   name: string;
@@ -50,7 +50,7 @@ export class InvalidManifest extends Error {
 
 const identifier = /^[a-z0-9]+(-[a-z0-9]+)*$/;
 const hostName = /^[a-z0-9]([a-z0-9-]*[a-z0-9])?(\.[a-z0-9]([a-z0-9-]*[a-z0-9])?)+$/;
-const events: HookEvent[] = ["beforeStart", "afterFinish"];
+const events: HookEvent[] = ["beforeStart", "afterFinish", "afterChecks"];
 const preferenceTypes = ["textfield", "password", "checkbox", "dropdown"] as const;
 
 const filesProblem = "“permissions.files” can only be “contents”, “add”, or a list of both.";
@@ -109,7 +109,7 @@ export function validateManifest(json: unknown): Manifest {
       return;
     }
     if (!events.includes(entry.event)) {
-      problems.push(`${label} (“${entry.name}”) needs an “event”: “beforeStart” or “afterFinish”.`);
+      problems.push(`${label} (“${entry.name}”) needs an “event”: “beforeStart”, “afterFinish” or “afterChecks”.`);
       return;
     }
     if (manifest.hooks.some((hook) => hook.name === entry.name)) problems.push(`Two hooks are named “${entry.name}”.`);

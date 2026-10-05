@@ -34,6 +34,16 @@ It has three tabs:
 
 After a download finishes, a warning sends a notification too, so you don't miss it. A check can also tell you about something it did, such as adding subtitles.
 
+If you download only some of a download's files and choose more later, its checks run again once those finish. They tell you only about what's new, not what they found before.
+
+## Which file
+
+When a check finds something wrong with a particular file, OrbTorrent marks it, in red or yellow, beside the file: in the download's **Files** tab and the menu bar panel, with what the check found, and before anything downloads, in the confirmation's list of files. The check lists those files too, each with **Show in Finder** and, from VirusTotal Scan, its report.
+
+## Reports on the checks
+
+Some extensions don't check downloads, but pass on what the checks found, such as in a message to your phone. They run once a download's checks are done, and when a check holds a download. They show under **After its checks** in the Checks tab, apart from the checks, and an extension's page says when it can see what other extensions found.
+
 ## Files a check added
 
 Some extensions add files next to a finished download's, such as subtitles in your language or a film's poster. A check lists any it added, with **Show in Finder**.

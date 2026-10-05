@@ -223,6 +223,11 @@ Cheap, mostly settings the engine already supports.
   hatch for what extensions can't do yet. (3 Oct)
 - [x] Automatic app updates (Sparkle), with What's New. See
   [RELEASE.md](RELEASE.md).
+- [x] **Checks say which file.** A check marks the files it's about, in the
+  Files tab, the menu bar and the add window. Choosing more of a download's
+  files runs its checks again on the new ones, without repeating a
+  notification, and an extension can report on the checks once they're done
+  (extension API 1.2, `afterChecks`). (5 Oct)
 
 ## Official extensions
 
@@ -246,11 +251,11 @@ its files. "Extension" says which hooks and permissions each needs.
     [Apprise](https://github.com/caronc/apprise) (17.4k ⭐). qBittorrent has
     email on completion built in, and Sonarr and Radarr each ship about 20
     notification services.
-  - Extension: an `afterFinish` hook. Each service is a fixed host
-    (`api.telegram.org`, `discord.com`, `api.pushover.net`, `ntfy.sh`, …) and
-    tokens go in the Keychain as `password` settings. Small. It can't say that
-    a download was held or what other checks found, since extensions don't see
-    each other's results: that needs OrbTorrent to pass those events on.
+  - Extension: an `afterChecks` hook, which runs once a download's checks are
+    done, after it finishes and when one holds it, and gets their results.
+    Each service is a fixed host (`api.telegram.org`, `discord.com`,
+    `api.pushover.net`, `ntfy.sh`, …) and tokens go in the Keychain as
+    `password` settings. `isNew` lets it say which files just finished. Small.
     Self-hosted ntfy or Gotify needs a host the user chooses (below).
 
 - [ ] **Release check.** Before a download starts, compare its name with facts

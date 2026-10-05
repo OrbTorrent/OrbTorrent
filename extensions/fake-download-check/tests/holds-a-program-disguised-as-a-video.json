@@ -15,6 +15,10 @@
   },
   "expect": {
     "status": "failed",
-    "summaryIncludes": "program disguised as a video: Dune.Part.Two.2024.1080p.mp4.exe"
+    "summaryIncludes": "program disguised as a video: Dune.Part.Two.2024.1080p.mp4.exe",
+    "files": {
+      "*/Dune.Part.Two.2024.1080p.mp4.exe": "failed",
+      "*/README.txt": "none"
+    }
   }
 }

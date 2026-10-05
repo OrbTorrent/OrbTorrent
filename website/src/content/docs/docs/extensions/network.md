@@ -110,7 +110,7 @@ Many free APIs allow only so many requests a minute. To stay within them:
 - **Keep answers** in [`storage`](/docs/extensions/storage), so running the hook again doesn't ask again.
 - **Back off on 429.** Wait, try once more, and if it's refused again, return `skipped` with what happened.
 
-Each extension's `afterFinish` runs go one at a time, so a hook never competes with itself for a rate limit.
+Each extension's `afterFinish` and `afterChecks` runs go one at a time, so a hook never competes with itself for a rate limit.
 
 ## Test it
 

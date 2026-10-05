@@ -89,7 +89,7 @@ struct ExtensionServices: ExtensionCallHandler {
             return try await fetch(params).json
         case "files.sha256":
             let url = try file(params["file"])
-            return .string(try await Self.sha256(of: url))
+            return .string(try await Fingerprints.shared.sha256(of: url))
         case "files.save":
             let saved = try await adder.save(file: params["file"]?.int, suffix: params["suffix"]?.string,
                                              contents: Self.contents(params["contents"]))
@@ -195,5 +195,52 @@ struct ExtensionServices: ExtensionCallHandler {
             }
             return hasher.finalize().hexString
         }.value
+    }
+}
+
+/// Fingerprints OrbTorrent has worked out, by file, while the file stays as
+/// it was. A download checked again, such as once the user chose more of its
+/// files, isn't read again: 50 GB of a season takes minutes to read.
+actor Fingerprints {
+    static let shared = Fingerprints()
+
+    /// What says a file is unchanged: the same file, size and time modified.
+    struct Stamp: Equatable {
+        let device: Int32
+        let inode: UInt64
+        let size: Int64
+        let modified: timespec
+
+        static func == (a: Stamp, b: Stamp) -> Bool {
+            a.device == b.device && a.inode == b.inode && a.size == b.size
+                && a.modified.tv_sec == b.modified.tv_sec && a.modified.tv_nsec == b.modified.tv_nsec
+        }
+
+        init?(path: String) {
+            var info = stat()
+            guard stat(path, &info) == 0 else { return nil }
+            device = info.st_dev
+            inode = info.st_ino
+            size = info.st_size
+            modified = info.st_mtimespec
+        }
+    }
+
+    private var known: [String: (stamp: Stamp, hash: String)] = [:]
+    /// Paths in the order they were added, to forget the oldest.
+    private var order: [String] = []
+    static let limit = 4_096
+
+    func sha256(of url: URL) async throws -> String {
+        let path = url.path
+        let stamp = Stamp(path: path)
+        if let stamp, let entry = known[path], entry.stamp == stamp { return entry.hash }
+        let hash = try await ExtensionServices.sha256(of: url)
+        // Kept only if the file didn't change while it was read.
+        if let stamp, Stamp(path: path) == stamp {
+            if known.updateValue((stamp, hash), forKey: path) == nil { order.append(path) }
+            if order.count > Self.limit { known[order.removeFirst()] = nil }
+        }
+        return hash
     }
 }

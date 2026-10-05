@@ -49,7 +49,7 @@ struct ExtensionManifestTests {
         } catch let invalid as ExtensionManifest.Invalid {
             #expect(invalid.problems.count == 7)
             #expect(invalid.problems.contains { $0.contains("lowercase letters, digits and hyphens") })
-            #expect(invalid.problems.contains { $0.contains("“beforeStart” or “afterFinish”") })
+            #expect(invalid.problems.contains { $0.contains("“beforeStart”, “afterFinish” or “afterChecks”") })
             #expect(invalid.problems.contains { $0.contains("without https://") })
             #expect(invalid.problems.contains { $0.contains("can't have a default") })
         } catch {
@@ -61,7 +61,8 @@ struct ExtensionManifestTests {
         #expect(ExtensionAPI.supports("1.0.0"))
         #expect(ExtensionAPI.supports("^1.0.0"))
         #expect(ExtensionAPI.supports("1.1.0"))
-        #expect(!ExtensionAPI.supports("1.2.0"))
+        #expect(ExtensionAPI.supports("1.2.0"))
+        #expect(!ExtensionAPI.supports("1.3.0"))
         #expect(!ExtensionAPI.supports("2.0.0"))
     }
 }

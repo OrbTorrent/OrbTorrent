@@ -195,8 +195,10 @@ final class DevelopmentServer {
             return connection.send(["type": "error", "message": "“\(query)” matches \(matches.count) downloads. Use one of these names or info hashes:",
                                     "details": .array(matches.prefix(8).map { .string("\($0.name) (\($0.hash))") })])
         }
-        if hook.event == .afterFinish && !torrent.isComplete {
-            return connection.fail("“\(torrent.name)” hasn't finished downloading, so its files aren't all there. Choose a finished download.")
+        if !extensions.canRun(hook, on: torrent) {
+            return connection.fail(hook.event == .afterChecks
+                ? "“\(torrent.name)” hasn't finished, and no check is holding it, so there's nothing to report yet. Choose a finished or held download."
+                : "“\(torrent.name)” hasn't finished downloading, so its files aren't all there. Choose a finished download.")
         }
 
         // Stream this run's logs and progress while it runs.
@@ -225,6 +227,14 @@ final class DevelopmentServer {
         ]
         if let details = record.details { result["details"] = .string(details) }
         if let link = record.link { result["link"] = ["title": .string(link.title), "url": .string(link.url.absoluteString)] }
+        if let files = record.files {
+            result["files"] = .array(files.map { file in
+                var entry: [String: JSONValue] = ["index": .number(Double(file.index)), "path": .string(file.path),
+                                                  "status": .string(file.status.rawValue)]
+                if let summary = file.summary { entry["summary"] = .string(summary) }
+                return .object(entry)
+            })
+        }
         connection.send(.object(result))
     }
 

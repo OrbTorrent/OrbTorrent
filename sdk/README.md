@@ -80,17 +80,17 @@ export default async function check(download: Download): Promise<Result> {
 ```
 
 A hook returns `passed`, `warning`, `failed` or `skipped`, with a one-line
-summary, optional details in Markdown and a link, and `notify: true` to show
-the summary as a notification too. Before a download starts, `failed` holds it. A hook that throws or runs out of time shows "Didn't finish", and a
+summary, optional details in Markdown and a link, `notify: true` to show
+the summary as a notification too, and `files` to mark the files it's about. Before a download starts, `failed` holds it. A hook that throws or runs out of time shows "Didn't finish", and a
 download is never blocked by a broken extension.
 
-| | `beforeStart` | `afterFinish` |
-|---|---|---|
-| Runs | Once the file list is known, before any data downloads | Once every wanted file has finished |
-| Can hold the download | Yes | No, it reports |
-| File contents | Not yet | Yes, with `"files": "contents"` |
-| Adding files next to them | No | Yes, with `"files": "add"` |
-| Time limit | 15 s | 6 h (2 min of CPU) |
+| | `beforeStart` | `afterFinish` | `afterChecks` |
+|---|---|---|---|
+| Runs | Once the file list is known, before any data downloads | Each time every wanted file has finished | Once the other checks are done: after it finishes, and when one holds it |
+| Can hold the download | Yes | No, it reports | No, it reports on the checks, in `download.checks` |
+| File contents | Not yet | Yes, with `"files": "contents"` | Once it's finished |
+| Adding files next to them | No | Yes, with `"files": "add"` | Once it's finished |
+| Time limit | 15 s | 6 h (2 min of CPU) | 6 h (2 min of CPU) |
 
 ## What an extension can use
 

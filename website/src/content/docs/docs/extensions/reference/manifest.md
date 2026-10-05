@@ -58,7 +58,7 @@ Everything else, such as `scripts`, `dependencies` and `private`, is npm's, and 
 | Field | Required | Meaning |
 |---|---|---|
 | `name` | Yes | Lowercase letters, digits and hyphens. The hook is the default export of `src/<name>.ts`, or `.tsx`, `.js` or `.jsx`. Two hooks can't share a name. |
-| `event` | Yes | `beforeStart` or `afterFinish`. [Hooks](/docs/extensions/hooks) explains each. |
+| `event` | Yes | `beforeStart`, `afterFinish` or `afterChecks`. [Hooks](/docs/extensions/hooks) explains each. An `afterChecks` hook tells users it can "See what other extensions found in your downloads". |
 | `title` | No | Shown in the Checks tab and on the extension's page. The name, if you leave it out. |
 | `description` | No | A line on what it does, shown on the extension's page. |
 

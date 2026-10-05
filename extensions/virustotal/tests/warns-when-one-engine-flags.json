@@ -40,6 +40,9 @@
   },
   "expect": {
     "status": "warning",
-    "summaryIncludes": "1 engine flags setup.exe"
+    "summaryIncludes": "1 engine flags setup.exe",
+    "files": {
+      "*setup.exe": "warning"
+    }
   }
 }

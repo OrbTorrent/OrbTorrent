@@ -19,6 +19,10 @@
   },
   "expect": {
     "status": "failed",
-    "summaryIncludes": "Play Film.app"
+    "summaryIncludes": "Play Film.app",
+    "files": {
+      "*/Play Film.app/*": "failed",
+      "*/Inside.Out.2.2024.1080p.mp4": "none"
+    }
   }
 }

@@ -188,6 +188,28 @@ struct ChecksStoreTests {
         reloaded.forget(["abc"])
         #expect(reloaded.entries.isEmpty)
     }
+
+    /// Finishing more files of a download doesn't repeat what the user was told.
+    @Test func saysWhatsFlaggedOnlyOnce() throws {
+        let sandbox = try ExtensionSandbox(officialExtensions: ["virustotal"])
+        let item = sandbox.registry().named("virustotal")!
+        func record(_ status: CheckRecord.Status, _ files: [(Int, CheckRecord.Status)] = []) -> CheckRecord {
+            var record = CheckRecord(extension: item, hook: item.manifest.hooks[0], status: status, summary: "")
+            record.files = files.map { CheckRecord.FileResult(index: $0.0, path: "Pack/\($0.0).exe", status: $0.1) }
+            return record
+        }
+        #expect(record(.failed, [(0, .failed)]).flagsMore(than: nil))
+        #expect(record(.warning).flagsMore(than: record(.passed)))
+        #expect(!record(.passed).flagsMore(than: nil))
+        // The same file again, or one that's better now: nothing new.
+        #expect(!record(.failed, [(0, .failed)]).flagsMore(than: record(.failed, [(0, .failed)])))
+        #expect(!record(.failed, [(0, .failed), (1, .passed)]).flagsMore(than: record(.failed, [(0, .failed)])))
+        #expect(!record(.warning).flagsMore(than: record(.warning)))
+        // Another file, a file that got worse, or a worse result: news.
+        #expect(record(.failed, [(0, .failed), (1, .warning)]).flagsMore(than: record(.failed, [(0, .failed)])))
+        #expect(record(.failed, [(0, .failed)]).flagsMore(than: record(.warning, [(0, .warning)])))
+        #expect(record(.failed).flagsMore(than: record(.warning)))
+    }
 }
 
 @MainActor
@@ -315,6 +337,44 @@ struct ExtensionsCoordinatorTests {
         let record = await extensions.run(item, item.manifest.hooks[0], on: download)
         #expect(record.summary == "2cf24dba5fb0a30e26e83b2ac5b9e29e1b161e5c1fa7425e73043362938b9824")
         #expect(record.details?.contains("isn't available") == true)
+    }
+
+    @Test func aResultsFilesAreKeptProblemsFirstAndItIsNoBetterThanTheWorst() async throws {
+        let sandbox = try ExtensionSandbox()
+        let script = """
+        var __orbExtension = { default: (download) => ({ status: "passed", summary: "Fine", files: [
+          { file: 0, status: "passed" }, { file: download.files[1], status: "warning", summary: "Odd" },
+          { file: 1, status: "failed", summary: "Bad\\nnews" }] }) };
+        """
+        let registry = sandbox.registry()
+        let item = try registry.loadDevelopment(from: try sandbox.makeExtension("marker", script: script))
+        let extensions = Extensions(registry: registry, settings: sandbox.settings(),
+                                    checks: ChecksStore(file: sandbox.root.appending(path: "checks.json")), runner: .bundled)
+        let metadata = TorrentMetadata(infoHash: "4123456789abcdef0123456789abcdef01234567", name: "Pack",
+                                       files: [.init(id: 0, path: "Pack/film.mkv", size: 1), .init(id: 1, path: "Pack/setup.exe", size: 1)])
+        let record = await extensions.run(item, item.manifest.hooks[0], on: ExtensionDownload(metadata: metadata, skipped: []))
+        #expect(record.status == .failed)
+        #expect(record.summary == "Fine")
+        #expect(record.files?.map(\.path) == ["Pack/setup.exe", "Pack/film.mkv"])
+        #expect(record.files?.first?.summary == "Bad news")
+        #expect(extensions.fileProblems(of: metadata.infoHash)[1]?.map(\.line) == ["Marker: Bad news"])
+        #expect(extensions.fileProblems(of: metadata.infoHash)[0] == nil)
+        #expect(extensions.logs.entries["marker"]?.last?.message == "Its result said “passed”, but setup.exe is “failed”, so it shows as failed.")
+    }
+
+    @Test func aResultNamingAFileThatIsntThereDoesntFinish() async throws {
+        let sandbox = try ExtensionSandbox()
+        let script = "var __orbExtension = { default: () => ({ status: \"failed\", summary: \"Bad\", files: [{ file: 9, status: \"failed\" }] }) };"
+        let registry = sandbox.registry()
+        let item = try registry.loadDevelopment(from: try sandbox.makeExtension("marker", script: script))
+        let extensions = Extensions(registry: registry, settings: sandbox.settings(),
+                                    checks: ChecksStore(file: sandbox.root.appending(path: "checks.json")), runner: .bundled)
+        let metadata = TorrentMetadata(infoHash: "5123456789abcdef0123456789abcdef01234567", name: "Pack",
+                                       files: [.init(id: 0, path: "Pack/film.mkv", size: 1)])
+        let record = await extensions.run(item, item.manifest.hooks[0], on: ExtensionDownload(metadata: metadata, skipped: []))
+        #expect(record.status == .didNotFinish)
+        #expect(record.summary == "Its result's “files” names a file that isn't part of this download. Pass a file from download.files, or its index.")
+        #expect(record.files == nil)
     }
 
     @Test func verifyRunsTheExtensionsOwnCheck() async throws {
@@ -475,6 +535,117 @@ struct ExtensionsTimingTests {
         // Removed downloads' results are forgotten.
         extensions.observe([torrent("c1", state: "stalledUP", progress: 1, completedOn: later)])
         #expect(extensions.checks.records(for: "c2").isEmpty)
+    }
+
+    final class Library: @unchecked Sendable {
+        var files: [TorrentFile] = []
+    }
+
+    func file(_ index: Int, wanted: Bool = true, done: Bool) -> TorrentFile {
+        TorrentFile(index: index, name: "Pack/\(index).exe", size: 10, progress: done ? 1 : 0,
+                    priority: wanted ? .normal : .skip, availability: 1)
+    }
+
+    @Test func choosingMoreFilesRunsHooksAgainWithTheNewOnesMarked() async throws {
+        let sandbox = try ExtensionSandbox()
+        let extensions = Extensions(registry: sandbox.registry(), settings: sandbox.settings(),
+                                    checks: ChecksStore(file: sandbox.root.appending(path: "checks.json")), runner: .bundled)
+        let script = """
+        var __orbExtension = { default: (download) => ({ status: "failed", files: [{ file: 0, status: "failed" }],
+          summary: "New: " + download.files.filter((file) => file.isNew).map((file) => file.index).join(",") }) };
+        """
+        try extensions.registry.loadDevelopment(from: try sandbox.makeExtension("scanner", event: "afterFinish", script: script))
+        let library = Library()
+        extensions.files = { _ in library.files }
+        let flagged = Started()
+        extensions.onFlagged = { torrent, _ in flagged.hashes.append(torrent.hash) }
+
+        // Only the first file is chosen, and it finishes.
+        library.files = [file(0, done: true), file(1, wanted: false, done: false)]
+        extensions.observe([torrent("e1", state: "downloading", progress: 0.5)])
+        extensions.observe([torrent("e1", state: "stalledUP", progress: 1, completedOn: .now)])
+        await eventually { extensions.checks.records(for: "e1").first?.status == .failed }
+        #expect(extensions.checks.records(for: "e1").first?.summary == "New: 0")
+        #expect(flagged.hashes == ["e1"])
+
+        // The user chooses the second file too, which finishes later. The
+        // engine forgets when it first finished.
+        library.files = [file(0, done: true), file(1, done: false)]
+        extensions.observe([torrent("e1", state: "downloading", progress: 0.5)])
+        library.files = [file(0, done: true), file(1, done: true)]
+        extensions.observe([torrent("e1", state: "stalledUP", progress: 1, completedOn: .now)])
+        await eventually { extensions.checks.records(for: "e1").first?.summary == "New: 1" }
+        #expect(extensions.checks.records(for: "e1").first?.summary == "New: 1")
+        #expect(extensions.checks.records(for: "e1").first?.seenFiles == [0, 1])
+        // It flagged the same file the user was already told about.
+        #expect(flagged.hashes == ["e1"])
+    }
+
+    /// A report on the checks: what each found, and whether one holds the download.
+    static let reporter = """
+    var __orbExtension = { default: (download) => ({ status: "passed", summary: download.checks.map((check) =>
+      check.extension.name + ":" + check.status + ":" + (check.files || []).map((file) => file.path).join("|")).join(",")
+      + ";held=" + download.isHeld + ";new=" + download.files.filter((file) => file.isNew).length }) };
+    """
+
+    @Test func reportsHearWhatTheChecksFoundOnceTheyreDone() async throws {
+        let sandbox = try ExtensionSandbox()
+        let extensions = Extensions(registry: sandbox.registry(), settings: sandbox.settings(),
+                                    checks: ChecksStore(file: sandbox.root.appending(path: "checks.json")), runner: .bundled)
+        let scanner = "var __orbExtension = { default: () => ({ status: \"failed\", summary: \"Bad\", files: [{ file: 1, status: \"failed\" }] }) };"
+        try extensions.registry.loadDevelopment(from: try sandbox.makeExtension("scanner", event: "afterFinish", script: scanner))
+        try extensions.registry.loadDevelopment(from: try sandbox.makeExtension("reporter", event: "afterChecks", script: Self.reporter))
+        let library = Library()
+        library.files = [file(0, done: true), file(1, done: true)]
+        extensions.files = { _ in library.files }
+
+        extensions.observe([torrent("r1", state: "downloading", progress: 0.5)])
+        let finished = torrent("r1", state: "stalledUP", progress: 1, completedOn: .now)
+        extensions.observe([finished])
+        await eventually { extensions.checks.record("reporter/check", for: "r1")?.status == .passed }
+        #expect(extensions.checks.record("reporter/check", for: "r1")?.summary == "scanner:failed:Pack/1.exe;held=false;new=2")
+        // A report isn't a check, so it's kept apart from them.
+        #expect(extensions.summary(of: finished).records.map(\.extensionName) == ["scanner"])
+        #expect(extensions.reports(of: finished).records.map(\.extensionName) == ["reporter"])
+        #expect(extensions.checks.badge(for: "r1") == .failed)
+    }
+
+    @Test func reportsHearWhenACheckHoldsADownload() async throws {
+        let sandbox = try ExtensionSandbox(officialExtensions: ["fake-download-check"])
+        let started = Started()
+        let extensions = coordinator(sandbox, files: ["Film/Film.2024.1080p.mp4.exe"], started: started)
+        try extensions.registry.loadDevelopment(from: try sandbox.makeExtension("reporter", event: "afterChecks", script: Self.reporter))
+        extensions.gate("h1")
+        extensions.observe([torrent("h1")])
+        await eventually { extensions.checks.record("reporter/check", for: "h1")?.status == .passed }
+        #expect(extensions.checks.gate(for: "h1") == .held)
+        #expect(extensions.checks.record("reporter/check", for: "h1")?.summary
+            == "fake-download-check:failed:Film/Film.2024.1080p.mp4.exe;held=true;new=0")
+    }
+}
+
+struct FingerprintsTests {
+    @Test func aFileIsReadAgainOnlyOnceItChanges() async throws {
+        let file = FileManager.default.temporaryDirectory.appending(path: "orbtorrent-fingerprint-\(UUID().uuidString)")
+        defer { try? FileManager.default.removeItem(at: file) }
+        let then = Date(timeIntervalSince1970: 1_700_000_000)
+        try Data("hello".utf8).write(to: file)
+        try FileManager.default.setAttributes([.modificationDate: then], ofItemAtPath: file.path)
+        let fingerprints = Fingerprints()
+        let hello = "2cf24dba5fb0a30e26e83b2ac5b9e29e1b161e5c1fa7425e73043362938b9824"
+        #expect(try await fingerprints.sha256(of: file) == hello)
+
+        // Changed in place to the same size, with its time put back: taken as
+        // the same file, so it isn't read again.
+        let handle = try FileHandle(forWritingTo: file)
+        try handle.write(contentsOf: Data("jello".utf8))
+        try handle.close()
+        try FileManager.default.setAttributes([.modificationDate: then], ofItemAtPath: file.path)
+        #expect(try await fingerprints.sha256(of: file) == hello)
+
+        // Modified since: read again.
+        try FileManager.default.setAttributes([.modificationDate: then.addingTimeInterval(60)], ofItemAtPath: file.path)
+        #expect(try await fingerprints.sha256(of: file) != hello)
     }
 }
 

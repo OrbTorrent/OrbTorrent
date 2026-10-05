@@ -15,6 +15,10 @@
   },
   "expect": {
     "status": "warning",
-    "summaryIncludes": "elsewhere"
+    "summaryIncludes": "elsewhere",
+    "files": {
+      "*.url": "warning",
+      "*.mp4": "none"
+    }
   }
 }

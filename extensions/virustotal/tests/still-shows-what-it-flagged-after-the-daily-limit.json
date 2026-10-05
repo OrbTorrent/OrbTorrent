@@ -1,0 +1,61 @@
+{
+  "name": "Still shows a file it flagged before, after the daily limit",
+  "preferences": {
+    "apiKey": "test-key"
+  },
+  "download": {
+    "name": "Pack",
+    "files": [
+      {
+        "path": "Pack/new-setup.exe",
+        "size": 5000000,
+        "sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+      },
+      {
+        "path": "Pack/old-extras.zip",
+        "size": 9000000,
+        "sha256": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+        "isNew": false
+      }
+    ]
+  },
+  "storage": {
+    "lookups": {
+      "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb": {
+        "at": 9999999999999,
+        "stats": {
+          "malicious": 12,
+          "suspicious": 0,
+          "total": 70
+        }
+      }
+    }
+  },
+  "mocks": {
+    "fetch": [
+      {
+        "url": "https://www.virustotal.com/api/v3/files/aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "status": 429,
+        "json": {
+          "error": {
+            "code": "QuotaExceededError"
+          }
+        }
+      }
+    ]
+  },
+  "expect": {
+    "status": "failed",
+    "summaryIncludes": "12 of 70 engines flag old-extras.zip",
+    "detailsIncludes": "1 file wasn't checked",
+    "files": {
+      "Pack/old-extras.zip": "failed",
+      "Pack/new-setup.exe": "none"
+    },
+    "not": {
+      "fetched": [
+        "https://www.virustotal.com/api/v3/files/bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+      ]
+    }
+  }
+}

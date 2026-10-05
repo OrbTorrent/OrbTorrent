@@ -481,8 +481,11 @@ started.
 
 ### After a download finishes
 
-- Each `afterFinish` hook that's on runs once when a download completes. That's
+- Each `afterFinish` hook that's on runs each time a download completes. That's
   the same moment the completion notification is sent (`CompletionNotifier`).
+  Choosing more of a finished download's files makes it complete again later
+  (libtorrent clears `completed_time` in `resume_download()`), so the hooks run
+  again, with `isNew` on the files that finished since.
 - At launch, OrbTorrent also runs hooks for downloads that completed after the
   extension was turned on (`completion_on` from the engine) and have no recorded
   run.
@@ -808,4 +811,39 @@ All five were taken as recommended.
 - **Extensions can all be turned off.** For someone who wants a plain torrent
   client, one switch on the Extensions page stops every hook and hides checks
   everywhere, keeping the sidebar row so the way back is always there.
+
+## Extension API 1.2
+
+A download whose user downloaded some files and chose more later finishes
+again, so `afterFinish` hooks ran again on every file, and couldn't tell which
+were new. A phone-notification extension would have repeated itself, and a
+VirusTotal warning about one file came back each time another finished.
+Running hooks per file instead was considered and left out: many checks need
+the whole download at once (the Fake Download Check compares files with each
+other), every run is a new process, and it would mean two ways to show results.
+
+- **One run per download, told what's new.** Each run still gets every
+  finished file, and its result replaces the last, like a pull request's
+  checks. `isNew` marks the files that finished since the hook last ran
+  (`CheckRecord.seenFiles`). A run that ends without a result keeps what was
+  seen, so those files are new again next time.
+- **Results name their files.** `files: [{ file, status, summary, link }]` in a
+  result is kept with the check (`CheckRecord.files`), problems first, up to
+  1,000. The Checks tab lists problems with Show in Finder, and the Files tab,
+  the menu bar and the add sheet mark each file. A result counts as no better
+  than its worst file, and the extension's log says so when that changes it.
+- **Notifications only for something new.** A flagged result notifies when its
+  status is worse than the last run's, or it flags a file the last run didn't
+  (`CheckRecord.flagsMore(than:)`).
+- **`afterChecks` hooks report on the checks.** They run after a download's
+  `afterFinish` hooks, and when a check holds it (`isHeld`), and get the other
+  checks' results in `download.checks`. They aren't checks: they're left out of
+  the ring, the status line and the badge, and show under "After its checks".
+  The ability "See what other extensions found in your downloads" is listed on
+  the install sheet, and as new on an update.
+- **Fingerprints are remembered** (`Fingerprints`), by file, size and time
+  modified, so a download checked again isn't read again.
+- **VirusTotal keeps going after a limit** with the answers it remembers, so a
+  file it flagged before stays flagged when the next lookup hits the daily
+  limit.
 

@@ -104,6 +104,10 @@ export async function runCommand(folder: string, hookName: string | undefined, d
     } else if (result.outcome === "returned") {
       const mark = { passed: style.green("✓"), warning: style.yellow("!"), failed: style.red("✗"), skipped: style.dim("–") }[result.status as string] ?? "";
       console.log(`${mark} ${style.bold(result.status)}: ${result.summary}`);
+      for (const file of result.files ?? []) {
+        const fileMark = { passed: style.green("✓"), warning: style.yellow("!"), failed: style.red("✗") }[file.status as string] ?? "";
+        console.log(`  ${fileMark} ${file.path}${file.summary ? style.dim(`: ${file.summary}`) : ""}`);
+      }
       if (result.details) console.log(style.dim(result.details));
       if (result.link) console.log(style.dim(`${result.link.title}: ${result.link.url}`));
     } else {

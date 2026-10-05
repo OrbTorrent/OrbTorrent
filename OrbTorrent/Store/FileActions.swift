@@ -118,6 +118,12 @@ enum FileActions {
         }
     }
 
+    /// Selects files by their paths in the download, such as one a check
+    /// flagged, or shows its folder if none are there.
+    static func reveal(paths: [String], of torrent: Torrent) {
+        revealAdded(paths, of: torrent)
+    }
+
     /// Shows the files an extension added, selected in Finder.
     static func revealAdded(_ paths: [String], of torrent: Torrent) {
         let urls = addedFiles(paths, in: torrent.savePath)

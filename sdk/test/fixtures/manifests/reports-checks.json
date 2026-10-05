@@ -1,0 +1,21 @@
+{
+  "manifest": {
+    "name": "phone-notifications",
+    "title": "Phone Notifications",
+    "description": "Tells your phone what the checks found.",
+    "author": "you",
+    "hooks": [
+      {
+        "name": "notify",
+        "title": "Send to your phone",
+        "event": "afterChecks"
+      }
+    ],
+    "permissions": {
+      "network": [
+        "ntfy.sh"
+      ]
+    }
+  },
+  "problems": []
+}

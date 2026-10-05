@@ -123,7 +123,8 @@ final class AppModel {
     /// scan after it finished.
     private func checkActivity(of torrent: Torrent) -> String? {
         guard extensions.isOn else { return nil }
-        let records = extensions.checks.records(for: torrent.hash)
+        // A report on the checks isn't checking it.
+        let records = extensions.checks.records(for: torrent.hash).filter { $0.event != .afterChecks }
         if let running = records.first(where: { $0.status == .running }) {
             if let done = running.progress?.done, let total = running.progress?.total, total > 0 {
                 return "Checking with \(running.extensionTitle) · \(done) of \(total)"

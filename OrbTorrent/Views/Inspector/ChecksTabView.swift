@@ -11,13 +11,15 @@ struct ChecksTabView: View {
 
     var body: some View {
         let summary = extensions.summary(of: torrent)
-        if summary.isEmpty && summary.upcoming.isEmpty {
+        let reports = extensions.reports(of: torrent)
+        if summary.isEmpty && summary.upcoming.isEmpty && reports.records.isEmpty && reports.upcoming.isEmpty {
             empty
         } else {
             ScrollView {
                 VStack(alignment: .leading, spacing: 20) {
                     CheckSummaryHeader(summary: summary, ringSize: 34)
                     CheckTimeline(summary: summary, torrent: torrent)
+                    ReportsSection(records: reports.records, upcoming: reports.upcoming, torrent: torrent)
                 }
                 .padding(16)
             }
@@ -41,6 +43,26 @@ struct ChecksTabView: View {
         }
         .padding(24)
         .frame(maxWidth: .infinity, maxHeight: .infinity)
+    }
+}
+
+/// Reports on the checks, such as a message to the user's phone. They aren't
+/// checks themselves, so they sit below the download's life, not in it.
+private struct ReportsSection: View {
+    let records: [CheckRecord]
+    let upcoming: [CheckSummary.Upcoming]
+    let torrent: Torrent
+
+    var body: some View {
+        if !records.isEmpty || !upcoming.isEmpty {
+            let event = ExtensionManifest.Event.afterChecks
+            VStack(alignment: .leading, spacing: 8) {
+                Label(event.stageTitle, systemImage: event.symbol)
+                    .font(.subheadline.weight(.semibold))
+                ForEach(records) { CheckCard(record: $0, torrent: torrent) }
+                ForEach(upcoming) { UpcomingCard(upcoming: $0, torrent: torrent) }
+            }
+        }
     }
 }
 
@@ -453,6 +475,9 @@ private struct CheckCard: View {
                     .foregroundStyle(record.status == .failed ? .primary : .secondary)
                     .fixedSize(horizontal: false, vertical: true)
                     .textSelection(.enabled)
+                if record.status.isFinished, let files = record.files, !files.isEmpty {
+                    FileResultsList(files: files, torrent: torrent)
+                }
                 if let added = record.addedFiles, !added.isEmpty {
                     AddedFilesList(paths: added)
                 }
@@ -503,8 +528,8 @@ private struct CheckCard: View {
     private var actions: some View {
         let item = model.extensions.registry.named(record.extensionName)
         let hook = item?.manifest.hooks.first { $0.name == record.hookName }
-        let canRunAgain = item != nil && hook != nil && record.status.isFinished
-            && (hook?.event == .beforeStart || torrent.isComplete)
+        let canRunAgain = item != nil && record.status.isFinished
+            && hook.map { model.extensions.canRun($0, on: torrent) } == true
         let needsSetup = item.map { !model.extensions.settings.missing(for: $0).isEmpty } ?? false
         let added = record.addedFiles ?? []
         if record.details != nil || record.link != nil || !added.isEmpty || canRunAgain || needsSetup {
@@ -532,6 +557,87 @@ private struct CheckCard: View {
             .buttonStyle(.link)
             .font(.callout)
             .padding(.top, 1)
+        }
+    }
+}
+
+/// What a check found about particular files: problems as rows, each with
+/// the way to it, and the files that passed as a count.
+private struct FileResultsList: View {
+    let files: [CheckRecord.FileResult]
+    let torrent: Torrent
+    @State private var showsAll = false
+    private static let shown = 5
+
+    var body: some View {
+        let problems = files.filter { $0.status != .passed }
+        let passed = files.count - problems.count
+        if !problems.isEmpty {
+            VStack(alignment: .leading, spacing: 6) {
+                ForEach(showsAll ? problems : Array(problems.prefix(Self.shown)), id: \.index) { file in
+                    FileResultRow(file: file, torrent: torrent)
+                }
+                if problems.count > Self.shown {
+                    Button(showsAll ? "Show Fewer" : "Show \(problems.count - Self.shown) More") {
+                        withAnimation(.snappy) { showsAll.toggle() }
+                    }
+                    .buttonStyle(.link)
+                    .padding(.leading, 22)
+                }
+                if passed > 0 {
+                    HStack(spacing: 6) {
+                        CheckStatusIcon(status: .passed, size: 12)
+                        Text("\(Format.count(passed, "other file")) passed")
+                            .foregroundStyle(.secondary)
+                    }
+                }
+            }
+            .font(.callout)
+            .padding(.top, 1)
+        }
+    }
+}
+
+/// One file a check found something about.
+private struct FileResultRow: View {
+    let file: CheckRecord.FileResult
+    let torrent: Torrent
+
+    var body: some View {
+        HStack(alignment: .top, spacing: 6) {
+            CheckStatusIcon(status: file.status, size: 12)
+                .padding(.top, 2)
+            VStack(alignment: .leading, spacing: 1) {
+                Text(file.name)
+                    .fontWeight(.medium)
+                    .lineLimit(1)
+                    .truncationMode(.middle)
+                    .help(file.path)
+                if let summary = file.summary {
+                    Text(summary)
+                        .foregroundStyle(.secondary)
+                        .fixedSize(horizontal: false, vertical: true)
+                        .textSelection(.enabled)
+                }
+            }
+            Spacer(minLength: 6)
+            // Before it downloads, there's nothing to show.
+            if FileActions.exists(URL(fileURLWithPath: torrent.savePath).appending(path: file.path)) {
+                Button {
+                    FileActions.reveal(paths: [file.path], of: torrent)
+                } label: {
+                    Image(systemName: "folder")
+                        .frame(width: 18, height: 18)
+                        .contentShape(.rect)
+                }
+                .buttonStyle(.plain)
+                .foregroundStyle(.secondary)
+                .help("Show in Finder")
+                .accessibilityLabel("Show \(file.name) in Finder")
+            }
+            if let link = file.link {
+                ReportLink(link: link)
+            }
         }
     }
 }
@@ -613,6 +719,8 @@ private struct UpcomingCard: View {
 struct CheckStatusIcon: View {
     let status: CheckRecord.Status
     var size: CGFloat = 14
+    /// What hovering over it says, if more than the status.
+    var help: String?
 
     var body: some View {
         let line = CheckMark.lineWidth(for: size)
@@ -634,7 +742,7 @@ struct CheckStatusIcon: View {
         }
         .frame(width: size, height: size)
         .frame(width: max(size, 16))
-        .help(status.title)
+        .help(help ?? status.title)
     }
 
     private var color: AnyShapeStyle {

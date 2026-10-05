@@ -28,10 +28,10 @@ A hook is the default export of `src/<hook name>.ts`. [Hooks](/docs/extensions/h
 ### `HookEvent`
 
 ```ts
-type HookEvent = "beforeStart" | "afterFinish";
+type HookEvent = "beforeStart" | "afterFinish" | "afterChecks";
 ```
 
-When a hook runs, as its `event` in `package.json` says.
+When a hook runs, as its `event` in `package.json` says. `afterChecks` since 1.2.
 
 ### `Download`
 
@@ -45,10 +45,14 @@ interface Download {
   /** Whether it's from a private tracker. */
   isPrivate: boolean;
   files: DownloadFile[];
+  /** For an `afterChecks` hook: what the other extensions' checks found, worst first. */
+  checks?: CheckResult[];
+  /** For an `afterChecks` hook: whether a check is holding it before it starts. Otherwise it's finished. */
+  isHeld?: boolean;
 }
 ```
 
-The download a hook runs on.
+The download a hook runs on. `checks` and `isHeld` since 1.2.
 
 ### `DownloadFile`
 
@@ -61,8 +65,16 @@ interface DownloadFile {
   size: number;
   /** Whether the user chose to download it. */
   wanted: boolean;
+  /**
+   * Once the download has finished: whether this file finished since the hook
+   * last ran on it, such as one the user chose to download later. Every file
+   * is new the first time, and when the user runs the hook again.
+   */
+  isNew?: boolean;
 }
 ```
+
+`isNew` since 1.2.
 
 ### `Result`
 
@@ -80,10 +92,52 @@ interface Result {
    * download held before it starts, are notifications already.
    */
   notify?: boolean;
+  /**
+   * What it found about particular files. OrbTorrent marks each problem
+   * beside its file, and the result counts as no better than its worst file.
+   * Each result replaces the hook's last one, so name every file you know
+   * about, not only the new ones.
+   */
+  files?: FileResult[];
 }
 ```
 
-What a hook returns. [Results](/docs/extensions/results) explains how each part shows.
+What a hook returns. [Results](/docs/extensions/results) explains how each part shows. `files` since 1.2.
+
+### `FileResult`
+
+```ts
+interface FileResult {
+  /** A file from `download.files`, or its index. */
+  file: DownloadFile | number;
+  status: "passed" | "warning" | "failed";
+  /** Why, in a few words, such as "5 of 70 engines call it malicious". */
+  summary?: string;
+  link?: { title: string; url: string };
+}
+```
+
+What a hook found about one of the download's files. Since 1.2.
+
+### `CheckResult`
+
+```ts
+interface CheckResult {
+  extension: { name: string; title: string };
+  /** The hook's name. */
+  hook: string;
+  event: "beforeStart" | "afterFinish";
+  /** `didNotFinish` when it threw, crashed or went over a limit. */
+  status: Status | "didNotFinish";
+  summary: string;
+  details?: string;
+  link?: { title: string; url: string };
+  /** What it found about particular files, problems first. */
+  files?: { index: number; path: string; status: "passed" | "warning" | "failed"; summary?: string; link?: { title: string; url: string } }[];
+}
+```
+
+Another extension's result on the download, as an `afterChecks` hook sees it in `download.checks`. Results still running aren't included. Since 1.2.
 
 ### `Status`
 
@@ -204,9 +258,9 @@ const files: {
 };
 ```
 
-The download's files, only in `afterFinish` hooks, once they're there. Reading them needs `"files": "contents"` in `permissions`, and adding files next to them needs `"files": "add"`, or `["contents", "add"]` for both. Pass a file from `download.files`, or its `index`.
+The download's files, only once it's finished: in `afterFinish` hooks, and in `afterChecks` hooks when it isn't held. Reading them needs `"files": "contents"` in `permissions`, and adding files next to them needs `"files": "add"`, or `["contents", "add"]` for both. Pass a file from `download.files`, or its `index`.
 
-- **`files.sha256(file)`**: the file's SHA-256 fingerprint in lowercase hex, computed by OrbTorrent. Large files are quick, and the time doesn't count towards CPU time.
+- **`files.sha256(file)`**: the file's SHA-256 fingerprint in lowercase hex, computed by OrbTorrent. Large files are quick, and the time doesn't count towards CPU time. OrbTorrent remembers it while the file stays as it was, so asking again, such as once more of the download has finished, doesn't read it again.
 - **`files.formData(fields)`**: a multipart form to upload with `fetch`. OrbTorrent streams each file from disk.
 - **`files.save(file, suffix, contents)`**: adds a file next to `file`, named after it: `files.save(video, ".en.srt", text)` saves `Film.2024.en.srt` beside `Film.2024.mkv`. The suffix starts with `.`, `-`, `_` or a space, and ends with an extension. Only subtitles, text, images and checksums, up to 10 MB each and 50 MB a run. It never replaces a file, except one the same hook added to the same download before, and throws if one's there. Text is saved as UTF-8. Since 1.1.
 
@@ -287,7 +341,7 @@ const environment: {
   readonly isDevelopment: boolean;
   /** The hook or `verify` function running now. */
   readonly entryPoint: { type: "hook" | "verify"; name: string; event?: HookEvent };
-  /** The API version this OrbTorrent provides, such as "1.1.0". */
+  /** The API version this OrbTorrent provides, such as "1.2.0". */
   readonly apiVersion: string;
 };
 ```

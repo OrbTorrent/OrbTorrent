@@ -155,6 +155,7 @@ struct AddConfirmation: View {
         // always show) stays inside the right edge, like everything else, and
         // the sizes keep a little space from it.
         let scroller = scrolls(metadata) && NSScroller.preferredScrollerStyle == .legacy
+        let problems = model.extensions.fileProblems(of: metadata.infoHash)
         return VStack(alignment: .leading, spacing: isWindow ? 6 : 4) {
             HStack {
                 Text("Files")
@@ -170,7 +171,7 @@ struct AddConfirmation: View {
             ScrollView {
                 VStack(spacing: 0) {
                     ForEach(metadata.files) { file in
-                        fileRow(file)
+                        fileRow(file, problems: problems[file.id] ?? [])
                     }
                 }
                 .padding(.trailing, scroller ? 8 : 0)
@@ -181,7 +182,8 @@ struct AddConfirmation: View {
         }
     }
 
-    private func fileRow(_ file: TorrentMetadata.File) -> some View {
+    /// A file to pick, marked if a check found something wrong with it.
+    private func fileRow(_ file: TorrentMetadata.File, problems: [FileFinding]) -> some View {
         HStack(spacing: glyphGap) {
             Toggle("Download", isOn: Binding(
                 get: { !pending.skippedFiles.contains(file.id) },
@@ -195,6 +197,10 @@ struct AddConfirmation: View {
             Text((file.path as NSString).lastPathComponent)
                 .lineLimit(1)
                 .truncationMode(.middle)
+            if let worst = problems.first {
+                CheckStatusIcon(status: worst.result.status, size: 12, help: problems.map(\.line).joined(separator: "\n"))
+                    .accessibilityLabel(worst.line)
+            }
             Spacer(minLength: 8)
             Text(Format.bytes(file.size))
                 .foregroundStyle(.secondary)

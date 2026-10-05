@@ -43,6 +43,9 @@
     "summaryIncludes": "No engine flagged setup.exe",
     "fetched": [
       "https://www.virustotal.com/api/v3/files/aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
-    ]
+    ],
+    "files": {
+      "*setup.exe": "passed"
+    }
   }
 }

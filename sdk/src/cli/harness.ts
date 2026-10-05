@@ -1,6 +1,6 @@
 import { randomUUID, webcrypto } from "node:crypto";
 import vm from "node:vm";
-import { Manifest } from "./manifest.js";
+import { HookEvent, Manifest } from "./manifest.js";
 import { sdkVersion } from "./paths.js";
 
 // Runs a built entry point the way OrbTorrent's extension host does: only the
@@ -29,7 +29,9 @@ export interface HarnessFile {
 
 export interface HarnessOptions {
   manifest: Manifest;
-  entryPoint: { type: "hook" | "verify"; name: string; event?: "beforeStart" | "afterFinish" };
+  entryPoint: { type: "hook" | "verify"; name: string; event?: HookEvent };
+  /** For an afterChecks hook: a check is holding the download, so none of it is on disk. */
+  held?: boolean;
   preferences: Record<string, unknown>;
   fetchMocks: FetchMock[];
   /** The download's files by index. After it finishes, the wanted ones are on disk. */
@@ -41,7 +43,8 @@ export interface HarnessOptions {
 }
 
 export interface HarnessRun {
-  outcome: { ok: true; value: unknown } | { ok: false; message: string; stack: string; timedOut?: boolean };
+  /** `invalid` when a hook returned something OrbTorrent can't show as a result. */
+  outcome: { ok: true; value: unknown } | { ok: false; message: string; stack: string; timedOut?: boolean; invalid?: boolean };
   logs: { level: string; message: string }[];
   fetched: { method: string; url: string }[];
   progress: { done?: number; total?: number; message?: string }[];
@@ -86,7 +89,8 @@ export async function runInHarness(script: string, args: unknown[], options: Har
   const onDisk = (index: unknown): HarnessFile => {
     if (typeof index !== "number") throw new Refusal("Pass a file from download.files.");
     const entry = options.files[index];
-    if (options.entryPoint.event !== "afterFinish" || !entry || entry.wanted === false) throw unavailable(index);
+    const finished = options.entryPoint.event === "afterFinish" || (options.entryPoint.event === "afterChecks" && !options.held);
+    if (!finished || !entry || entry.wanted === false) throw unavailable(index);
     return entry;
   };
   let addedBytes = 0;
@@ -324,4 +328,50 @@ export async function runInHarness(script: string, args: unknown[], options: Har
     clearTimeout(timer);
   }
   return run;
+}
+
+// The same rules and words as OrbTorrent's conclude and fileResults (Extensions.swift).
+const statuses = ["passed", "warning", "failed", "skipped"];
+const fileStatuses = ["passed", "warning", "failed"];
+/** Worst first, as OrbTorrent ranks them. */
+const rank = (status: string) => ["failed", "warning", "didNotFinish", "running", "queued", "skipped", "passed"].indexOf(status);
+const maximumFileResults = 1000;
+
+/**
+ * A hook's result as OrbTorrent shows it: its files checked against the
+ * download, problems first, and its status no better than its worst file.
+ */
+export function asShown(value: unknown, files: Record<number, HarnessFile>): { result: Record<string, unknown>; warning?: string } | { problem: string } {
+  const result = (value ?? {}) as Record<string, any>;
+  if (typeof result !== "object" || !statuses.includes(result.status) || typeof result.summary !== "string" || !result.summary.trim()) {
+    return { problem: "It returned something that isn't a result: return { status, summary }." };
+  }
+  if (result.files === undefined || result.files === null) return { result };
+  if (!Array.isArray(result.files)) return { problem: "Its result's “files” isn't a list. Return files: [{ file, status, summary }]." };
+  const byIndex = new Map<number, { index: number; path: string; status: string; summary?: string; link?: unknown }>();
+  for (const entry of result.files) {
+    const file = entry?.file;
+    const index = typeof file === "number" ? file : file?.index;
+    const path = Number.isInteger(index) ? files[index]?.path : undefined;
+    if (path === undefined) {
+      return { problem: "Its result's “files” names a file that isn't part of this download. Pass a file from download.files, or its index." };
+    }
+    if (!fileStatuses.includes(entry?.status)) {
+      return { problem: `Its result gives ${path.split("/").pop()} a status that isn't “passed”, “warning” or “failed”.` };
+    }
+    const summary = typeof entry.summary === "string" ? entry.summary.replace(/\n/g, " ").trim().slice(0, 300) : "";
+    const existing = byIndex.get(index);
+    if (existing && rank(existing.status) <= rank(entry.status)) continue;
+    byIndex.set(index, { index, path, status: entry.status, ...(summary && { summary }), ...(entry.link && { link: entry.link }) });
+  }
+  const shown = [...byIndex.values()].sort((a, b) => rank(a.status) - rank(b.status) || a.index - b.index).slice(0, maximumFileResults);
+  const worst = shown[0];
+  if (worst && rank(worst.status) < rank(result.status)) {
+    const name = worst.path.split("/").pop();
+    return {
+      result: { ...result, status: worst.status, files: shown },
+      warning: `Its result said “${result.status}”, but ${name} is “${worst.status}”, so it shows as ${worst.status}.`,
+    };
+  }
+  return { result: { ...result, files: shown } };
 }

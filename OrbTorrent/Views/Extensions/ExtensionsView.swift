@@ -173,10 +173,15 @@ private struct CheckFlowView: View {
                 Milestone(title: "Downloading", symbol: "arrow.down")
                 Connector()
                 Stage(event: .afterFinish)
+                // Reports on the checks, once an extension makes them.
+                if model.extensions.registry.extensions.contains(where: { !$0.manifest.hooks(for: .afterChecks).isEmpty }) {
+                    Connector()
+                    Stage(event: .afterChecks)
+                }
                 Connector()
                 Milestone(title: "Done", symbol: "checkmark")
             }
-            .help("Extensions check each download, like the checks on a pull request. Before a download starts, a check can hold it until you decide. After it finishes, checks report what they find in its Checks tab.")
+            .help("Extensions check each download, like the checks on a pull request. Before a download starts, a check can hold it until you decide. After it finishes, checks report what they find in its Checks tab. Once the checks are done, an extension can pass on what they found.")
         }
         .extensionPanel(padding: 16)
     }
@@ -249,7 +254,7 @@ private struct CheckFlowView: View {
                         .buttonStyle(.plain)
                     }
                 }
-                Text(event == .beforeStart ? "Can hold a download until you decide" : "Reports what it finds")
+                Text(caption)
                     .font(.caption)
                     .foregroundStyle(.secondary)
             }
@@ -260,6 +265,14 @@ private struct CheckFlowView: View {
                 RoundedRectangle(cornerRadius: 10)
                     .strokeBorder(.quaternary, style: StrokeStyle(lineWidth: 1, dash: items.isEmpty ? [4, 3] : []))
             )
+        }
+
+        private var caption: String {
+            switch event {
+            case .beforeStart: "Can hold a download until you decide"
+            case .afterFinish: "Reports what it finds"
+            case .afterChecks: "Passes on what the checks found"
+            }
         }
     }
 }
