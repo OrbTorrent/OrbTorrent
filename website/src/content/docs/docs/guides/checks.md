@@ -56,7 +56,7 @@ When a check fails before a download starts, OrbTorrent holds it: nothing downlo
 
 - **If OrbTorrent asked about the download,** the check's result shows in the confirmation, and the button becomes **Download Anyway**.
 
-  ![OrbTorrent asking about a download whose video file is really a Windows program: the Fake Download Check found a problem, and the button says Download Anyway](../../../../assets/shots/held.png)
+  ![OrbTorrent asking about a download whose video file is really a Windows program, marked with a red cross: the Fake Download Check found a problem, and the button says Download Anyway](../../../../assets/shots/held.png)
 
 - **If the download started on its own,** OrbTorrent stops it the moment its file list arrives, holds it, and sends a **Download Held** notification. The menu bar panel shows it too: **"… is held by a check."**
 
