@@ -11,6 +11,7 @@ const rows: Row[] = [
   { label: "Runs on", ours: "macOS 26 or later", theirs: "macOS 11 or later", better: "theirs" },
   { label: "Notarized by Apple", ours: "Yes", theirs: "Yes" },
   { label: "Downloads only through your VPN", ours: "One switch, and downloading stops if the VPN drops", theirs: "No setting in the Mac app", better: "ours" },
+  { label: "Peers behind a shared IP address", ours: "Reached by hole punching", theirs: "Not in 4.1.3; coming in 4.2", better: "ours" },
   { label: "Menu bar", ours: "A panel with your downloads, speeds and files", theirs: "None: it lives in the Dock", better: "ours" },
   { label: "Fake downloads", ours: "Held before they arrive", theirs: "Not checked", better: "ours" },
   { label: "Web interface", ours: "Not yet", theirs: "Yes, for using it from another computer", better: "theirs" },
@@ -21,6 +22,10 @@ const questions = [
   {
     question: "Does Transmission work on the newest macOS?",
     answer: "Yes. Transmission 4.1.3 runs on macOS 11 Big Sur and later, on Apple silicon and Intel, and it's notarized by Apple.",
+  },
+  {
+    question: "Can Transmission reach peers when my provider shares my IP address?",
+    answer: "Transmission 4.1.3 can only reach peers that accept connections. Hole punching, which also reaches peers behind shared addresses, has been added for Transmission 4.2. OrbTorrent runs qBittorrent's engine, which has it today.",
   },
   {
     question: "Can Transmission download only through a VPN?",
@@ -79,6 +84,7 @@ const questions = [
 
   <h2>What OrbTorrent adds</h2>
   <ul>
+    <li><strong>Peers behind shared IP addresses.</strong> Many internet providers share one public address between customers, so other peers can't connect to you, and when seeders are behind one too, nobody can connect to anybody. qBittorrent's engine still reaches many of them by <a href="https://www.bittorrent.org/beps/bep_0055.html">hole punching</a>: a peer you're both connected to introduces you, and you connect to each other at the same moment. Transmission has <a href="https://github.com/transmission/transmission/pull/8884">added it</a> for its next version, 4.2, but 4.1.3 doesn't have it.</li>
     <li><strong>Downloads only through your VPN.</strong> Transmission's Mac app has no setting to keep downloads on your VPN: tying it to an address is a <a href="https://github.com/transmission/transmission/blob/4.1.3/macosx/Controller.mm#L475-L483">hidden preference</a>, set from Terminal. In OrbTorrent it's one switch: if the VPN drops, downloading stops, and picks up once it's back.</li>
     <li><strong>Your VPN's forwarded port, kept in step,</strong> so other peers can reach you through the VPN. OrbTorrent picks it up from VPNs that forward a port over NAT-PMP and from Private Internet Access.</li>
     <li><strong>A panel in your menu bar.</strong> Transmission lives in the Dock, and a menu bar icon has been <a href="https://github.com/transmission/transmission/issues/2949">requested since 2022</a>. OrbTorrent's orb shows how your downloads are doing, and a click shows speeds, downloads and their files.</li>

@@ -32,6 +32,10 @@ export const faqs: Faq[] = [
     answer: "Only anonymous counts, never an ID. Its daily check for updates says which version it is, your version of macOS, the kind of Mac, the week it was installed and how often it quit unexpectedly, so we know how many Macs use it and whether a version has a problem. Nothing about how you use it is sent. There's no account and no crash reporting, Settings shows exactly what's sent and turns it off, and the privacy page lists everything.",
   },
   {
+    question: "My internet provider shares my IP address. Will OrbTorrent still find peers?",
+    answer: "Yes. When your provider shares one public address between customers, known as carrier-grade NAT, no port can be opened, so other peers can't connect to you directly. OrbTorrent's engine still reaches many of them by hole punching: a peer you're both connected to introduces you, and you connect to each other at the same moment. For every peer to reach you, use a VPN that forwards a port, and OrbTorrent keeps it in step by itself.",
+  },
+  {
     question: "Can I bring my downloads over from Transmission or qBittorrent?",
     answer: "Yes. OrbTorrent offers to when you first open it, or later from File › Import From. Downloads keep their folders, file choices, names, labels, limits and history, and you choose which of the app's settings come over.",
   },

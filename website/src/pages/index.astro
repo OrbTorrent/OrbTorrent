@@ -301,10 +301,10 @@ const features = [
     <div class="wrap inset grid gap-12 lg:grid-cols-[1fr_0.95fr] lg:items-center">
       <div>
         <SectionHeader label="Under the hood" title="qBittorrent's engine," tone="inside a native app.">
-          OrbTorrent is written in Swift and SwiftUI. It bundles qBittorrent's engine, built from its released source and checked against its signature, and runs it in the background, where it only answers to your Mac.
+          OrbTorrent is written in Swift and SwiftUI. It bundles qBittorrent's engine, built from its released source and checked against its signature, and runs it in the background, where it only answers to your Mac. It reaches peers even when your internet provider shares one IP address between customers, by hole punching.
         </SectionHeader>
         <ul class="mt-8 flex flex-wrap gap-2 reveal">
-          {["µTP", "DHT", "Peer exchange", "Local peer discovery", "Web seeds", "Encryption", "UPnP and NAT-PMP"].map((name) => <li class="chip">{name}</li>)}
+          {["µTP", "DHT", "Peer exchange", "Local peer discovery", "Web seeds", "Encryption", "UPnP and NAT-PMP", "Hole punching"].map((name) => <li class="chip">{name}</li>)}
         </ul>
         <a href="/how-its-built" class="arrow-link mt-8 reveal">How it's built <ArrowRight size={16} /></a>
       </div>
