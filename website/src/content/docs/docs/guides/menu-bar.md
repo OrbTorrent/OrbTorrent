@@ -26,7 +26,7 @@ Click the orb to open the panel.
 ![The menu bar panel, with live speeds at the top, five downloads with their progress, and Open App, Pause All and Add Link at the bottom](../../../../assets/shots/panel.png)
 
 - **At the top,** your total download and upload speeds.
-- **Your downloads,** up to six, busiest first. Each shows its progress and what it's doing, such as "Downloading · 2.9 GB of 5.07 GB · 1 hr, 44 min left". **Show all** opens the window with every one.
+- **Your downloads,** busiest first: running ones fastest first, then paused ones, then finished ones. Each shows its progress and what it's doing, such as "Downloading · 2.9 GB of 5.07 GB · 1 hr, 44 min left". With more than six, the list scrolls.
 - **At the bottom,** **Open App** opens the OrbTorrent window, **Pause All** or **Resume All** does as it says, and **Add Link** adds a magnet link. **More (…)** has the rest.
 
 A strip at the top of the list tells you when something needs a look:

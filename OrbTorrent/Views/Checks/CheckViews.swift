@@ -682,7 +682,7 @@ struct ReportLink: View {
 }
 
 /// A way out that doesn't compete with the content: grey text and a
-/// chevron, like the menu bar panel's "Show all" line.
+/// chevron.
 struct QuietLink: View {
     let title: String
     let action: () -> Void

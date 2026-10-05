@@ -29,8 +29,9 @@ extension View {
 
 /// The panel shown from the menu bar icon.
 ///
-/// It lists up to six downloads, busiest first; clicking one shows its files
-/// right in the panel, where they can be opened, skipped or prioritised.
+/// It lists every download, busiest first, in a list that scrolls once
+/// there are more than about six; clicking one shows its files right in the
+/// panel, where they can be opened, skipped or prioritised.
 struct MenuBarPanel: View {
     /// False when shown in the panel OrbTorrent drops down itself, rather
     /// than in SwiftUI's `MenuBarExtra`.
@@ -43,6 +44,12 @@ struct MenuBarPanel: View {
     @State private var focusedHash: String?
     /// The download whose row is asking to delete it, if any.
     @State private var deletingHash: String?
+    /// The ends of the list with more downloads past them, which fade out.
+    @State private var listEdges: Edge.Set = []
+    @State private var listPosition = ScrollPosition(edge: .top)
+    /// About six and a half rows, so the panel stays a steady size however
+    /// many downloads there are, and the half row says there are more.
+    private let maxListHeight: CGFloat = 375
 
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
@@ -75,9 +82,10 @@ struct MenuBarPanel: View {
         .frame(width: 380)
         .background(WindowReader { if isMenuBarExtra { MenuBarIcon.panel = $0 } })
         .background(WindowCloseObserver {
-            // Reopen on the list, with a fresh look at the clipboard.
+            // Reopen on the top of the list, with a fresh look at the clipboard.
             focusedHash = nil
             deletingHash = nil
+            listPosition.scrollTo(edge: .top)
             clipboardMagnet = model.adder.clipboardMagnet()
         })
         .onAppear {
@@ -115,6 +123,14 @@ struct MenuBarPanel: View {
             .padding(.vertical, 18)
         } else {
             heldStrip
+            downloadList(torrents)
+        }
+    }
+
+    /// Every download. Past the height limit the list scrolls, with the
+    /// system's scroll bar, and fades out at an end with more past it.
+    private func downloadList(_ torrents: [Torrent]) -> some View {
+        ScrollView {
             VStack(spacing: 2) {
                 ForEach(torrents) { torrent in
                     MenuBarTorrentRow(torrent: torrent, isConfirmingDelete: Binding(
@@ -123,11 +139,34 @@ struct MenuBarPanel: View {
                     )) {
                         focusedHash = torrent.hash
                     }
-                    .reachesOut()
                 }
-                showAllButton(hiding: model.store.torrents.count - torrents.count)
             }
         }
+        .scrollPosition($listPosition)
+        .scrollBounceBehavior(.basedOnSize)
+        // As tall as the rows, up to the limit.
+        .frame(maxHeight: maxListHeight)
+        .fixedSize(horizontal: false, vertical: true)
+        .onScrollGeometryChange(for: Edge.Set.self) { geometry in
+            var edges: Edge.Set = []
+            if geometry.visibleRect.minY > 1 { edges.insert(.top) }
+            if geometry.visibleRect.maxY < geometry.contentSize.height - 1 { edges.insert(.bottom) }
+            return edges
+        } action: { _, edges in
+            listEdges = edges
+        }
+        .mask {
+            VStack(spacing: 0) {
+                LinearGradient(colors: [.clear, .black], startPoint: .top, endPoint: .bottom)
+                    .frame(height: listEdges.contains(.top) ? 16 : 0)
+                Rectangle()
+                LinearGradient(colors: [.black, .clear], startPoint: .top, endPoint: .bottom)
+                    .frame(height: listEdges.contains(.bottom) ? 28 : 0)
+            }
+        }
+        // The rows' highlight reaches out, so the list does too, rather than
+        // have the scroll view clip it.
+        .reachesOut()
     }
 
     /// A new version that's ready to install, or one found while OrbTorrent
@@ -202,31 +241,6 @@ struct MenuBarPanel: View {
             }
             .buttonStyle(.plain)
             .reachesOut()
-        }
-    }
-
-    /// Says when the panel leaves some downloads out; the window has them all.
-    @ViewBuilder
-    private func showAllButton(hiding hidden: Int) -> some View {
-        if hidden > 0 {
-            Button {
-                model.store.filter = .all
-                model.store.searchText = ""
-                model.showMainWindow()
-            } label: {
-                HStack(spacing: 3) {
-                    Text("Show all \(model.store.torrents.count) downloads")
-                    Image(systemName: "chevron.right")
-                        .font(.caption2.weight(.semibold))
-                }
-                .font(.caption.weight(.medium))
-                .foregroundStyle(.secondary)
-                .frame(maxWidth: .infinity)
-                .padding(.vertical, 6)
-                .contentShape(.rect)
-            }
-            .buttonStyle(.plain)
-            .help("\(hidden) more in the OrbTorrent window")
         }
     }
 

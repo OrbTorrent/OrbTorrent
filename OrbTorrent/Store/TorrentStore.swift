@@ -94,10 +94,12 @@ final class TorrentStore {
         torrents.filter { selection.contains($0.hash) }
     }
 
-    /// Torrents worth showing in the menu bar: running downloads fastest first,
-    /// then paused ones (so they can be resumed from there), then recently
-    /// completed ones.
-    var menuBarTorrents: [Torrent] {
+    /// Every download, in the menu bar's order.
+    var menuBarTorrents: [Torrent] { Self.menuBarOrder(torrents) }
+
+    /// Running downloads fastest first, then paused ones (so they can be
+    /// resumed from there), then finished ones, most recent first.
+    static func menuBarOrder(_ torrents: [Torrent]) -> [Torrent] {
         let unfinished = torrents.filter { !$0.isComplete }
         let active = unfinished
             .filter { !$0.state.isStopped }
@@ -108,7 +110,7 @@ final class TorrentStore {
         let finished = torrents
             .filter { $0.isComplete }
             .sorted { ($0.completedOn ?? .distantPast) > ($1.completedOn ?? .distantPast) }
-        return Array((active + paused + finished).prefix(6))
+        return active + paused + finished
     }
 
     var allStopped: Bool {
