@@ -9,8 +9,8 @@ happens. This is the only place with checkboxes: tick them here.
 for you to review where it says so. Times are Malaysia time (MYT).
 Last brought up to date on 3 October 2026.
 
-**Where we are:** the app, the website with its docs and search pages, and
-the extension SDK 1.1.0 are built, and the repo is ready for other developers
+**Where we are:** the app, the website with its docs and search pages, the
+launch film and the extension SDK 1.1.0 are built, and the repo is ready for other developers
 and their coding agents. The notarized build waits on Apple approving the
 developer account. Until then, prepare what's in sections 2 and 3, and start
 your own accounts early: Reddit and Hacker News need weeks of history.
@@ -99,12 +99,28 @@ your own accounts early: Reddit and Hacker News need weeks of history.
   The test email reached your Gmail's Primary inbox. (2 Oct)
 - [x] **Answers drafted** for the questions people will ask
   ([LAUNCH.md §7](LAUNCH.md#7-questions-to-have-answers-for)).
+- [x] **The technical write-up,** "How OrbTorrent is built", at
+  `orbtorrent.com/how-its-built`, going live with the site: why it exists,
+  qBittorrent's engine built from source and kept private, the VPN cut-off
+  and port forwarding, fakes held before they arrive, the extension sandbox,
+  signed updates and the orb, with each fact checked against the code,
+  excerpts of it, a diagram and a live orb. It's in the footer, `llms.txt`
+  and the docs' How OrbTorrent works. (3 Oct)
+- [x] **The launch film,** 57 seconds, made from code and cut to its music:
+  the orb's first appearance with the tagline, the menu bar, the library, a
+  magnet link, the VPN cutting off, a fake held, extensions, and the end
+  card. In 1080p and 4K, with a smaller copy for sharing and a poster, in
+  `video/out/`. A light version was made to compare. `video/README.md` says
+  how to render it, and the music's licence. (3 Oct)
+- [x] **The film on the homepage:** "Watch the film" beside the Download
+  button opens the light film, on the page's paper, with its sound. Nothing
+  of it loads until it's clicked. The Worker answers the byte ranges Safari
+  needs, and search engines get its structured data. Tested in Chrome and
+  WebKit. (3 Oct)
 
 ## 2. Now, while Apple reviews: Claude
 
-- [ ] **The technical write-up,** "How OrbTorrent is built", for Show HN,
-  newsletters and Lobsters. You review it.
-- [ ] **The video's script,** for you to record.
+- [ ] **Short clips of the film** for showing the work in progress.
 
 ## 3. Now, while Apple reviews: you
 
@@ -119,13 +135,18 @@ your own accounts early: Reddit and Hacker News need weeks of history.
   - Bluesky `@orbtorrent.com` (Claude adds the DNS record);
   - Mastodon `@orbtorrent@indieapps.space`, and your own account;
   - X and Threads `@orbtorrent`;
-  - YouTube `@orbtorrent`.
+  - YouTube `@orbtorrent`, for the film. Its music is in YouTube's Content
+    ID, so expect an automatic claim and dispute it with the licence
+    (`video/README.md`). Once it's up, Claude links it from the press page,
+    for anyone writing about OrbTorrent.
 - [ ] **Show the work in progress** once or twice a week once the handles are
   yours: short clips of the orb, the menu bar, the VPN cut-off. Claude can
   help write them.
-- [ ] **Record the video,** 30 to 60 seconds, from the script, and a GIF cut
-  of it for the README.
 - [ ] **A few lines about you and a photo,** for the press page.
+- [ ] **Read the technical write-up** (`npm run dev` in `website/`, then
+  `/how-its-built`), especially its opening, which speaks for you as "I".
+  Its date is in `src/pages/how-its-built.astro`: set it to the day it goes
+  live.
 - [ ] **Try port forwarding on a paid Proton VPN plan.** Until it's tried,
   the launch copy says "Proton-style NAT-PMP" rather than naming Proton.
 - [ ] **If Apple hasn't answered by mid-October,** contact Apple Developer
@@ -161,8 +182,6 @@ With the first notarized build:
 - [ ] **Beta 1's release notes:** what's in it and what's counted, linking
   orbtorrent.com/privacy#counts. CI adds the engine's versions. Claude
   drafts and you publish.
-- [ ] **The README opens with** the video or GIF, Download, and the
-  `brew install` line, which is already in its Install section. (Claude)
 
 ## 6. The beta (quiet)
 
@@ -242,7 +261,9 @@ In this order:
   the feed, help@ and press@. (Claude)
 - [ ] **Check the comparison pages again:** µTorrent, qBittorrent and
   Transmission, against each app's newest version and site, and update each
-  page's "Checked on" date. (Claude)
+  page's "Checked on" date. Once Transmission 4.2 is out with hole punching,
+  change the Transmission page, its FAQ answer and the opening of How
+  OrbTorrent is built, which say 4.1.3 doesn't have it. (Claude)
 
 ## 9. Launch day, a Tuesday
 

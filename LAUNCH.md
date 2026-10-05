@@ -38,6 +38,7 @@ Who it's for, and why they'd switch:
 
 | Who | What bothers them today | What OrbTorrent does |
 |---|---|---|
+| People whose provider shares one IP address (carrier-grade NAT), as the developer's does | No port can be opened, so other peers can't connect to them, and Transmission 4.1 can't reach seeders behind shared addresses either. This is why OrbTorrent exists | qBittorrent's engine reaches many of them by hole punching (BEP 55), and a VPN's forwarded port, kept in step, lets every peer in. Transmission adds hole punching in 4.2 |
 | Transmission users | Transmission is simple, but can't stay on a VPN or keep a VPN's forwarded port | The same simplicity, in a menu bar app, with both |
 | qBittorrent users on a Mac | A powerful engine in an app that doesn't feel like a Mac app | The same engine, as a native SwiftUI app |
 | People on Proton VPN, PIA, AirVPN or Windscribe | Proton's own guide says the forwarded port changes on every reconnect and must be typed into the torrent app again; people run background scripts for it | Download only through the VPN, and the port kept in step automatically |
@@ -47,7 +48,8 @@ Who it's for, and why they'd switch:
 The facts every post, pitch and page draws from:
 - A native SwiftUI app with Liquid Glass, for macOS 26, universal (Apple
   silicon and Intel).
-- qBittorrent's engine (libtorrent) underneath: µTP, DHT, PeX, encryption.
+- qBittorrent's engine (libtorrent) underneath: µTP, DHT, PeX, encryption,
+  and hole punching to peers behind shared IP addresses.
 - Lives in the menu bar, with a full library window.
 - Download only through a VPN, with automatic port forwarding for Proton VPN,
   Private Internet Access, AirVPN, Windscribe and hide.me.
@@ -89,8 +91,8 @@ None of the loud launch happens until all of these are true:
   claim, and so far it's tested against a Proton-style gateway, not Proton's
   own servers. Until then, the launch copy says "Proton-style NAT-PMP" rather
   than naming Proton.
-- **The repo is public,** with a README that opens with a short video or
-  GIF, the download and the `brew install` line. Its clean history, issue
+- **The repo is public,** with a README that opens with a screenshot and
+  the download, and has the `brew install` line. Its clean history, issue
   forms and contribution rules are ready. (RELEASE.md, section 6)
 - **The engine's source is easy to find:** each release says which
   qBittorrent, libtorrent and Qt versions it contains and links the build
@@ -128,10 +130,10 @@ None of the loud launch happens until all of these are true:
   - how to uninstall.
 - **`press@orbtorrent.com`,** forwarding like help@, so press mail stands
   out.
-- **The video** (you record it; I can script it). 30 to 60 seconds: a
-  magnet link opening, the menu bar panel, the VPN cutting off and coming
-  back, a fake download being held, the import. Also cut as a GIF for the
-  README. (You)
+- **The video:** the launch film, 57 seconds, made from code in `video/`
+  (made 3 October 2026): the orb, the menu bar panel, the library, a magnet
+  link opening, the VPN cutting off, a fake download being held, and
+  extensions. On the website; the README keeps its screenshot.
 - **A technical write-up,** "How OrbTorrent is built": a SwiftUI app
   driving qBittorrent's engine, the extension sandbox, and signed updates
   through Sparkle and a Cloudflare Worker. It's what developer newsletters,
@@ -371,8 +373,10 @@ release or two.
 ## 6. Launch posts, in outline
 
 **Show HN.** Title as above. The first comment, in your own words:
-- who you are, and why you built it (what bothered you about torrenting on a
-  Mac);
+- who you are, and why you built it: your provider's shared IP address,
+  Transmission not reaching seeders behind one, and qBittorrent reaching them
+  but never feeling at home on a Mac. [How OrbTorrent is
+  built](https://orbtorrent.com/how-its-built) tells it the same way;
 - how it works: a SwiftUI app driving qBittorrent's engine, which it bundles
   and runs itself; the VPN cut-off; port forwarding over NAT-PMP; extensions
   running in a sandbox;
