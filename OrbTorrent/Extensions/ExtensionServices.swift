@@ -189,10 +189,14 @@ struct ExtensionServices: ExtensionCallHandler {
             let handle = try FileHandle(forReadingFrom: url)
             defer { try? handle.close() }
             var hasher = SHA256()
-            while let chunk = try handle.read(upToCount: 4 << 20), !chunk.isEmpty {
+            // Each piece is let go before the next is read. Without the pool,
+            // this thread keeps every piece until the end: the whole file.
+            while try autoreleasepool(invoking: {
+                guard let chunk = try handle.read(upToCount: 4 << 20), !chunk.isEmpty else { return false }
                 try Task.checkCancellation()
                 hasher.update(data: chunk)
-            }
+                return true
+            }) {}
             return hasher.finalize().hexString
         }.value
     }

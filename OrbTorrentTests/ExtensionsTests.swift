@@ -647,6 +647,29 @@ struct FingerprintsTests {
         try FileManager.default.setAttributes([.modificationDate: then.addingTimeInterval(60)], ofItemAtPath: file.path)
         #expect(try await fingerprints.sha256(of: file) != hello)
     }
+
+    @Test func aLargeFileIsntHeldInMemoryWhileItsRead() async throws {
+        // 512 MB with nothing written: quick to make and to read.
+        let file = FileManager.default.temporaryDirectory.appending(path: "orbtorrent-fingerprint-\(UUID().uuidString)")
+        defer { try? FileManager.default.removeItem(at: file) }
+        FileManager.default.createFile(atPath: file.path, contents: nil)
+        let handle = try FileHandle(forWritingTo: file)
+        try handle.truncate(atOffset: 512 << 20)
+        try handle.close()
+
+        let before = Self.peakMemory()
+        _ = try await ExtensionServices.sha256(of: file)
+        #expect(Self.peakMemory() - before < 128 << 20)
+    }
+
+    /// The most memory this process has used so far.
+    private static func peakMemory() -> UInt64 {
+        var info = rusage_info_v4()
+        _ = withUnsafeMutablePointer(to: &info) {
+            $0.withMemoryRebound(to: rusage_info_t?.self, capacity: 1) { proc_pid_rusage(getpid(), RUSAGE_INFO_V4, $0) }
+        }
+        return info.ri_lifetime_max_phys_footprint
+    }
 }
 
 /// Build an Extension → With AI: what the Develop tab gives people to paste into their coding agent.

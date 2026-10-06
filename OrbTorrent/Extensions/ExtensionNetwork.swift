@@ -189,9 +189,12 @@ struct ExtensionNetwork: Sendable {
                 try write("Content-Type: \(contentType)\r\n\r\n")
                 let input = try FileHandle(forReadingFrom: file)
                 defer { try? input.close() }
-                while let chunk = try input.read(upToCount: 4 << 20), !chunk.isEmpty {
+                // Each piece is let go before the next is read, as in `sha256(of:)`.
+                while try autoreleasepool(invoking: {
+                    guard let chunk = try input.read(upToCount: 4 << 20), !chunk.isEmpty else { return false }
                     try output.write(contentsOf: chunk)
-                }
+                    return true
+                }) {}
                 try write("\r\n")
             }
         }
