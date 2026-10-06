@@ -47,6 +47,11 @@ enum EngineConfiguration {
         ini.set("OnTorrentAdded\\Program", "", in: "AutoRun")
         ini.set("Session\\Interface", networkInterface, in: "BitTorrent")
         ini.set("Session\\InterfaceName", networkInterface, in: "BitTorrent")
+        // In MiB. Left to itself, libtorrent 1.2 sizes its disk cache from
+        // the Mac's memory, up to 922 MB on a 32 GB Mac, and keeps it while
+        // the engine runs. macOS keeps recently used files in memory anyway,
+        // and gives that back when apps need it; downloads are as fast.
+        ini.set("Session\\DiskCacheSize", "64", in: "BitTorrent")
         return ini.contents
     }
 

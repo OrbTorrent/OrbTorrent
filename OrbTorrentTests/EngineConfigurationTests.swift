@@ -41,6 +41,12 @@ struct EngineConfigurationTests {
         #expect(ini.contents == "[LegalNotice]\nAccepted=true\n\n[Preferences]\nWebUI\\Port=1234\n")
     }
 
+    @Test func theEnginesDiskCacheStaysSmall() {
+        let before = "[BitTorrent]\nSession\\DiskCacheSize=-1\nSession\\Port=6881\n"
+        let after = EngineConfiguration.configured(before, for: EngineCredentials(port: 1234, username: "orbtorrent", password: "secret"))
+        #expect(after.contains("[BitTorrent]\nSession\\DiskCacheSize=64\nSession\\Port=6881\n"))
+    }
+
     @Test func iniEditorUpdatesInPlaceAndKeepsOtherSettings() {
         var ini = IniFile(contents: "[Preferences]\nWebUI\\Port=1\nGeneral\\Locale=en\n\n[BitTorrent]\nSession\\Port=6881\n")
         ini.set("WebUI\\Port", "2", in: "Preferences")
