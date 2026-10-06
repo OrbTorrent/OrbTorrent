@@ -384,13 +384,15 @@ extension View {
     }
 }
 
-/// A turning arc, for checks that are running.
+/// A turning arc, for checks that are running. It holds still while its
+/// window can't be seen.
 struct CheckSpinner: View {
     var lineWidth: CGFloat = 2
+    @State private var isVisible = false
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
     var body: some View {
-        TimelineView(.animation(minimumInterval: 1.0 / 30, paused: reduceMotion)) { context in
+        TimelineView(.animation(minimumInterval: 1.0 / 30, paused: reduceMotion || !isVisible)) { context in
             let turn = context.date.timeIntervalSinceReferenceDate.truncatingRemainder(dividingBy: 1.1) / 1.1
             Circle()
                 .trim(from: 0, to: 0.3)
@@ -398,6 +400,7 @@ struct CheckSpinner: View {
                 .rotationEffect(.degrees(turn * 360 - 90))
                 .padding(lineWidth / 2)
         }
+        .background(WindowVisibilityObserver { isVisible = $0 })
     }
 }
 

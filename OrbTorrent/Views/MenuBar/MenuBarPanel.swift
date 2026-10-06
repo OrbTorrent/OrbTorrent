@@ -80,6 +80,8 @@ struct MenuBarPanel: View {
         }
         .padding(14)
         .frame(width: 380)
+        // The panel's views stay alive while it's closed.
+        .animatesOnlyWhileVisible()
         .background(WindowReader { if isMenuBarExtra { MenuBarIcon.panel = $0 } })
         .background(WindowCloseObserver {
             // Reopen on the top of the list, with a fresh look at the clipboard.

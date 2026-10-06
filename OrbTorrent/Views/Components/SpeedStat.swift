@@ -18,12 +18,12 @@ struct SpeedStat: View {
             Image(systemName: direction.symbol)
                 .font(.caption.weight(.bold))
                 .foregroundStyle(direction.tint)
+            // Without rolling digits: a speed changes every second, and
+            // rolling them draws each digit afresh in every frame.
             Text(Format.speed(bytesPerSecond))
                 .font(.callout.weight(.medium))
                 .monospacedDigit()
-                .contentTransition(.numericText())
         }
-        .animation(.snappy, value: bytesPerSecond)
         .accessibilityElement(children: .combine)
         .accessibilityLabel("\(direction.label) speed")
     }

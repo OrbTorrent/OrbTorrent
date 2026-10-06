@@ -114,6 +114,7 @@ struct MainWindowView: View {
         // minimum width here lets the split view outgrow the window while the
         // inspector slides in, shoving the sidebar off the left edge.
         .frame(minHeight: 460)
+        .animatesOnlyWhileVisible()
     }
 
     @ToolbarContentBuilder
