@@ -243,8 +243,10 @@ features after 1.0, see [ROADMAP.md](ROADMAP.md).
 - **Developer ID Application certificate and an App Store Connect API
   key,** from 28 and 29 October 2026. Make Developer ID certificates from
   Apple's G2 Sub-CA: one from the previous Sub-CA stops on 1 February 2027,
-  when that Sub-CA expires. A new certificate keeps the same Team ID, so
-  macOS and updates know the app as before.
+  when that Sub-CA expires. The one in use, made on 29 October 2026, runs to
+  28 November 2027, so make the next one before then and replace
+  `DEVELOPER_ID_P12` and its password. A new certificate keeps the same Team
+  ID, so macOS and updates know the app as before.
 - **CI signs and notarizes each release.** On a `v*` tag, or a run started
   by hand, `.github/workflows/build.yml` puts the Developer ID certificate in
   a keychain of its own, and `make dmg` signs the app, the engine

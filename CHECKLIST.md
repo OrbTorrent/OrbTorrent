@@ -159,11 +159,12 @@ early: Reddit and Hacker News need weeks of history.
   Mac with an app-specific password. (29 Oct)
 - [x] **The first notarized build:** accepted with no issues. (29 Oct)
 - [x] **An App Store Connect API key** for CI to notarize with. (29 Oct)
-- [ ] **A Developer ID certificate from the G2 Sub-CA,** since the one from
-  28 Oct stops on 1 Feb 2027, then `DEVELOPER_ID_P12` and its password
-  replaced in GitHub. (You)
-- [ ] **CI signs and notarizes each release,** with the certificate, its
-  password and the API key in GitHub secrets. (Claude)
+- [x] **A Developer ID certificate from the G2 Sub-CA,** in GitHub's
+  secrets too. It runs to 28 Nov 2027: make the next one before then, and
+  replace `DEVELOPER_ID_P12` and its password. (29 Oct)
+- [x] **CI signs and notarizes each release,** with the certificate, its
+  password and the API key in GitHub secrets. Tested with a run started by
+  hand: signed, notarized and accepted by Gatekeeper as a download. (29 Oct)
 - [ ] **CI publishes updates too,** with the update key and a Cloudflare
   token that can only write the feed in GitHub secrets. You create the
   token, and Claude does the rest.
