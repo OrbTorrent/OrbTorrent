@@ -19,10 +19,28 @@ struct TorrentMetadata: Sendable {
 
     var totalSize: Int64 { files.reduce(0) { $0 + $1.size } }
 
+    /// The most files a torrent may list, and the most folders deep each may
+    /// be, so a file built to be huge is refused instead of using up memory.
+    struct Limits: Sendable {
+        var files = 1_000_000
+        var pathComponents = 4_096
+    }
+
+    /// The most all of a torrent's files may add up to, 8 PiB: far more than
+    /// any real torrent, and low enough that adding up sizes never overflows.
+    static let maximumTotalSize: Int64 = 1 << 53
+
     enum ParseError: LocalizedError {
         case notATorrent
+        /// More files, or files deeper in folders, than the limits above.
+        case tooLarge
 
-        var errorDescription: String? { "This file isn't a valid torrent." }
+        var errorDescription: String? {
+            switch self {
+            case .notATorrent: "This file isn't a valid torrent."
+            case .tooLarge: "This torrent lists more files than OrbTorrent can open."
+            }
+        }
     }
 
     init(infoHash: String, name: String, files: [File], comment: String? = nil, isPrivate: Bool = false) {
@@ -33,7 +51,7 @@ struct TorrentMetadata: Sendable {
         self.isPrivate = isPrivate
     }
 
-    init(data: Data) throws {
+    init(data: Data, limits: Limits = Limits()) throws {
         var decoder = BencodeDecoder(data: data)
         let root: BencodeValue
         do {
@@ -60,6 +78,10 @@ struct TorrentMetadata: Sendable {
         isPrivate = info["private"]?.integer == 1
 
         if let list = info["files"]?.list {
+            guard list.count <= limits.files,
+                  !list.contains(where: { Self.pathComponents(of: $0).count > limits.pathComponents }) else {
+                throw ParseError.tooLarge
+            }
             // The engine leaves out padding files, which only line files up
             // with pieces, and numbers the rest.
             files = list.filter { !Self.isPadding($0) }.enumerated().map { index, entry in
@@ -71,11 +93,25 @@ struct TorrentMetadata: Sendable {
             files = [File(id: 0, path: displayName, size: length)]
         } else if let tree = info["file tree"] {
             var collected: [(String, Int64)] = []
-            Self.walk(tree, path: [displayName], into: &collected)
+            guard Self.walk(tree, path: [displayName], into: &collected, limit: limits.files) else { throw ParseError.tooLarge }
             files = collected.enumerated().map { File(id: $0.offset, path: $0.element.0, size: $0.element.1) }
         } else {
             files = []
         }
+        guard Self.sizesAddUp(files) else { throw ParseError.notATorrent }
+    }
+
+    /// Whether every size is zero or more and they add up to no more than
+    /// `maximumTotalSize`, so totals of them can't overflow.
+    private static func sizesAddUp(_ files: [File]) -> Bool {
+        var total: Int64 = 0
+        for file in files {
+            guard file.size >= 0 else { return false }
+            let (sum, overflow) = total.addingReportingOverflow(file.size)
+            guard !overflow, sum <= maximumTotalSize else { return false }
+            total = sum
+        }
+        return true
     }
 
     static func pathComponents(of entry: BencodeValue) -> [String] {
@@ -88,17 +124,20 @@ struct TorrentMetadata: Sendable {
             || pathComponents(of: entry).joined(separator: "/").contains("_____padding_file_")
     }
 
-    /// Flattens a BitTorrent v2 `file tree` dictionary.
-    private static func walk(_ node: BencodeValue, path: [String], into files: inout [(String, Int64)]) {
-        guard let entries = node.entries else { return }
+    /// Flattens a BitTorrent v2 `file tree` dictionary. False when it lists
+    /// more files than the limit.
+    private static func walk(_ node: BencodeValue, path: [String], into files: inout [(String, Int64)], limit: Int) -> Bool {
+        guard let entries = node.entries else { return true }
         for (key, value) in entries {
             let name = String(data: key, encoding: .utf8) ?? ""
             if name.isEmpty {
+                guard files.count < limit else { return false }
                 files.append((path.joined(separator: "/"), value["length"]?.integer ?? 0))
-            } else {
-                walk(value, path: path + [name], into: &files)
+            } else if !walk(value, path: path + [name], into: &files, limit: limit) {
+                return false
             }
         }
+        return true
     }
 }
 

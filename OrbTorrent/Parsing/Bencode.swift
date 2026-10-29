@@ -79,11 +79,18 @@ enum BencodeError: Error {
     case invalidToken(offset: Int)
     case invalidInteger(offset: Int)
     case invalidLength(offset: Int)
+    /// Lists and dictionaries nested deeper than any real torrent's.
+    case tooDeep(offset: Int)
 }
 
 /// A small bencode decoder that also records the byte range of the
 /// top-level `info` dictionary, which is needed to compute the info hash.
 struct BencodeDecoder {
+    /// The most lists and dictionaries one value may be nested in. Real
+    /// torrents need a handful; a file nested deeper is refused before the
+    /// decoder could run out of stack.
+    static let maximumDepth = 64
+
     private let bytes: [UInt8]
     private var offset = 0
     private var depth = 0
@@ -103,6 +110,7 @@ struct BencodeDecoder {
         case UInt8(ascii: "i"):
             return try decodeInteger()
         case UInt8(ascii: "l"):
+            guard depth < Self.maximumDepth else { throw BencodeError.tooDeep(offset: offset) }
             offset += 1
             depth += 1
             defer { depth -= 1 }
@@ -113,6 +121,7 @@ struct BencodeDecoder {
             offset += 1
             return .list(items)
         case UInt8(ascii: "d"):
+            guard depth < Self.maximumDepth else { throw BencodeError.tooDeep(offset: offset) }
             offset += 1
             depth += 1
             defer { depth -= 1 }
@@ -160,7 +169,8 @@ struct BencodeDecoder {
               let length = Int(text), length >= 0
         else { throw BencodeError.invalidLength(offset: start) }
         let dataStart = colon + 1
-        guard dataStart + length <= bytes.count else { throw BencodeError.unexpectedEnd }
+        // Compared without adding, so a length near Int.max can't overflow.
+        guard length <= bytes.count - dataStart else { throw BencodeError.unexpectedEnd }
         offset = dataStart + length
         return .bytes(Data(bytes[dataStart..<offset]))
     }
