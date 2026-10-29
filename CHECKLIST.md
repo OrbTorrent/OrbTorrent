@@ -322,7 +322,7 @@ Details: [LAUNCH.md, launch day](LAUNCH.md#launch-day-a-tuesday).
   Claude)
 - [ ] **Renew orbtorrent.com** before 29 September 2027. Auto-renew is off.
   (You)
-- [ ] **npm's trusted publishing again** for both packages, now that the
-  code is at `orbtorrent/OrbTorrent`. (You)
+- [x] **npm's trusted publishing again** for both packages, now that the
+  code is at `orbtorrent/OrbTorrent`. SDK 1.2.1 published from it. (29 Oct)
 - [ ] **After 1.0:** VPN partner links, the iPhone companion, and the rest
   of [ROADMAP.md](ROADMAP.md).
