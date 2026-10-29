@@ -328,7 +328,18 @@ final class AddTorrentCoordinator {
 
     private func stopAsking(_ pending: Pending, added: Bool) {
         guard pending.checkState != .none, let hash = pending.metadata?.infoHash ?? pending.infoHash else { return }
-        extensions.endAsking(hash, added: added)
+        // The same torrent asked about somewhere else keeps its checks, and
+        // so does one in the library, with any hold they put on it.
+        if !added, askedAbout(hash, except: pending.id).contains(where: { $0.checkState != .none }) { return }
+        extensions.endAsking(hash, added: added || store.torrent(hash) != nil)
+    }
+
+    /// The torrents with this info hash being asked about anywhere: in the
+    /// window or the menu bar.
+    private func askedAbout(_ hash: String, except other: Pending.ID? = nil) -> [Pending] {
+        ([pending].compactMap { $0 } + menuBarQueue).filter { asked in
+            asked.id != other && (asked.infoHash == hash || asked.metadata?.infoHash == hash)
+        }
     }
 
     private func alreadyAdded(_ hash: String) {
