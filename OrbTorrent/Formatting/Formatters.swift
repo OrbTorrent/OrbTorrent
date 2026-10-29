@@ -12,11 +12,25 @@ enum Format {
     }
 
     /// qBittorrent reports 8640000 (100 days) when the ETA is unknown.
+    /// Two units at most, each next to the other: "4 min, 12 sec", then
+    /// hours and minutes, then days and hours, never "5 hr, 29 sec". From an
+    /// hour up both always show, as in "5 hr, 0 min".
     static func eta(_ seconds: Int) -> String? {
         guard seconds > 0, seconds < 8_640_000 else { return nil }
         return Duration.seconds(seconds).formatted(
-            .units(allowed: [.days, .hours, .minutes, .seconds], width: .abbreviated, maximumUnitCount: 2)
+            .units(allowed: etaUnits(seconds), width: .abbreviated, maximumUnitCount: 2,
+                   zeroValueUnits: seconds < 3_600 ? .hide : .show(length: 1))
         )
+    }
+
+    /// The units a time left is written in: none smaller than the largest
+    /// unit's neighbour.
+    static func etaUnits(_ seconds: Int) -> Set<Duration.UnitsFormatStyle.Unit> {
+        switch seconds {
+        case ..<3_600: [.minutes, .seconds]
+        case ..<86_400: [.hours, .minutes]
+        default: [.days, .hours]
+        }
     }
 
     static func duration(_ seconds: Int) -> String {

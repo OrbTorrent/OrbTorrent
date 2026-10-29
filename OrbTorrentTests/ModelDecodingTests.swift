@@ -59,4 +59,17 @@ struct ModelDecodingTests {
         #expect(Format.percent(0.9996) != "100%")
         #expect(Format.percent(1) == "100%")
     }
+
+    /// Two units next to each other at most: under an hour as before, then
+    /// hours and minutes, then days and hours; never "5 hr, 29 sec".
+    @Test func etaNeverSkipsAUnit() {
+        #expect(Format.eta(29) == "29 sec")
+        #expect(Format.eta(4 * 60 + 12) == "4 min, 12 sec")
+        #expect(Format.eta(59 * 60) == "59 min")
+        #expect(Format.eta(3_600) == "1 hr, 0 min")
+        #expect(Format.eta(5 * 3_600 + 29) == "5 hr, 0 min")
+        #expect(Format.eta(5 * 3_600 + 12 * 60) == "5 hr, 12 min")
+        #expect(Format.eta(2 * 86_400 + 29) == "2 days, 0 hr")
+        #expect(Format.eta(86_400 + 3 * 3_600) == "1 day, 3 hr")
+    }
 }
