@@ -94,7 +94,7 @@ run: app
 	open $(APP)
 
 dmg: app
-	./scripts/make-dmg.sh $(APP) $(BUILD_DIR)
+	$(if $(findstring Developer ID,$(SIGN_IDENTITY)),SIGN_IDENTITY="$(SIGN_IDENTITY)") ./scripts/make-dmg.sh $(APP) $(BUILD_DIR)
 
 install: app
 	osascript -e 'quit app id "com.orbtorrent.mac"' 2>/dev/null || true
