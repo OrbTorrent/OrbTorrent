@@ -241,24 +241,37 @@ features after 1.0, see [ROADMAP.md](ROADMAP.md).
 ## 4. Signing and notarization
 
 - **Developer ID Application certificate and an App Store Connect API
-  key** for notarization, once the developer account is approved. (You, with
-  help)
-- **CI signs and notarizes each release.** The certificate, its password,
-  the API key and the update key go in GitHub secrets. CI signs the app, the
-  engine (`qbittorrent-nox`) and the extension helper (`orb-extension-host`)
-  with the hardened runtime, which is already on. `scripts/make-dmg.sh` then
-  signs, notarizes and staples the disk image; it already takes
-  `SIGN_IDENTITY` and `NOTARY_PROFILE`. Check the result with
-  `spctl --assess` and `stapler validate`.
+  key,** from 28 and 29 October 2026. Make Developer ID certificates from
+  Apple's G2 Sub-CA: one from the previous Sub-CA stops on 1 February 2027,
+  when that Sub-CA expires. A new certificate keeps the same Team ID, so
+  macOS and updates know the app as before.
+- **CI signs and notarizes each release.** On a `v*` tag, or a run started
+  by hand, `.github/workflows/build.yml` puts the Developer ID certificate in
+  a keychain of its own, and `make dmg` signs the app, the engine
+  (`qbittorrent-nox`), the extension helper (`orb-extension-host`) and
+  Sparkle's helpers with it and the hardened runtime. `scripts/make-dmg.sh`
+  then signs the disk image, notarizes it with the App Store Connect API key
+  and staples it, and CI checks it with `spctl` and `stapler validate`. Pull
+  requests, and forks without the secrets, build ad hoc as before. The
+  secrets: `DEVELOPER_ID_P12` (the certificate and its private key, as
+  base64), `DEVELOPER_ID_P12_PASSWORD`, `NOTARY_API_KEY` (the `.p8` file),
+  `NOTARY_API_KEY_ID` and `NOTARY_API_ISSUER_ID`, all set on 29 October
+  2026.
 - **First notarized build,** done 29 October 2026 with no issues. It needed
   secure timestamps on the extra programs inside the app, which Developer ID
   builds now add, and no `get-task-allow` in Release builds. Apple refused
   the team's first submissions with status code 7000, "Team is not yet
   configured for notarization", for a day after the membership was renewed.
-- **CI publishes updates too,** once it notarizes: the update key and a
-  Cloudflare API token that can only write the feed's KV namespace go in
-  GitHub secrets, and a job runs `scripts/publish-update.sh` when a release
-  is published. Until then, publish from the owner's Mac.
+- **CI publishes updates too.** Publishing a release on GitHub runs
+  `.github/workflows/updates.yml`, which puts it in the update feed with
+  `scripts/publish-update.sh`; run it by hand with a tag to publish it as
+  critical or phased, or to withdraw it. It signs with the update key, in the
+  secret `SPARKLE_PRIVATE_KEY`, and uploads with `CLOUDFLARE_API_TOKEN` and
+  the variable `CLOUDFLARE_ACCOUNT_ID`. The token is a personal one,
+  "OrbTorrent CI update feed", made on 29 October 2026 with only Workers KV
+  Storage read and write on the account: Cloudflare can't narrow a token to
+  one namespace. The owner's Mac can still publish by hand, with the key in
+  its Keychain.
 
 Once signed with Developer ID, macOS knows the app by its bundle ID and Team
 ID, which stay the same through every update and every certificate renewal.

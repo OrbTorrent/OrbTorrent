@@ -158,8 +158,10 @@ early: Reddit and Hacker News need weeks of history.
 - [x] **Developer ID Application certificate,** and notarizing from your
   Mac with an app-specific password. (29 Oct)
 - [x] **The first notarized build:** accepted with no issues. (29 Oct)
-- [ ] **An App Store Connect API key** for CI to notarize with. (You, with
-  Claude)
+- [x] **An App Store Connect API key** for CI to notarize with. (29 Oct)
+- [ ] **A Developer ID certificate from the G2 Sub-CA,** since the one from
+  28 Oct stops on 1 Feb 2027, then `DEVELOPER_ID_P12` and its password
+  replaced in GitHub. (You)
 - [ ] **CI signs and notarizes each release,** with the certificate, its
   password and the API key in GitHub secrets. (Claude)
 - [ ] **CI publishes updates too,** with the update key and a Cloudflare

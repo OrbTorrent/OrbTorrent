@@ -9,6 +9,8 @@
 # Optional environment:
 #   SIGN_IDENTITY   "Developer ID Application: …" to sign the disk image
 #   NOTARY_PROFILE  notarytool keychain profile to notarize and staple it
+#   NOTARY_KEY      or an App Store Connect API key, the .p8 file, with
+#                   NOTARY_KEY_ID and NOTARY_ISSUER, to do the same, as on CI
 
 set -euo pipefail
 
@@ -34,8 +36,15 @@ hdiutil create -quiet -volname "$NAME" -srcfolder "$STAGE" -ov -format UDZO "$DM
 if [[ -n "${SIGN_IDENTITY:-}" && "${SIGN_IDENTITY}" != "-" ]]; then
   codesign --sign "$SIGN_IDENTITY" --timestamp "$DMG"
 fi
+NOTARY=()
 if [[ -n "${NOTARY_PROFILE:-}" ]]; then
-  xcrun notarytool submit "$DMG" --keychain-profile "$NOTARY_PROFILE" --wait
+  NOTARY=(--keychain-profile "$NOTARY_PROFILE")
+elif [[ -n "${NOTARY_KEY:-}" ]]; then
+  NOTARY=(--key "$NOTARY_KEY" --key-id "${NOTARY_KEY_ID:?NOTARY_KEY needs NOTARY_KEY_ID}"
+    --issuer "${NOTARY_ISSUER:?NOTARY_KEY needs NOTARY_ISSUER}")
+fi
+if [[ ${#NOTARY[@]} -gt 0 ]]; then
+  xcrun notarytool submit "$DMG" "${NOTARY[@]}" --wait
   xcrun stapler staple "$DMG"
 fi
 

@@ -19,6 +19,11 @@ jobs:
     if: ${{ !github.event.repository.private || startsWith(github.ref, 'refs/tags/') || github.event_name == 'workflow_dispatch' }}
     runs-on: macos-26
     timeout-minutes: 120
+    env:
+      # Version tags and runs started by hand are signed with the Developer ID
+      # certificate and notarized, once the repo has its signing secrets.
+      # Pull requests, and forks without the secrets, are signed ad hoc.
+      SIGNS: ${{ secrets.DEVELOPER_ID_P12 != '' && (startsWith(github.ref, 'refs/tags/v') || github.event_name == 'workflow_dispatch') }}
     steps:
       - uses: actions/checkout@v4
 
@@ -29,6 +34,53 @@ jobs:
 
       - name: Install build tools
         run: brew install cmake ninja xcodegen
+
+      # Before the engine and the tests, so a certificate that won't sign
+      # stops the run in a minute, not an hour.
+      - name: Set up signing and notarization
+        if: env.SIGNS == 'true'
+        env:
+          DEVELOPER_ID_P12: ${{ secrets.DEVELOPER_ID_P12 }}
+          DEVELOPER_ID_P12_PASSWORD: ${{ secrets.DEVELOPER_ID_P12_PASSWORD }}
+          NOTARY_API_KEY: ${{ secrets.NOTARY_API_KEY }}
+          NOTARY_API_KEY_ID: ${{ secrets.NOTARY_API_KEY_ID }}
+          NOTARY_API_ISSUER_ID: ${{ secrets.NOTARY_API_ISSUER_ID }}
+        run: |
+          # A keychain of its own for the certificate and Apple's intermediate
+          # certificates, unlocked for the whole build, which codesign can use
+          # without asking.
+          KEYCHAIN="$RUNNER_TEMP/signing.keychain-db"
+          PASSWORD="$(openssl rand -base64 32)"
+          security create-keychain -p "$PASSWORD" "$KEYCHAIN"
+          security set-keychain-settings -lut 21600 "$KEYCHAIN"
+          security unlock-keychain -p "$PASSWORD" "$KEYCHAIN"
+          printf '%s' "$DEVELOPER_ID_P12" | base64 --decode > "$RUNNER_TEMP/developer-id.p12"
+          security import "$RUNNER_TEMP/developer-id.p12" -k "$KEYCHAIN" -f pkcs12 \
+            -P "$DEVELOPER_ID_P12_PASSWORD" -T /usr/bin/codesign
+          rm -f "$RUNNER_TEMP/developer-id.p12"
+          for ca in DeveloperIDG2CA DeveloperIDCA; do
+            curl -fsSL -o "$RUNNER_TEMP/$ca.cer" "https://www.apple.com/certificateauthority/$ca.cer"
+            security import "$RUNNER_TEMP/$ca.cer" -k "$KEYCHAIN"
+          done
+          security set-key-partition-list -S apple-tool:,apple:,codesign: -s -k "$PASSWORD" "$KEYCHAIN" >/dev/null
+          read -ra others <<< "$(security list-keychains -d user | tr -d '"' | tr '\n' ' ')"
+          security list-keychains -d user -s "$KEYCHAIN" "${others[@]}"
+          identity="$(security find-identity -v -p codesigning "$KEYCHAIN" \
+            | sed -n 's/.*"\(Developer ID Application: [^"]*\)".*/\1/p' | head -1)"
+          if [[ -z "$identity" ]]; then
+            echo "::error::DEVELOPER_ID_P12 holds no valid Developer ID Application certificate."
+            exit 1
+          fi
+          # make dmg signs with SIGN_IDENTITY, and scripts/make-dmg.sh
+          # notarizes with the App Store Connect API key.
+          (umask 077 && printf '%s\n' "$NOTARY_API_KEY" > "$RUNNER_TEMP/notary-key.p8")
+          {
+            echo "SIGN_IDENTITY=$identity"
+            echo "NOTARY_KEY=$RUNNER_TEMP/notary-key.p8"
+            echo "NOTARY_KEY_ID=$NOTARY_API_KEY_ID"
+            echo "NOTARY_ISSUER=$NOTARY_API_ISSUER_ID"
+          } >> "$GITHUB_ENV"
+          echo "Signing as $identity"
 
       - name: Set up Node.js
         uses: actions/setup-node@v4
@@ -58,6 +110,12 @@ jobs:
       - name: Build app and disk image
         run: make dmg ARCHS="arm64 x86_64"
 
+      - name: Check the disk image is notarized
+        if: env.SIGNS == 'true'
+        run: |
+          spctl -a -vv -t open --context context:primary-signature build/*.dmg
+          xcrun stapler validate build/*.dmg
+
       - name: Upload disk image
         uses: actions/upload-artifact@v4
         with:
@@ -82,3 +140,9 @@ jobs:
           version="${GITHUB_REF_NAME#v}"
           gh release create "$GITHUB_REF_NAME" build/*.dmg engine/.cache/*.tar.* \
             --title "OrbTorrent ${version/-beta./ beta }" --notes-file build/release-notes.md --draft
+
+      - name: Remove the signing keychain
+        if: always() && env.SIGNS == 'true'
+        run: |
+          security delete-keychain "$RUNNER_TEMP/signing.keychain-db" 2>/dev/null || true
+          rm -f "$RUNNER_TEMP/notary-key.p8"

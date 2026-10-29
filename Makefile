@@ -20,7 +20,8 @@
 # hoc. A certificate keeps the app's identity the same from build to build, so
 # macOS doesn't ask for permissions or Keychain access again after each one.
 # Set SIGN_IDENTITY to choose, and NOTARY_PROFILE=<notarytool keychain profile>
-# to notarize the DMG.
+# to notarize the DMG, or NOTARY_KEY, NOTARY_KEY_ID and NOTARY_ISSUER for an
+# App Store Connect API key, as CI does.
 
 ARCHS ?= $(shell uname -m)
 CONFIG ?= Release

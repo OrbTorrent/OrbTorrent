@@ -79,8 +79,10 @@ doesn't update itself, unless pointed at a test feed made by
 
 Builds are signed with a certificate from your Keychain when there is one
 ("Developer ID Application" or "Apple Development"), so macOS keeps the app's
-permissions and Keychain access from one build to the next. Without one, as on
-CI, they're signed ad hoc.
+permissions and Keychain access from one build to the next. Without one, as for
+pull requests on CI, they're signed ad hoc. Releases built on CI, from a
+version tag, are signed with the Developer ID certificate and notarized, once
+the repository has its signing secrets.
 
 ### The engine build
 
@@ -183,17 +185,21 @@ docs/           This guide, and the extension system's design
    without "The engine". When the engine changes for a fix, say so in the
    notes too. Publishing it also updates the cask in the Homebrew tap,
    `orbtorrent/homebrew-tap` (`.github/workflows/homebrew.yml`, writing
-   `scripts/homebrew-tap.sh`).
-3. Run `scripts/publish-update.sh v1.0-beta.2`. It signs the disk image and
-   the feed with the key in your Keychain and puts the feed on
-   `updates.orbtorrent.com`, where every copy finds it within a day.
+   `scripts/homebrew-tap.sh`), and puts it in the update feed on
+   `updates.orbtorrent.com`, where every copy finds it within a day
+   (`.github/workflows/updates.yml`, running `scripts/publish-update.sh`,
+   which signs the disk image and the feed with the update key).
 
-For a fix to a version with a serious problem, add `--critical`: every older
-version shows it at once and can't skip it. `--phased` reaches a seventh more
-of the Macs each day, so a bad release can be stopped early, and
-`scripts/publish-update.sh --withdraw v1.0-beta.3` takes a version off the
-feed, and so off orbtorrent.com/download and the Homebrew tap, without
-touching the Macs that have it.
+For a fix to a version with a serious problem, put `<!-- update: critical -->`
+in the release's notes before publishing it: every older version shows it at
+once and can't skip it. `<!-- update: phased -->` reaches a seventh more of the
+Macs each day, so a bad release can be stopped early. The comment doesn't show
+in the notes. Running the "Publish the update" workflow by hand with a tag
+does the same later, and `withdraw` takes a version off the feed, and so off
+orbtorrent.com/download and the Homebrew tap, without touching the Macs that
+have it. `scripts/publish-update.sh` does the same on a
+Mac with the update key in its Keychain, with `--critical`, `--phased` or
+`--withdraw`.
 
 Updates download in the background, and OrbTorrent restarts to install them
 once it isn't in use (`AppModel.installUpdateWhenIdle`), coming back in the
