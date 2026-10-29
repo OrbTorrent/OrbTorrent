@@ -11,7 +11,10 @@ struct MagnetLink: Sendable, Hashable {
 
     init?(_ text: String) {
         let trimmed = text.trimmingCharacters(in: .whitespacesAndNewlines)
+        // A space, line break or control character inside isn't part of a
+        // link: the engine reads each line as a link of its own, or a file.
         guard trimmed.lowercased().hasPrefix("magnet:?"),
+              trimmed.unicodeScalars.allSatisfy({ !Self.notInLinks.contains($0) }),
               let components = URLComponents(string: trimmed)
         else { return nil }
 
@@ -47,9 +50,13 @@ struct MagnetLink: Sendable, Hashable {
     /// Returns the first magnet link found in arbitrary text, such as the clipboard.
     static func first(in text: String) -> MagnetLink? {
         guard let range = text.range(of: "magnet:?", options: .caseInsensitive) else { return nil }
-        let candidate = text[range.lowerBound...].prefix { !$0.isWhitespace && $0 != "\"" && $0 != "<" }
+        let candidate = text[range.lowerBound...].prefix { character in
+            character != "\"" && character != "<" && !character.unicodeScalars.contains(where: notInLinks.contains)
+        }
         return MagnetLink(String(candidate))
     }
+
+    private static let notInLinks = CharacterSet.whitespacesAndNewlines.union(.controlCharacters)
 
     private static func hash(fromTopic topic: String, prefix: String) -> String? {
         guard topic.lowercased().hasPrefix(prefix) else { return nil }

@@ -15,7 +15,9 @@ struct MultipartForm: Sendable {
     }
 
     mutating func addFile(_ name: String, filename: String, contentType: String, data: Data) {
-        let safeName = filename.replacingOccurrences(of: "\"", with: "'")
+        // A quote or a line break in a file name would end its header early.
+        let unbroken = String(String.UnicodeScalarView(filename.unicodeScalars.filter { $0 != "\r" && $0 != "\n" }))
+        let safeName = unbroken.replacingOccurrences(of: "\"", with: "'")
         appendLine("--\(boundary)")
         appendLine("Content-Disposition: form-data; name=\"\(name)\"; filename=\"\(safeName)\"")
         appendLine("Content-Type: \(contentType)")

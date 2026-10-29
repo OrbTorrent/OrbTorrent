@@ -38,6 +38,20 @@ struct MagnetLinkTests {
         #expect(link.uri.hasSuffix("dn=Test"))
     }
 
+    /// A link with a line break, space or control character inside isn't
+    /// one link: the engine would add each line as a link or a file of its own.
+    @Test func refusesLinksWithMoreThanOneLine() throws {
+        let link = "magnet:?xt=urn:btih:dd8255ecdc7ca55fb0bbf81323d87062db1f6d1c&dn=Sintel"
+        for inside in ["\n", "\r", "\r\n", " ", "\t", "\u{2028}", "\u{85}", "\u{0}", "\u{200B}"] {
+            #expect(MagnetLink(link + inside + "http://192.168.1.1/admin.torrent") == nil, "\(inside.debugDescription)")
+        }
+        // Around it is fine, and text with one finds just the link.
+        #expect(MagnetLink("  \(link)\n")?.uri == link)
+        let found = try #require(MagnetLink.first(in: "\(link)\nhttp://192.168.1.1/admin.torrent"))
+        #expect(found.uri == link)
+        #expect(MagnetLink.first(in: "\(link)\u{0}file:///etc/hosts")?.uri == link)
+    }
+
     @Test func rejectsNonMagnetText() {
         #expect(MagnetLink("https://example.com") == nil)
         #expect(MagnetLink.first(in: "nothing to see") == nil)
