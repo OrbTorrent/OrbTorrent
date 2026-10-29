@@ -60,7 +60,9 @@ jobs:
           rm -f "$RUNNER_TEMP/developer-id.p12"
           for ca in DeveloperIDG2CA DeveloperIDCA; do
             curl -fsSL -o "$RUNNER_TEMP/$ca.cer" "https://www.apple.com/certificateauthority/$ca.cer"
-            security import "$RUNNER_TEMP/$ca.cer" -k "$KEYCHAIN"
+            # A .p12 exported from Keychain Access may hold it already. If the
+            # chain is still missing, the check for a valid identity fails.
+            security import "$RUNNER_TEMP/$ca.cer" -k "$KEYCHAIN" 2>/dev/null || true
           done
           security set-key-partition-list -S apple-tool:,apple:,codesign: -s -k "$PASSWORD" "$KEYCHAIN" >/dev/null
           read -ra others <<< "$(security list-keychains -d user | tr -d '"' | tr '\n' ' ')"
