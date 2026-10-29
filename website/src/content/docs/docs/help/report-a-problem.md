@@ -21,13 +21,13 @@ In the engine's log, IP addresses and your user name are hidden. It can name you
 
 ## On GitHub
 
-You can also [open an issue](https://github.com/sanjevirau/OrbTorrent/issues/new/choose) with the bug report form. Copy the versions from **Report a Problem** or **About OrbTorrent**, so we know what you're running.
+You can also [open an issue](https://github.com/orbtorrent/OrbTorrent/issues/new/choose) with the bug report form. Copy the versions from **Report a Problem** or **About OrbTorrent**, so we know what you're running.
 
-Before you do, search the [existing issues](https://github.com/sanjevirau/OrbTorrent/issues): someone may have found it already, and you can add what you've seen.
+Before you do, search the [existing issues](https://github.com/orbtorrent/OrbTorrent/issues): someone may have found it already, and you can add what you've seen.
 
 ## Suggest a feature
 
-Check the [roadmap](https://github.com/sanjevirau/OrbTorrent/blob/main/ROADMAP.md) first. It lists what's planned, what's been decided against, and why. Then open an issue with the feature request form. Many ideas fit better as an [extension](/docs/extensions), which anyone can build.
+Check the [roadmap](https://github.com/orbtorrent/OrbTorrent/blob/main/ROADMAP.md) first. It lists what's planned, what's been decided against, and why. Then open an issue with the feature request form. Many ideas fit better as an [extension](/docs/extensions), which anyone can build.
 
 ## Security problems
 

@@ -12,7 +12,7 @@ struct AboutView: View {
         var id: String { rawValue }
     }
 
-    static let sourceURL = URL(string: "https://github.com/sanjevirau/OrbTorrent")!
+    static let sourceURL = URL(string: "https://github.com/orbtorrent/OrbTorrent")!
 
     var body: some View {
         VStack(spacing: 0) {

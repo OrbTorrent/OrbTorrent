@@ -29,7 +29,7 @@ The section also shows your version, and when OrbTorrent last checked.
 
 ## What's new
 
-Choose **Help › What's New in OrbTorrent** to see the notes for the version you have, with **View on GitHub** for the full release. Every release, with its notes and its disk image, is on [GitHub Releases](https://github.com/sanjevirau/OrbTorrent/releases).
+Choose **Help › What's New in OrbTorrent** to see the notes for the version you have, with **View on GitHub** for the full release. Every release, with its notes and its disk image, is on [GitHub Releases](https://github.com/orbtorrent/OrbTorrent/releases).
 
 ## What a check sends
 

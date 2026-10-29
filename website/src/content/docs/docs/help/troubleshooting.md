@@ -137,4 +137,4 @@ It was built for a newer extension API than your OrbTorrent has. Update OrbTorre
 
 ## Still stuck?
 
-Choose **Help › Report a Problem**, or [open an issue](https://github.com/sanjevirau/OrbTorrent/issues/new/choose) on GitHub. [Report a problem](/docs/help/report-a-problem) explains what helps.
+Choose **Help › Report a Problem**, or [open an issue](https://github.com/orbtorrent/OrbTorrent/issues/new/choose) on GitHub. [Report a problem](/docs/help/report-a-problem) explains what helps.

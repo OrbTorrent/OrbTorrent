@@ -41,7 +41,7 @@
 
 set -euo pipefail
 
-REPO=sanjevirau/OrbTorrent
+REPO=orbtorrent/OrbTorrent
 FEED=https://updates.orbtorrent.com/appcast.xml
 NAMESPACE=0cefcfed2afa4401925f69c2e74ced24
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"

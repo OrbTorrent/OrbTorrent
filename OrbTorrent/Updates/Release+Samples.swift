@@ -28,7 +28,7 @@ extension Release {
 
             - **These notes are a sample,** shown only in OrbTorrent Dev.
             """,
-            link: URL(string: "https://github.com/sanjevirau/OrbTorrent/releases")),
+            link: URL(string: "https://github.com/orbtorrent/OrbTorrent/releases")),
         Release(
             build: "1", version: "1.0", title: "1.0 beta (sample notes)", date: nil,
             notes: """

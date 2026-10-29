@@ -56,4 +56,4 @@ OrbTorrent has no account, ID or crash reporting. Its update check carries a few
 
 ## The source
 
-OrbTorrent is open source, under the GNU GPL v3 or later. The extension SDK is MIT. The [source on GitHub](https://github.com/sanjevirau/OrbTorrent) has the app, the engine's build, the extension host, the SDK, the official extensions, the update feed and this website. [Contribute](/docs/contribute) explains how to build it.
+OrbTorrent is open source, under the GNU GPL v3 or later. The extension SDK is MIT. The [source on GitHub](https://github.com/orbtorrent/OrbTorrent) has the app, the engine's build, the extension host, the SDK, the official extensions, the update feed and this website. [Contribute](/docs/contribute) explains how to build it.

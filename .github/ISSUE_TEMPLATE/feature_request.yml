@@ -5,7 +5,7 @@ body:
   - type: markdown
     attributes:
       value: |
-        Please check [ROADMAP.md](https://github.com/sanjevirau/OrbTorrent/blob/main/ROADMAP.md) first: it lists what's planned, and what's been put off and why.
+        Please check [ROADMAP.md](https://github.com/orbtorrent/OrbTorrent/blob/main/ROADMAP.md) first: it lists what's planned, and what's been put off and why.
   - type: textarea
     id: need
     attributes:

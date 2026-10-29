@@ -395,7 +395,7 @@ private struct Resources: View {
 /// so the links keep working wherever the code moves.
 private enum DeveloperLinks {
     private static let docs = "https://orbtorrent.com/docs/extensions/"
-    static let skill = URL(string: "https://github.com/sanjevirau/OrbTorrent/blob/main/skills/build-orbtorrent-extension/SKILL.md")!
+    static let skill = URL(string: "https://github.com/orbtorrent/OrbTorrent/blob/main/skills/build-orbtorrent-extension/SKILL.md")!
     static let llms = URL(string: docs + "llms.txt")!
 
     struct Guide {

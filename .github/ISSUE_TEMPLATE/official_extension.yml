@@ -6,7 +6,7 @@ body:
   - type: markdown
     attributes:
       value: |
-        Official extensions ship inside OrbTorrent, are under its licence (GPL-3.0-or-later), and are kept working by its maintainers, so we agree on one here before anyone builds it. Most extensions fit better in the [community list](https://github.com/sanjevirau/OrbTorrent#community), which takes only a pull request.
+        Official extensions ship inside OrbTorrent, are under its licence (GPL-3.0-or-later), and are kept working by its maintainers, so we agree on one here before anyone builds it. Most extensions fit better in the [community list](https://github.com/orbtorrent/OrbTorrent#community), which takes only a pull request.
 
         An official extension:
         - is useful to most people who use OrbTorrent;

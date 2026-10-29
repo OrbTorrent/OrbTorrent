@@ -17,7 +17,7 @@ OrbTorrent is built with the SwiftUI and Liquid Glass that came with macOS 26, s
 
 ## Install it
 
-1. Download the disk image from [orbtorrent.com/download](/download). It's called `OrbTorrent-<version>-universal.dmg`. Every version is also on [GitHub Releases](https://github.com/sanjevirau/OrbTorrent/releases), with its release notes.
+1. Download the disk image from [orbtorrent.com/download](/download). It's called `OrbTorrent-<version>-universal.dmg`. Every version is also on [GitHub Releases](https://github.com/orbtorrent/OrbTorrent/releases), with its release notes.
 2. Open the disk image, and drag **OrbTorrent** into the **Applications** folder.
 3. Open OrbTorrent from your Applications folder. The first time, macOS asks whether you're sure you want to open an app from the internet, and says Apple checked it for malicious software. Click **Open**.
 

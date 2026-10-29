@@ -48,7 +48,7 @@ Everything an agent needs comes with the extension, so it doesn't depend on what
 
 - **`AGENTS.md`,** in every new extension: the whole API, the manifest, the hooks, the test format, the rules for good results, and the errors it'll see with their fixes. Claude Code reads it through the extension's `CLAUDE.md`, Codex and Cursor read it by themselves, and the request asks any agent to read it.
 - **`orb doctor`,** which checks Node.js, OrbTorrent and the extension, and says what to fix. Each problem it finds has a `fix` that says how, including when only you can do it.
-- **The Agent Skill,** [`build-orbtorrent-extension`](https://github.com/sanjevirau/OrbTorrent/tree/main/skills/build-orbtorrent-extension), for agents that use the Agent Skills format. It has the same instructions as `AGENTS.md`.
+- **The Agent Skill,** [`build-orbtorrent-extension`](https://github.com/orbtorrent/OrbTorrent/tree/main/skills/build-orbtorrent-extension), for agents that use the Agent Skills format. It has the same instructions as `AGENTS.md`.
 - **These docs,** as Markdown. [llms.txt](/docs/extensions/llms.txt) lists the extension docs, and [llms-full.txt](/docs/extensions/llms-full.txt) has all of them in one file. Every page is also Markdown at its address plus `.md`.
 
 ## Made for agents

@@ -12,7 +12,7 @@
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
-REPO="${GITHUB_REPOSITORY:-sanjevirau/OrbTorrent}"
+REPO="${GITHUB_REPOSITORY:-orbtorrent/OrbTorrent}"
 TAG="${GITHUB_REF_NAME:-main}"
 PREVIOUS="${1:-}"
 

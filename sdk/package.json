@@ -12,12 +12,12 @@
   ],
   "homepage": "https://orbtorrent.com/docs/extensions",
   "bugs": {
-    "url": "https://github.com/sanjevirau/OrbTorrent/issues",
+    "url": "https://github.com/OrbTorrent/OrbTorrent/issues",
     "email": "help@orbtorrent.com"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/sanjevirau/OrbTorrent.git",
+    "url": "git+https://github.com/OrbTorrent/OrbTorrent.git",
     "directory": "sdk"
   },
   "license": "MIT",

@@ -39,11 +39,11 @@ export default async function notify(download: Download): Promise<Result> {
 
 ## The official extensions
 
-Both are open source, in the [`extensions/`](https://github.com/sanjevirau/OrbTorrent/tree/main/extensions) folder, and built with the same SDK and tools as yours.
+Both are open source, in the [`extensions/`](https://github.com/orbtorrent/OrbTorrent/tree/main/extensions) folder, and built with the same SDK and tools as yours.
 
 ### Fake Download Check
 
-[Source](https://github.com/sanjevirau/OrbTorrent/tree/main/extensions/fake-download-check) · `beforeStart` · no permissions
+[Source](https://github.com/orbtorrent/OrbTorrent/tree/main/extensions/fake-download-check) · `beforeStart` · no permissions
 
 Holds downloads that look fake, such as a film that contains a program, using only the names and sizes of their files. Worth reading for:
 
@@ -53,7 +53,7 @@ Holds downloads that look fake, such as a film that contains a program, using on
 
 ### VirusTotal Scan
 
-[Source](https://github.com/sanjevirau/OrbTorrent/tree/main/extensions/virustotal) · `afterFinish` · `"files": "contents"`, `www.virustotal.com`
+[Source](https://github.com/orbtorrent/OrbTorrent/tree/main/extensions/virustotal) · `afterFinish` · `"files": "contents"`, `www.virustotal.com`
 
 Looks up each finished file's fingerprint on VirusTotal. Worth reading for:
 

@@ -55,7 +55,7 @@ An extension's `name` is its id: lowercase letters, digits and hyphens, unique a
 
 ## The community list
 
-Made an extension others would like? Add it to the **Community** list in OrbTorrent's [README](https://github.com/sanjevirau/OrbTorrent#community) with a pull request that adds one line, in alphabetical order. For it to be listed:
+Made an extension others would like? Add it to the **Community** list in OrbTorrent's [README](https://github.com/orbtorrent/OrbTorrent#community) with a pull request that adds one line, in alphabetical order. For it to be listed:
 
 - its source is public, with a licence;
 - a release there has the `.orbext` file, built from that source with `npx orb package`;
@@ -66,18 +66,18 @@ Listings are checked against these rules, not reviewed line by line, and the lis
 
 ## Propose an official extension
 
-Official extensions ship inside OrbTorrent, are under its licence (GPL-3.0-or-later), and are kept working by its maintainers. Before you build one, open an issue with the [Propose an official extension](https://github.com/sanjevirau/OrbTorrent/issues/new?template=official_extension.yml) form. An official extension:
+Official extensions ship inside OrbTorrent, are under its licence (GPL-3.0-or-later), and are kept working by its maintainers. Before you build one, open an issue with the [Propose an official extension](https://github.com/orbtorrent/OrbTorrent/issues/new?template=official_extension.yml) form. An official extension:
 
 - is useful to most people who use OrbTorrent;
 - works without an account, or makes one optional;
 - has nothing to do with finding or getting copyrighted material;
 - asks for the least it needs.
 
-Once it's agreed, add it in the repository's `extensions/` folder, laid out like the others, with a `README.md`, a `CHANGELOG.md` and tests for every rule, and open a pull request. [CONTRIBUTING.md](https://github.com/sanjevirau/OrbTorrent/blob/main/CONTRIBUTING.md) has the steps.
+Once it's agreed, add it in the repository's `extensions/` folder, laid out like the others, with a `README.md`, a `CHANGELOG.md` and tests for every rule, and open a pull request. [CONTRIBUTING.md](https://github.com/orbtorrent/OrbTorrent/blob/main/CONTRIBUTING.md) has the steps.
 
 ## Change an official extension
 
-The official extensions, the Fake Download Check and VirusTotal Scan, live in the OrbTorrent repository's [`extensions/`](https://github.com/sanjevirau/OrbTorrent/tree/main/extensions) folder. Each is an npm workspace package, built by `make extensions` and shipped inside OrbTorrent.
+The official extensions, the Fake Download Check and VirusTotal Scan, live in the OrbTorrent repository's [`extensions/`](https://github.com/orbtorrent/OrbTorrent/tree/main/extensions) folder. Each is an npm workspace package, built by `make extensions` and shipped inside OrbTorrent.
 
 To change one:
 

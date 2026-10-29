@@ -14,13 +14,13 @@ final class UpdatesTests {
         - **What's New**: shows what changed.
 
         ## Fixed
-        * The speed limit applies straight away by @someone in https://github.com/sanjevirau/OrbTorrent/pull/12
+        * The speed limit applies straight away by @someone in https://github.com/orbtorrent/OrbTorrent/pull/12
         ![A screenshot](https://example.com/shot.png)
 
         ## New Contributors
-        * @someone made their first contribution in https://github.com/sanjevirau/OrbTorrent/pull/12
+        * @someone made their first contribution in https://github.com/orbtorrent/OrbTorrent/pull/12
 
-        **Full Changelog**: https://github.com/sanjevirau/OrbTorrent/compare/v1...v2
+        **Full Changelog**: https://github.com/orbtorrent/OrbTorrent/compare/v1...v2
         """)
         #expect(notes.sections.map(\.title) == ["New", "Fixed"])
         #expect(notes.sections.map(\.kind) == [.new, .fixed])

@@ -18,11 +18,12 @@ features after 1.0, see [ROADMAP.md](ROADMAP.md).
   "Sanjevi Rau" as the developer and the seller. An individual membership
   can't add anyone else to make certificates, so the owner's Apple Account
   signs everything. (You)
-- **Where the code lives:** the personal account, as
-  `github.com/sanjevirau/OrbTorrent`. It can move to the `orbtorrent`
-  organisation later. So nothing breaks then, anything built into the app,
-  above all the update feed, goes on a domain we control, not a GitHub
-  address: the Develop tab's guides and llms.txt link to orbtorrent.com/docs.
+- **Where the code lives:** the `orbtorrent` organisation, as
+  `github.com/orbtorrent/OrbTorrent`, since 29 October 2026; before that,
+  the owner's personal account. So nothing breaks if it moves again,
+  anything built into the app, above all the update feed, goes on a domain
+  we control, not a GitHub address: the Develop tab's guides and llms.txt
+  link to orbtorrent.com/docs.
 - **Copyright owner:** Sanjevi Rau, personally. "Copyright © 2026 Sanjevi
   Rau" is in the About window, the app's Info.plist and the README.
 - **Domain: `orbtorrent.com`,** bought on 29 September 2026 through
@@ -50,7 +51,7 @@ features after 1.0, see [ROADMAP.md](ROADMAP.md).
   someone find it.
 - **Hold the name "OrbTorrent":** the domain, the GitHub organisation
   `orbtorrent` (github.com/orbtorrent, owner's personal account as admin,
-  holding the name; the code stays at `sanjevirau/OrbTorrent` for now), and
+  holding the name; the code moved there on 29 October 2026), and
   the npm organisation `orbtorrent`, which reserves the `@orbtorrent` scope
   for the SDK (`@orbtorrent/api`). All on 29 September 2026.
 
@@ -179,15 +180,15 @@ features after 1.0, see [ROADMAP.md](ROADMAP.md).
   on a download in OrbTorrent Dev), then again from npm itself once live.
 - **Trusted publishing for the SDK,** set up by the owner on 29
   September 2026: both packages trust GitHub Actions in
-  `sanjevirau/OrbTorrent`, workflow `sdk.yml`, and their publishing access
+  `orbtorrent/OrbTorrent`, workflow `sdk.yml`, and their publishing access
   requires two-factor authentication and disallows tokens. So `sdk-v*` tags
   publish from CI (`.github/workflows/sdk.yml`), and otherwise only the owner
   can publish, by hand with two-factor authentication. npm ties this to the
   repo itself, not just its name: when the repo was deleted and created again
   on 1 October 2026, both packages' trusted publishers had to be removed and
   added again, then a test run got a publishing token for each without
-  publishing. Do the same if the repo moves to the `orbtorrent`
-  organisation, and change the packages' `repository` to match.
+  publishing. The same again when the code moved to the `orbtorrent`
+  organisation on 29 October 2026, with the packages' `repository`.
 - **Building extensions with AI,** on 29 September 2026. The Develop tab
   has the development switch as a slim row on top, then **Build an
   Extension** with a With AI / Yourself toggle, then what's in development,

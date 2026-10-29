@@ -14,7 +14,7 @@ set -euo pipefail
 TAG="${1:?usage: homebrew-tap.sh <tag> <disk-image> <tap-dir>}"
 DMG="${2:?the disk image of the release}"
 TAP="${3:?the folder of the tap}"
-REPO="${GITHUB_REPOSITORY:-sanjevirau/OrbTorrent}"
+REPO="${GITHUB_REPOSITORY:-orbtorrent/OrbTorrent}"
 
 [[ "$TAG" =~ ^v[0-9][0-9A-Za-z.-]*$ ]] || { echo "error: $TAG isn't a release tag, such as v1.0-beta.2" >&2; exit 64; }
 [[ -f "$DMG" ]] || { echo "error: no disk image at $DMG" >&2; exit 66; }

@@ -34,7 +34,7 @@ export default defineConfig({
         { tag: "link", attrs: { rel: "manifest", href: "/site.webmanifest" } },
         { tag: "link", attrs: { rel: "sitemap", href: "/sitemap-index.xml" } },
       ],
-      editLink: { baseUrl: "https://github.com/sanjevirau/OrbTorrent/edit/main/website/" },
+      editLink: { baseUrl: "https://github.com/orbtorrent/OrbTorrent/edit/main/website/" },
       lastUpdated: true,
       markdown: { headingLinks: true },
       customCss: ["./src/styles/docs.css"],

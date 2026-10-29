@@ -160,7 +160,7 @@ Made an extension? Add it here with a pull request. The rules are in
 
 1. Download OrbTorrent from [orbtorrent.com](https://orbtorrent.com/download),
    or `OrbTorrent-<version>-universal.dmg` from
-   [Releases](https://github.com/sanjevirau/OrbTorrent/releases/latest).
+   [Releases](https://github.com/orbtorrent/OrbTorrent/releases/latest).
 2. Open it and drag OrbTorrent to Applications.
 3. Open OrbTorrent. It offers to bring over your downloads from Transmission
    or qBittorrent, and to become your default torrent app.
@@ -240,7 +240,7 @@ and why.
 **Found a problem?** [Troubleshooting](https://orbtorrent.com/docs/help/troubleshooting)
 has fixes for the usual ones. Otherwise choose **Help → Report a Problem** in
 the app, or open an
-[issue](https://github.com/sanjevirau/OrbTorrent/issues/new/choose).
+[issue](https://github.com/orbtorrent/OrbTorrent/issues/new/choose).
 
 ## For developers
 

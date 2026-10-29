@@ -19,7 +19,7 @@ early: Reddit and Hacker News need weeks of history.
 ## 1. Done
 
 - [x] **Decisions:** bundle IDs `com.orbtorrent.mac` and `.dev` (since 28
-  Oct), the code at `sanjevirau/OrbTorrent`, copyright Sanjevi Rau, version
+  Oct), the code at `orbtorrent/OrbTorrent`, copyright Sanjevi Rau, version
   1.0 with betas as rising builds. (29 Sep)
 - [x] **The name held:** `orbtorrent.com` (renew by hand before 29 Sep 2027),
   the GitHub organisation `orbtorrent`, the npm organisation `orbtorrent`.
@@ -322,7 +322,7 @@ Details: [LAUNCH.md, launch day](LAUNCH.md#launch-day-a-tuesday).
   Claude)
 - [ ] **Renew orbtorrent.com** before 29 September 2027. Auto-renew is off.
   (You)
-- [ ] **If the code moves to the `orbtorrent` organisation,** set up npm's
-  trusted publishing again for both packages. (You and Claude)
+- [ ] **npm's trusted publishing again** for both packages, now that the
+  code is at `orbtorrent/OrbTorrent`. (You)
 - [ ] **After 1.0:** VPN partner links, the iPhone companion, and the rest
   of [ROADMAP.md](ROADMAP.md).

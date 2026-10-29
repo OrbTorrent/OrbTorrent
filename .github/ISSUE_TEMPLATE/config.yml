@@ -4,7 +4,7 @@ contact_links:
     url: https://orbtorrent.com/docs/help/troubleshooting
     about: Fixes for the usual problems, from magnet links to VPNs, before you report one.
   - name: Report a security problem
-    url: https://github.com/sanjevirau/OrbTorrent/blob/main/SECURITY.md
+    url: https://github.com/orbtorrent/OrbTorrent/blob/main/SECURITY.md
     about: Privately, by email, not in a public issue.
   - name: Build an extension
     url: https://orbtorrent.com/docs/extensions
