@@ -261,11 +261,13 @@ final class Extensions {
                  .checkOnly where torrent.hasMetadata && torrent.state.isStopped && !gating.contains(hash):
                 gating.insert(hash)
                 Task { await runGate(for: torrent) }
-            case .waiting where torrent.downloaded > 0 && !torrent.state.isStopped,
-                 .checkOnly where torrent.downloaded > 0 && !torrent.state.isStopped:
+            // Only a download that may be talking to peers was started: one
+            // the engine is checking, queueing or moving may still be stopped.
+            case .waiting where torrent.downloaded > 0 && torrent.state.mayHavePeers,
+                 .checkOnly where torrent.downloaded > 0 && torrent.state.mayHavePeers:
                 // Started by the user before its checks could run.
                 checks.setGate(nil, for: hash)
-            case .held where !torrent.state.isStopped:
+            case .held where torrent.state.mayHavePeers:
                 // The user started it.
                 checks.setGate(nil, for: hash)
             default:

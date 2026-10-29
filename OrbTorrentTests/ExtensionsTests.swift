@@ -455,6 +455,32 @@ struct ExtensionsTimingTests {
         #expect(extensions.checks.gate(for: "a1") == nil)
     }
 
+    /// Only a download that may be talking to peers was started by someone:
+    /// one the engine is checking, queueing or moving still waits.
+    @Test func aHeldDownloadStaysHeldWhileTheEngineChecksIt() throws {
+        let sandbox = try ExtensionSandbox()
+        let extensions = coordinator(sandbox, files: [], started: Started())
+        extensions.checks.setGate(.held, for: "h1")
+        for state in ["checkingDL", "stoppedDL", "queuedDL", "moving", "checkingResumeData", "unknown"] {
+            extensions.observe([torrent("h1", state: state, progress: 0.4, downloaded: 1_000)])
+            #expect(extensions.checks.gate(for: "h1") == .held, "\(state)")
+        }
+        extensions.observe([torrent("h1", state: "downloading", progress: 0.4, downloaded: 1_000)])
+        #expect(extensions.checks.gate(for: "h1") == nil)
+    }
+
+    @Test func aDownloadWaitingForItsChecksIsLetGoOnlyOnceItRuns() throws {
+        let sandbox = try ExtensionSandbox()
+        let extensions = coordinator(sandbox, files: [], started: Started())
+        extensions.gate("w1")
+        for state in ["queuedDL", "checkingDL", "moving"] {
+            extensions.observe([torrent("w1", state: state, downloaded: 500)])
+            #expect(extensions.checks.gate(for: "w1") == .waiting, "\(state)")
+        }
+        extensions.observe([torrent("w1", state: "stalledDL", downloaded: 500)])
+        #expect(extensions.checks.gate(for: "w1") == nil)
+    }
+
     @Test func aDownloadThatPassesIsStarted() async throws {
         let sandbox = try ExtensionSandbox(officialExtensions: ["fake-download-check"])
         let started = Started()
