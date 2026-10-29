@@ -1,5 +1,11 @@
 # @orbtorrent/api Changelog
 
+## 1.2.1
+
+- **`orb` finds OrbTorrent by its new bundle ID,** `com.orbtorrent.mac`
+  (OrbTorrent Dev: `com.orbtorrent.mac.dev`), for `orb doctor` and `orb
+  package`.
+
 ## 1.2.0
 
 Extension API 1.2, which needs an OrbTorrent that supports it. OrbTorrent says
