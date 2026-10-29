@@ -43,11 +43,7 @@ struct FileStateMenu: View {
     }
 
     private var color: Color {
-        if isDone { return .green }
-        return switch file.priority {
-        case .skip, .normal: .secondary
-        case .high, .maximum: .orange
-        }
+        isDone ? .green : file.priority.color
     }
 
     private var helpText: String {
@@ -59,21 +55,35 @@ struct FileStateMenu: View {
             default: "Number \(position) in the download order"
             }
         }
-        return file.isWanted ? "\(file.priority.title) priority" : "Not downloading"
+        return file.priority.help
+    }
+}
+
+extension FilePriority {
+    /// Raised priorities stand out.
+    var color: Color {
+        switch self {
+        case .skip, .normal: .secondary
+        case .high, .maximum: .orange
+        }
+    }
+
+    var help: String {
+        self == .skip ? "Not downloading" : "\(title) priority"
     }
 }
 
 /// The four priorities as a checkable list, for menus.
 struct FilePriorityPicker: View {
-    let targets: [TorrentFile]
-    let files: TorrentFilesModel
+    /// The one ticked; none is when the files it's for differ.
+    let selection: FilePriority?
+    let choose: (FilePriority) -> Void
 
     var body: some View {
-        // Ticked when every file has it; none is when they differ.
         Picker("Priority", selection: Binding<FilePriority?>(
-            get: { Set(targets.map(\.priority)).count == 1 ? targets.first?.priority : nil },
+            get: { selection },
             set: { priority in
-                if let priority { files.setPriority(priority, for: targets.filter { $0.priority != priority }) }
+                if let priority { choose(priority) }
             }
         )) {
             ForEach(FilePriority.allCases) { priority in
@@ -81,5 +91,14 @@ struct FilePriorityPicker: View {
             }
         }
         .pickerStyle(.inline)
+    }
+}
+
+extension FilePriorityPicker {
+    /// For files in the library: ticked when every file has it.
+    init(targets: [TorrentFile], files: TorrentFilesModel) {
+        self.init(selection: Set(targets.map(\.priority)).count == 1 ? targets.first?.priority : nil) { priority in
+            files.setPriority(priority, for: targets.filter { $0.priority != priority })
+        }
     }
 }

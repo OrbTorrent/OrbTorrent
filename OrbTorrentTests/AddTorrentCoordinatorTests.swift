@@ -47,4 +47,33 @@ final class AddTorrentCoordinatorTests {
         adder.decline(try #require(adder.asked(inMenuBar.id)))
         #expect(extensions.checks.records(for: hash).isEmpty)
     }
+
+    /// Priorities chosen for its files are the ones the engine is told, as
+    /// in the Files tab: a file unticked and ticked again is Normal.
+    @Test func filesGetThePrioritiesChosenBeforeAdding() throws {
+        let hash = "e4f19cf636409b72571766c2ae89c98fc21a109d"
+        let link = try #require(MagnetLink("magnet:?xt=urn:btih:\(hash)&dn=Sintel"))
+        var pending = AddTorrentCoordinator.Pending(source: .magnet(link))
+        #expect(pending.priorityChanges.isEmpty)
+
+        pending.fetchedMetadata = TorrentMetadata(infoHash: hash, name: "Sintel", files: [
+            .init(id: 0, path: "Sintel/Sintel.mkv", size: 400),
+            .init(id: 1, path: "Sintel/Sintel.en.srt", size: 10),
+            .init(id: 2, path: "Sintel/Sintel.de.srt", size: 10),
+            .init(id: 3, path: "Sintel/Extras.mkv", size: 300),
+        ])
+        #expect(pending.priorityChanges.isEmpty)
+        pending.setPriority(.maximum, of: [0])
+        pending.setPriority(.high, of: [1, 2])
+        pending.setPriority(.skip, of: [3])
+        #expect(pending.priorityChanges == [.maximum: [0], .high: [1, 2], .skip: [3]])
+        #expect(pending.neededBytes == 420)
+
+        pending.setPriority(.skip, of: [1])
+        pending.setPriority(.normal, of: [1])
+        #expect(pending.priority(of: 1) == .normal)
+        // Choosing a priority for an unticked file ticks it.
+        pending.setPriority(.high, of: [3])
+        #expect(pending.priorityChanges == [.maximum: [0], .high: [2, 3]])
+    }
 }

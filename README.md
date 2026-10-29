@@ -48,7 +48,8 @@ free, with no ads, no account and no tracking.
   Finder, or drag, drop or paste them in. OrbTorrent can be your Mac's default
   torrent app.
 - **Choose before it starts,** or let it start right away. Pick the files and
-  the folder, and see whether it fits on the disk before anything downloads.
+  their priority and the folder, and see whether it fits on the disk before
+  anything downloads.
 - **Download in order,** to watch while it downloads. OrbTorrent gives the next
   file top priority and moves on as each one finishes, and you can drag files
   into the order you want.

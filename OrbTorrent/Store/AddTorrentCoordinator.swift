@@ -21,6 +21,8 @@ final class AddTorrentCoordinator {
         var sequentialDownload = false
         /// File indices the person unticked, once the files are known.
         var skippedFiles: Set<Int> = []
+        /// Priorities the person chose for ticked files, other than Normal.
+        private(set) var filePriorities: [Int: FilePriority] = [:]
         /// A magnet link's files, if its peers sent them while it was asked about.
         var fetchedMetadata: TorrentMetadata?
         /// Whether a magnet link's peers are being asked for its files.
@@ -58,6 +60,26 @@ final class AddTorrentCoordinator {
         /// their peers send the files.
         var neededBytes: Int64? {
             metadata.map { $0.files.filter { !skippedFiles.contains($0.id) }.reduce(0) { $0 + $1.size } }
+        }
+
+        func priority(of file: Int) -> FilePriority {
+            skippedFiles.contains(file) ? .skip : filePriorities[file] ?? .normal
+        }
+
+        /// As in the Files tab: Don't Download unticks files, any other
+        /// priority ticks them, and a file ticked again is Normal.
+        mutating func setPriority(_ priority: FilePriority, of files: some Sequence<Int>) {
+            for file in files {
+                if priority == .skip { skippedFiles.insert(file) } else { skippedFiles.remove(file) }
+                filePriorities[file] = priority == .skip || priority == .normal ? nil : priority
+            }
+        }
+
+        /// The files that aren't Normal, by priority, for the engine once
+        /// it's added.
+        var priorityChanges: [FilePriority: [Int]] {
+            let files = metadata?.files.map(\.id) ?? []
+            return Dictionary(grouping: files.filter { priority(of: $0) != .normal }, by: priority(of:))
         }
     }
 
@@ -371,9 +393,9 @@ final class AddTorrentCoordinator {
         var options = QBittorrentClient.AddOptions()
         options.savePath = pending.saveFolder?.path
         options.sequentialDownload = pending.sequentialDownload
-        // Torrents with unticked files start stopped so nothing unwanted is
-        // fetched before the priorities are applied.
-        let needsFilePriorities = !pending.skippedFiles.isEmpty
+        // Torrents with unticked files, or files given a priority, start
+        // stopped so nothing is fetched before the priorities are applied.
+        let needsFilePriorities = !pending.priorityChanges.isEmpty
         // A private torrent found through public trackers loses them before
         // it starts, so it never announces to them.
         let dropsLookupTrackers = pending.metadata?.isPrivate == true && !pending.lookupTrackers.isEmpty
@@ -421,9 +443,8 @@ final class AddTorrentCoordinator {
         if dropsLookupTrackers {
             try? await client.removeTrackers(pending.lookupTrackers, from: hash)
         }
-        if needsFilePriorities, let metadata = pending.metadata {
-            let skipped = metadata.files.filter { pending.skippedFiles.contains($0.id) }.map(\.id)
-            try? await client.setFilePriority(.skip, files: skipped, in: hash)
+        for (priority, files) in pending.priorityChanges {
+            try? await client.setFilePriority(priority, files: files, in: hash)
         }
         if pending.startImmediately && (needsFilePriorities || dropsLookupTrackers) && !isGated {
             try? await client.start([hash])

@@ -163,8 +163,8 @@ struct AddConfirmation: View {
                     .fontWeight(.semibold)
                     .foregroundStyle(.secondary)
                 Spacer()
-                Button("Select All") { pending.skippedFiles.removeAll() }
-                Button("Select None") { pending.skippedFiles = Set(metadata.files.map(\.id)) }
+                Button("Select All") { pending.setPriority(.normal, of: pending.skippedFiles) }
+                Button("Select None") { pending.setPriority(.skip, of: metadata.files.map(\.id)) }
             }
             .buttonStyle(.link)
             .font(isWindow ? .callout : .caption)
@@ -183,14 +183,13 @@ struct AddConfirmation: View {
         }
     }
 
-    /// A file to pick, marked if a check found something wrong with it.
+    /// A file to pick, marked if a check found something wrong with it, and
+    /// its priority, as in the Files tab.
     private func fileRow(_ file: TorrentMetadata.File, shownName: String?, problems: [FileFinding]) -> some View {
         HStack(spacing: glyphGap) {
             Toggle("Download", isOn: Binding(
                 get: { !pending.skippedFiles.contains(file.id) },
-                set: { include in
-                    if include { pending.skippedFiles.remove(file.id) } else { pending.skippedFiles.insert(file.id) }
-                }
+                set: { pending.setPriority($0 ? .normal : .skip, of: [file.id]) }
             ))
             .toggleStyle(.checkbox)
             .labelsHidden()
@@ -207,9 +206,25 @@ struct AddConfirmation: View {
             Text(Format.bytes(file.size))
                 .foregroundStyle(.secondary)
                 .monospacedDigit()
+            priorityMenu(file)
         }
         .font(isWindow ? .body : .callout)
         .frame(height: rowHeight)
+    }
+
+    private func priorityMenu(_ file: TorrentMetadata.File) -> some View {
+        let priority = pending.priority(of: file.id)
+        return Menu {
+            FilePriorityPicker(selection: priority) { pending.setPriority($0, of: [file.id]) }
+        } label: {
+            Image(systemName: priority.symbol)
+        }
+        .menuStyle(.borderlessButton)
+        .menuIndicator(.hidden)
+        .fixedSize()
+        .tint(priority.color)
+        .help(priority.help)
+        .accessibilityLabel(priority.help)
     }
 
     private func selectedSize(_ metadata: TorrentMetadata) -> Int64 {

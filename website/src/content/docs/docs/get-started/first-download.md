@@ -23,7 +23,7 @@ OrbTorrent asks before downloading, so you can check what's coming first. Links 
 
 ![The menu bar panel asking about a download: its three files, one marked by a check that found a problem, the folder it saves to and the free space on the disk](../../../../assets/shots/held.png)
 
-- **Files.** Untick any you don't want. **Select All** and **Select None** are above the list. A download with one file has no list.
+- **Files.** Untick any you don't want, and click a file's circle to give it a [priority](/docs/guides/files#before-it-starts). **Select All** and **Select None** are above the list. A download with one file has no list.
 - **Checks.** If your [extensions](/docs/guides/checks) check downloads before they start, their results show here. If one finds a problem, the button becomes **Download Anyway**.
 - **Save to.** Where the files go. Click **Change…** to choose another folder for this download.
 - **Free space.** How much room the disk has. If the download won't fit, OrbTorrent says so before anything downloads.

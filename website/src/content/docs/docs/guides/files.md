@@ -9,6 +9,8 @@ A torrent can hold many files. You don't have to download them all, and you can 
 
 When OrbTorrent asks about a new download, untick the files you don't want. **Select All** and **Select None** are above the list, and the total updates as you go: "3 files · 1.2 GB of 4.5 GB selected".
 
+Click the circle at the end of a file to give it a priority, as you can [while it downloads](#while-it-downloads). Choosing a priority for a file you unticked ticks it again.
+
 [Your first download](/docs/get-started/first-download#choose-what-to-download) shows the whole confirmation.
 
 ## While it downloads
