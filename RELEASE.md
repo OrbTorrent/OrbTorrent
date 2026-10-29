@@ -9,17 +9,20 @@ features after 1.0, see [ROADMAP.md](ROADMAP.md).
 
 ## 1. Decisions
 
-- **Bundle ID:** `com.orbtorrent.mac`, and `com.orbtorrent.mac.dev`
-  for OrbTorrent Dev. Chosen before anyone else installs the app, because
-  after release a new bundle ID would wipe every user's settings, Keychain
-  items and permissions.
-- **Apple Developer Program,** applied for on 29 September 2026; waiting
-  for Apple to verify, then the agreement and the US$99 payment. (You)
+- **Bundle ID:** `com.orbtorrent.mac`, and `com.orbtorrent.mac.dev` for
+  OrbTorrent Dev, on OrbTorrent's own domain. Chosen before anyone else
+  installs the app, because after release a new bundle ID would wipe every
+  user's settings, Keychain items and permissions.
+- **Apple Developer Program,** as an individual, Sanjevi Rau, with the
+  owner's own Apple Account. Renewed on 28 October 2026. The App Store shows
+  "Sanjevi Rau" as the developer and the seller. An individual membership
+  can't add anyone else to make certificates, so the owner's Apple Account
+  signs everything. (You)
 - **Where the code lives:** the personal account, as
-  `github.com/sanjevirau/OrbTorrent`. It can move to a GitHub organisation
-  later. So nothing breaks then, anything built into the app, above all the
-  update feed, goes on a domain we control, not a GitHub address: the Develop
-  tab's guides and llms.txt link to orbtorrent.com/docs.
+  `github.com/sanjevirau/OrbTorrent`. It can move to the `orbtorrent`
+  organisation later. So nothing breaks then, anything built into the app,
+  above all the update feed, goes on a domain we control, not a GitHub
+  address: the Develop tab's guides and llms.txt link to orbtorrent.com/docs.
 - **Copyright owner:** Sanjevi Rau, personally. "Copyright © 2026 Sanjevi
   Rau" is in the About window, the app's Info.plist and the README.
 - **Domain: `orbtorrent.com`,** bought on 29 September 2026 through
@@ -61,6 +64,11 @@ features after 1.0, see [ROADMAP.md](ROADMAP.md).
   app for magnet links and .torrent files again, and "Open OrbTorrent when you
   log in" turned back on, and the old login item
   (`io.github.sanjevirau.OrbTorrent`) removed in System Settings.
+- **Move to OrbTorrent's own IDs,** `com.orbtorrent.mac` and `.dev`, on 28
+  October 2026, with the move to the individual developer account. As
+  before, the owner's settings and Keychain items moved on the first launch,
+  and the rest by hand. The code went once the daily app had moved (29
+  October).
 - **Split Dev from the daily app.**
 
   | | OrbTorrent (daily) | OrbTorrent Dev |
@@ -94,8 +102,8 @@ features after 1.0, see [ROADMAP.md](ROADMAP.md).
   were signed ad hoc, so macOS knew each one only by its file fingerprint,
   which changes with every build, and asked for permissions and Keychain
   access again after each rebuild. Now it knows the app by its bundle ID and
-  certificate. It will ask once more when builds move to Developer ID
-  certificates.
+  certificate. It will ask once more when builds move to the Developer ID
+  certificate.
 - **First commit and push** to the private repo
   `github.com/sanjevirau/OrbTorrent`, on 29 September 2026. Whether it goes
   public is decided later.
@@ -241,9 +249,11 @@ features after 1.0, see [ROADMAP.md](ROADMAP.md).
   signs, notarizes and staples the disk image; it already takes
   `SIGN_IDENTITY` and `NOTARY_PROFILE`. Check the result with
   `spctl --assess` and `stapler validate`.
-- **First notarized build.** Fix whatever Apple flags; the extra
-  programs inside the app are the usual suspects. Sparkle's helpers are
-  already re-signed with the app's certificate and the hardened runtime.
+- **First notarized build,** done 29 October 2026 with no issues. It needed
+  secure timestamps on the extra programs inside the app, which Developer ID
+  builds now add, and no `get-task-allow` in Release builds. Apple refused
+  the team's first submissions with status code 7000, "Team is not yet
+  configured for notarization", for a day after the membership was renewed.
 - **CI publishes updates too,** once it notarizes: the update key and a
   Cloudflare API token that can only write the feed's KV namespace go in
   GitHub secrets, and a job runs `scripts/publish-update.sh` when a release
@@ -291,7 +301,8 @@ automatically.
     every commit was rewritten without them, and with GitHub's private address
     for the owner instead of their Gmail. The repo was then deleted and created
     again, so GitHub no longer has the old commits either. The old history is
-    kept in a bundle on the owner's Mac.
+    kept in a bundle on the owner's Mac. Done again on 29 October 2026, for
+    the bundle IDs before OrbTorrent's own.
   - Contribution rules in [CONTRIBUTING.md](CONTRIBUTING.md): contributions
     come in under the licence of the code they change (GPL-3.0-or-later, MIT
     for the SDK), with no contributor licence agreement, so a closed "Pro"

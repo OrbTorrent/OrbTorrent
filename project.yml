@@ -60,6 +60,9 @@ targets:
           ASSETCATALOG_COMPILER_APPICON_NAME: AppIconDev
           EXCLUDED_SOURCE_FILE_NAMES: AppIcon.icon
         Dev: *dev
+        # Notarization refuses the entitlement that lets a debugger attach.
+        Release:
+          CODE_SIGN_INJECT_BASE_ENTITLEMENTS: NO
     info:
       path: OrbTorrent/Info.plist
       properties:
@@ -144,7 +147,9 @@ targets:
           fi
           DEST="${TARGET_BUILD_DIR}/${EXECUTABLE_FOLDER_PATH}/qbittorrent-nox"
           cp -f "$ENGINE" "$DEST"
-          codesign --force --options runtime --timestamp=none \
+          # Notarization needs a secure timestamp, which only Developer ID builds wait for.
+          case "${CODE_SIGN_IDENTITY:-}" in "Developer ID"*) TIMESTAMP=--timestamp ;; *) TIMESTAMP=--timestamp=none ;; esac
+          codesign --force --options runtime "$TIMESTAMP" \
             --sign "${EXPANDED_CODE_SIGN_IDENTITY:--}" "$DEST"
           LICENSES="${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/Licenses"
           rm -rf "$LICENSES" && mkdir -p "$LICENSES"
@@ -160,7 +165,8 @@ targets:
           HOST="${BUILT_PRODUCTS_DIR}/orb-extension-host"
           DEST="${TARGET_BUILD_DIR}/${EXECUTABLE_FOLDER_PATH}/orb-extension-host"
           cp -f "$HOST" "$DEST"
-          codesign --force --options runtime --timestamp=none \
+          case "${CODE_SIGN_IDENTITY:-}" in "Developer ID"*) TIMESTAMP=--timestamp ;; *) TIMESTAMP=--timestamp=none ;; esac
+          codesign --force --options runtime "$TIMESTAMP" \
             --entitlements "${SRCROOT}/ExtensionHost/ExtensionHost.entitlements" \
             --sign "${EXPANDED_CODE_SIGN_IDENTITY:--}" "$DEST"
           # Official extensions, built by `make extensions`.
@@ -184,7 +190,8 @@ targets:
           # program inside the app signed with its certificate and the
           # hardened runtime. The XPC services are only for sandboxed apps.
           SPARKLE="${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/Sparkle.framework"
-          FLAGS=(--force --options runtime --timestamp=none --sign "${EXPANDED_CODE_SIGN_IDENTITY:--}")
+          case "${CODE_SIGN_IDENTITY:-}" in "Developer ID"*) TIMESTAMP=--timestamp ;; *) TIMESTAMP=--timestamp=none ;; esac
+          FLAGS=(--force --options runtime "$TIMESTAMP" --sign "${EXPANDED_CODE_SIGN_IDENTITY:--}")
           rm -rf "$SPARKLE/Versions/B/XPCServices" "$SPARKLE/XPCServices"
           codesign "${FLAGS[@]}" "$SPARKLE/Versions/B/Autoupdate"
           codesign "${FLAGS[@]}" "$SPARKLE/Versions/B/Updater.app"

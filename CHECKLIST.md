@@ -7,19 +7,20 @@ happens. This is the only place with checkboxes: tick them here.
 
 **You** marks what only the owner can do, and **Claude** what Claude does,
 for you to review where it says so. Times are Malaysia time (MYT).
-Last brought up to date on 3 October 2026.
+Last brought up to date on 29 October 2026.
 
 **Where we are:** the app, the website with its docs and search pages, the
 launch film and the extension SDK 1.1.0 are built, and the repo is ready for other developers
-and their coding agents. The notarized build waits on Apple approving the
-developer account. Until then, prepare what's in sections 2 and 3, and start
-your own accounts early: Reddit and Hacker News need weeks of history.
+and their coding agents. The developer account is ready and the app is
+notarized from your Mac, so CI signing and notarizing (section 4) come next.
+Meanwhile, prepare what's in sections 2 and 3, and start your own accounts
+early: Reddit and Hacker News need weeks of history.
 
 ## 1. Done
 
-- [x] **Decisions:** bundle IDs `com.orbtorrent.mac` and `.dev`, the
-  code at `sanjevirau/OrbTorrent`, copyright Sanjevi Rau, version 1.0 with
-  betas as rising builds. (29 Sep)
+- [x] **Decisions:** bundle IDs `com.orbtorrent.mac` and `.dev` (since 28
+  Oct), the code at `sanjevirau/OrbTorrent`, copyright Sanjevi Rau, version
+  1.0 with betas as rising builds. (29 Sep)
 - [x] **The name held:** `orbtorrent.com` (renew by hand before 29 Sep 2027),
   the GitHub organisation `orbtorrent`, the npm organisation `orbtorrent`.
   `help@orbtorrent.com` forwards to your Gmail, tested. (29 Sep, 1 Oct)
@@ -118,11 +119,11 @@ your own accounts early: Reddit and Hacker News need weeks of history.
   needs, and search engines get its structured data. Tested in Chrome and
   WebKit. (3 Oct)
 
-## 2. Now, while Apple reviews: Claude
+## 2. Now: Claude
 
 - [ ] **Short clips of the film** for showing the work in progress.
 
-## 3. Now, while Apple reviews: you
+## 3. Now: you
 
 - [ ] **Reddit:** take part in r/macapps and r/swift for real. r/macapps
   needs 10 karma earned there before you can post about OrbTorrent, and
@@ -149,18 +150,18 @@ your own accounts early: Reddit and Hacker News need weeks of history.
   live.
 - [ ] **Try port forwarding on a paid Proton VPN plan.** Until it's tried,
   the launch copy says "Proton-style NAT-PMP" rather than naming Proton.
-- [ ] **If Apple hasn't answered by mid-October,** contact Apple Developer
-  Support with the enrollment ID from Apple's emails.
 
-## 4. Waiting on Apple
+## 4. Signing and notarization
 
-- [ ] **Apple Developer Program approved,** then the agreement and the
-  US$99. (You)
-- [ ] **Developer ID Application certificate and an App Store Connect API
-  key** for notarizing. (You, with Claude)
+- [x] **Apple Developer Program,** as an individual with your own Apple
+  Account, renewed, with your bank account in App Store Connect. (28 Oct)
+- [x] **Developer ID Application certificate,** and notarizing from your
+  Mac with an app-specific password. (29 Oct)
+- [x] **The first notarized build:** accepted with no issues. (29 Oct)
+- [ ] **An App Store Connect API key** for CI to notarize with. (You, with
+  Claude)
 - [ ] **CI signs and notarizes each release,** with the certificate, its
   password and the API key in GitHub secrets. (Claude)
-- [ ] **The first notarized build,** fixing whatever Apple flags. (Claude)
 - [ ] **CI publishes updates too,** with the update key and a Cloudflare
   token that can only write the feed in GitHub secrets. You create the
   token, and Claude does the rest.
@@ -171,14 +172,17 @@ Details: [RELEASE.md §4](RELEASE.md#4-signing-and-notarization).
 
 With the first notarized build:
 
-- [ ] **It opens on a fresh Mac with no warning,** checked with `spctl` and
-  `stapler`. (Claude)
+- [x] **It opens on a fresh Mac with no warning,** checked with `spctl` and
+  `stapler`. (29 Oct)
 - [ ] **A fresh user account, like a stranger.** Download it from GitHub,
   then go through Gatekeeper, the welcome, importing from Transmission and
   qBittorrent, a magnet link and a .torrent file, the VPN, extensions,
   notifications, start at login, quitting and opening again, and
   uninstalling. (You and Claude)
-- [ ] **Your daily app becomes the signed build** for a few days. (You)
+- [ ] **Your daily app becomes the signed build** for a few days, since 29
+  Oct. (You)
+- [x] **Your daily app moves to `com.orbtorrent.mac`** with it, with your
+  settings and the VirusTotal key. (29 Oct)
 - [ ] **Beta 1's release notes:** what's in it and what's counted, linking
   orbtorrent.com/privacy#counts. CI adds the engine's versions. Claude
   drafts and you publish.
