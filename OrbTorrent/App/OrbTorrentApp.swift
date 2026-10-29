@@ -11,6 +11,9 @@ struct OrbTorrentApp: App {
         }
         .defaultSize(width: 1_120, height: 700)
         .defaultLaunchBehavior(.suppressed)
+        // Links and files opened from other apps are asked about in the menu
+        // bar (AppDelegate). Every window turns them down, or SwiftUI would
+        // show the first one that doesn't, such as About.
         .handlesExternalEvents(matching: [])
         .commands { OrbTorrentCommands(model: appDelegate.model) }
 
@@ -30,6 +33,7 @@ struct OrbTorrentApp: App {
         .windowStyle(.hiddenTitleBar)
         .defaultLaunchBehavior(.suppressed)
         .restorationBehavior(.disabled)
+        .handlesExternalEvents(matching: [])
 
         Window("Report a Problem", id: "report") {
             ReportProblemView()
@@ -38,10 +42,12 @@ struct OrbTorrentApp: App {
         .windowStyle(.hiddenTitleBar)
         .defaultLaunchBehavior(.suppressed)
         .restorationBehavior(.disabled)
+        .handlesExternalEvents(matching: [])
 
         Settings {
             SettingsView()
                 .environment(appDelegate.model)
         }
+        .handlesExternalEvents(matching: [])
     }
 }
