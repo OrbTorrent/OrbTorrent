@@ -3,8 +3,9 @@ name: Website
 # Builds orbtorrent.com and its docs when they change: type-checks the code,
 # tests the email sign-up, builds every page, checks every link between docs
 # pages, and checks that the API reference covers every export of
-# @orbtorrent/api. Deploying is by hand, with `npm run deploy` in website/,
-# until the first release.
+# @orbtorrent/api. Then a push to main deploys it, once the repo is public
+# (from the first release) and the secret CLOUDFLARE_WEBSITE_TOKEN is set.
+# By hand, it's `npm run deploy` in website/.
 
 on:
   pull_request:
@@ -22,9 +23,16 @@ on:
 permissions:
   contents: read
 
+# One deploy at a time, each after the one before.
+concurrency:
+  group: website-${{ github.ref }}
+  cancel-in-progress: false
+
 jobs:
   build:
     runs-on: ubuntu-latest
+    env:
+      DEPLOYS: ${{ github.event_name == 'push' && !github.event.repository.private && secrets.CLOUDFLARE_WEBSITE_TOKEN != '' }}
     defaults:
       run:
         working-directory: website
@@ -54,3 +62,12 @@ jobs:
 
       - name: Build, and check the docs' links
         run: npx astro build
+
+      # The Worker and the pages just built, as wrangler.jsonc says. The token
+      # can deploy Workers, with the site's database, email and domain.
+      - name: Deploy
+        if: env.DEPLOYS == 'true'
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_WEBSITE_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ vars.CLOUDFLARE_ACCOUNT_ID }}
+        run: npx wrangler deploy

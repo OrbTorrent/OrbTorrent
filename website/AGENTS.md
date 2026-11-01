@@ -28,7 +28,9 @@ Consult these guides before working on related tasks:
   of them, which only answers `/download/mac` and the email sign-up's posts,
   configured in `wrangler.jsonc`. `npm run deploy` builds the site and
   publishes it with Wrangler. Not `cf deploy`: it adds Cloudflare's Astro
-  adapter to the project, which this site doesn't use.
+  adapter to the project, which this site doesn't use. Once the repo is
+  public, a push to main that changes the site deploys it from CI
+  (`.github/workflows/website.yml`).
 - The docs at `/docs` are Starlight. Pages are Markdown in
   `src/content/docs/docs/`, the sidebar is `src/lib/docs-sidebar.mjs`, the
   theme is `src/styles/docs.css`, and overridden Starlight components are in
