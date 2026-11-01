@@ -7,14 +7,15 @@ happens. This is the only place with checkboxes: tick them here.
 
 **You** marks what only the owner can do, and **Claude** what Claude does,
 for you to review where it says so. Times are Malaysia time (MYT).
-Last brought up to date on 29 October 2026.
+Last brought up to date on 1 November 2026.
 
 **Where we are:** the app, the website with its docs and search pages, the
-launch film and the extension SDK 1.1.0 are built, and the repo is ready for other developers
-and their coding agents. The developer account is ready and the app is
-notarized from your Mac, so CI signing and notarizing (section 4) come next.
-Meanwhile, prepare what's in sections 2 and 3, and start your own accounts
-early: Reddit and Hacker News need weeks of history.
+launch film and the extension SDK are built, and the repo is ready for other
+developers and their coding agents. CI signs, notarizes and publishes
+releases. Next is a quiet 1.0 (sections 5 and 6): released without fanfare,
+then 1.0.1 to prove updates reach other people's Macs, and a loud launch a few
+weeks later. Start your own accounts now (section 3): Reddit and Hacker News
+need weeks of history.
 
 ## 1. Done
 
@@ -44,7 +45,7 @@ early: Reddit and Hacker News need weeks of history.
   issue forms, and the name and icon reserved from the GPL. (1 Oct)
 - [x] **The website and docs built:** the homepage, download, switch,
   extensions, FAQ, privacy and press pages, the docs, and `llms.txt`, with
-  downloads counted and Cloudflare Web Analytics. They go live with the beta.
+  downloads counted and Cloudflare Web Analytics. They go live with the quiet 1.0.
   (2 Oct)
 - [x] **The press page's basics:** the fact sheet, short and long
   descriptions, and six images including the icon. (2 Oct)
@@ -165,13 +166,13 @@ early: Reddit and Hacker News need weeks of history.
 - [x] **CI signs and notarizes each release,** with the certificate, its
   password and the API key in GitHub secrets. Tested with a run started by
   hand: signed, notarized and accepted by Gatekeeper as a download. (29 Oct)
-- [ ] **CI publishes updates too,** with the update key and a Cloudflare
-  token that can only write the feed in GitHub secrets. You create the
-  token, and Claude does the rest.
+- [x] **CI publishes updates too,** with the update key and a Cloudflare
+  token that can only write the feed in GitHub secrets. It runs for the first
+  time with 1.0. (29 Oct)
 
 Details: [RELEASE.md §4](RELEASE.md#4-signing-and-notarization).
 
-## 5. Before the beta
+## 5. Before the quiet 1.0
 
 With the first notarized build:
 
@@ -186,23 +187,24 @@ With the first notarized build:
   Oct. (You)
 - [x] **Your daily app moves to `com.orbtorrent.mac`** with it, with your
   settings and the VirusTotal key. (29 Oct)
-- [ ] **Beta 1's release notes:** what's in it and what's counted, linking
+- [ ] **1.0's release notes:** what's in it and what's counted, linking
   orbtorrent.com/privacy#counts. CI adds the engine's versions. Claude
-  drafts and you publish.
+  drafts and you publish. 1.0 is build 2, so your daily app, build 1,
+  updates itself to it through the feed.
 
-## 6. The beta (quiet)
+## 6. The quiet 1.0
 
 In this order:
 
 - [ ] **Make the repo public.** (You)
-- [ ] **Release beta 1:** tag it, CI builds and notarizes it, publish the
-  GitHub release, then `publish-update.sh`. (You and Claude)
+- [ ] **Release 1.0:** tag `v1.0`, CI builds and notarizes it into a draft
+  release, and publishing it puts it in the update feed. (You and Claude)
 - [ ] **Homebrew tap live,** before the site, which shows the `brew install`
   line (Claude):
   - create `orbtorrent/homebrew-tap`, public, with a README;
   - add a deploy key that can write to it, and its private half as the
     secret `HOMEBREW_TAP_DEPLOY_KEY`;
-  - `gh workflow run homebrew.yml -f tag=v1.0-beta.1`, then
+  - `gh workflow run homebrew.yml -f tag=v1.0`, then
     `brew install orbtorrent/tap/orbtorrent` on a Mac without OrbTorrent.
 - [ ] **Deploy orbtorrent.com,** and turn on deploying with each push. That
   needs a Cloudflare token you create, which can also use the site's D1
@@ -217,37 +219,35 @@ In this order:
   - caching, compression and speed from the US and Europe;
   - analytics loading once, and Download counted.
 
-  Details: [LAUNCH.md, the beta](LAUNCH.md#the-beta-quiet).
+  Details: [LAUNCH.md, the quiet 1.0](LAUNCH.md#the-quiet-10).
 - [ ] **Report a Problem can open a GitHub issue,** now that the repo is
   public. (Claude)
 - [ ] **The Agent Skill** through `npx skills add`, and the docs on
   Context7. (Claude)
-- [ ] **Tell a few people** (You). Not Hacker News, the press, Product Hunt
-  or the GitHub lists yet.
-  - the email list;
-  - r/macapps, as a request for feedback: an `[OS]` title, the Free flair
-    and their PCP template. This starts the 30-day clock;
-  - your own social accounts.
+- [ ] **Tell a few people** (You): friends, and your own social accounts.
+  Not the email list or r/macapps, which get one post each on launch day,
+  and not Hacker News, the press, Product Hunt or the GitHub lists.
 
-## 7. During the beta, at least 30 days
+## 7. After the quiet 1.0, two to four weeks
 
-- [ ] **Beta 2 updates beta 1** on other people's Macs, without asking for
-  any permission again. (You and Claude)
+- [ ] **1.0.1 updates 1.0** on other people's Macs, without asking for
+  any permission again, within a week or two. (You and Claude)
 - [ ] **Collect** bugs, fixed through the updater, the questions people ask,
   for the FAQ, quotes from happy users (with their permission), and stars.
   (You and Claude)
 - [ ] **Watch the counts:** Macs each day, and quits per version
   (`updates/stats.sh`). A version that crashes gets a `--critical` fix.
   (Claude)
-- [ ] **Pick the 1.0 date:** a Tuesday at least 30 days after the r/macapps
-  post, away from holidays and Apple events. Suggested: Tuesday 12 January
-  2027. (You)
+- [ ] **Pick launch day:** a Tuesday two to four weeks after the quiet 1.0,
+  away from holidays and Apple events, once your Reddit and Hacker News
+  accounts have some history. Suggested: Tuesday 8 December 2026, or 12
+  January 2027. (You)
 - [ ] **Everything in [LAUNCH.md §2](LAUNCH.md#2-ready-before-10) is true:**
-  notarized, updates proven, importing tested, Proton tried, the repo public
+  notarized, 1.0.1 delivered as an update, importing tested, Proton tried, the repo public
   with its README, the engine's source in each release, full-library
   screenshots, and answers ready.
 
-## 8. Two to three weeks before 1.0
+## 8. Two to three weeks before launch day
 
 - [ ] **Pitch the press** under embargo, from the list in
   [LAUNCH.md §5](LAUNCH.md#press). Claude drafts and you send.

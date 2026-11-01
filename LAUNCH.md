@@ -11,10 +11,12 @@ Malaysia time (MYT).
 
 ## The short version
 
-- **Two launches.** A quiet public beta, to find bugs and gather the first
-  users, stars and quotes. Then a loud 1.0, with Hacker News, the press,
-  Reddit and social media all in the same day, and the rest spread over two
-  weeks.
+- **Two launches.** A quiet 1.0, released without fanfare to a few people,
+  to find bugs and prove an update (1.0.1) reaches other people's Macs. Then
+  a loud launch day a few weeks later, with Hacker News, the press, Reddit
+  and social media all in the same day, and the rest spread over two weeks.
+  (Decided on 1 November 2026: a 1.0 rather than a public beta, since a beta
+  puts people off and would spend r/macapps' one post a month.)
 - **Launch day is a Tuesday.** Show HN at 08:00 MYT (Monday evening in the
   US), then at 22:00 MYT (Tuesday morning in the US) the press articles, the
   email to everyone who signed up, r/macapps and social media.
@@ -83,8 +85,8 @@ None of the loud launch happens until all of these are true:
 - **Notarized and stapled,** and opens on a fresh Mac with no warning.
   Homebrew also requires this: since September 2026 it disables casks that
   fail Gatekeeper. (RELEASE.md, section 4)
-- **Updates proven:** a beta has updated itself to the next one on other
-  people's Macs, without asking for permissions again.
+- **Updates proven:** 1.0 has updated itself to 1.0.1 on other people's
+  Macs, without asking for permissions again.
 - **Importing tested** from Transmission and qBittorrent in a fresh user
   account. It's where switchers start.
 - **Port forwarding tried on a paid Proton VPN plan.** It's a headline
@@ -152,14 +154,14 @@ None of the loud launch happens until all of these are true:
 
 ## 4. Timeline
 
-The dates depend on Apple. As a guide: Apple approves in October, signed
-builds by early November, the beta in November, and 1.0 in January.
-
-1.0 is at least 30 days after the beta's r/macapps post, because r/macapps
-allows one post per developer every 30 days. Avoid US Thanksgiving (26
-November 2026), 20 December to 5 January, and the weeks of Apple events and
-big macOS releases. **Suggested: Tuesday 12 January 2027.** The 19th works
-too, but its Show HN would go up on the evening of a US holiday.
+The quiet 1.0 in November, 1.0.1 a week or two after it, and launch day two
+to four weeks after the quiet 1.0, once the Reddit and Hacker News accounts
+have some history. Nothing is posted on r/macapps before launch day, so its
+one post a month goes to the launch. Avoid US Thanksgiving (26 November
+2026), 20 December to 5 January, and the weeks of Apple events and big macOS
+releases. **Suggested: Tuesday 8 December 2026,** or 12 January 2027 if the
+accounts need longer. The 19th works too, but its Show HN would go up on the
+evening of a US holiday.
 
 Launch-day times below are for US winter time (November to March). In US
 summer time, everything US-based comes an hour earlier in MYT.
@@ -185,9 +187,9 @@ summer time, everything US-based comes an hour earlier in MYT.
   review)
 - The technical write-up. (Me; you review)
 
-### The beta (quiet)
+### The quiet 1.0
 
-- Beta 1 on GitHub, the website's Download button and the Homebrew tap
+- 1.0 on GitHub, the website's Download button and the Homebrew tap
   switched on.
 - **Audit the live website,** once it's deployed. (Me)
   - Lighthouse, on mobile and desktop, for each kind of page: the homepage,
@@ -201,22 +203,20 @@ summer time, everything US-based comes an hour earlier in MYT.
     after a few days, Core Web Vitals from real visits in Web Analytics.
   - That each page loads the analytics script once, and the Download button
     gives the disk image and is counted by `website/stats.sh`.
-- **Tell a few people:**
-  - the email list;
-  - r/macapps, as a request for feedback. Title starts with `[OS]` (open
-    source), with the Free flair and their developer post template (PCP). This
-    starts the 30-day clock;
-  - your Bluesky, Mastodon and X.
-  - No Hacker News, press, Product Hunt or GitHub lists yet. (You post)
+- **Tell a few people:** friends, and your Bluesky, Mastodon and X. Not the
+  email list or r/macapps, which get one post each on launch day, and no
+  Hacker News, press, Product Hunt or GitHub lists yet. (You post)
+- **1.0.1 within a week or two,** shipped through the updater, to prove
+  updates reach other people's Macs.
 - **Collect:**
   - bugs, fixed through the updater;
   - the questions people ask, which become the FAQ;
   - quotes from happy users, used with their permission;
   - stars.
 
-### Two to three weeks before 1.0
+### Two to three weeks before launch day
 
-- **Pitch the press,** with a link to the notarized beta, the press page
+- **Pitch the press,** with a link to the download, the press page
   and an embargo: "Please don't publish before Tuesday <date> at 9:00 US
   Eastern (22:00 MYT)". (You send; I draft)
   - Keep each email under 150 words, personal, and in plain text: the
@@ -296,7 +296,7 @@ that doesn't happen, the next chance is a real update, months later.
 
 | Subreddit | When | Rules that matter |
 |---|---|---|
-| [r/macapps](https://www.reddit.com/r/macapps/) (about 239,000 members) | The beta, then 1.0 at least 30 days later | 10 karma earned in r/macapps first. Developers use the PCP template and need approval. One post per developer every 30 days. `[OS]` title prefix for open source, and the Free flair. Disclose that you made it. No short links, affiliate links or piracy. |
+| [r/macapps](https://www.reddit.com/r/macapps/) (about 239,000 members) | Launch day, once | 10 karma earned in r/macapps first. Developers use the PCP template and need approval. One post per developer every 30 days. `[OS]` title prefix for open source, and the Free flair. Disclose that you made it. No short links, affiliate links or piracy. |
 | [r/apple](https://www.reddit.com/r/apple/) | The first Sunday after launch | Developers only, Sundays only (California time), text posts only. |
 | [r/opensource](https://www.reddit.com/r/opensource/) | Day 2 to 3 | Check the sidebar first. |
 | [r/coolgithubprojects](https://www.reddit.com/r/coolgithubprojects/) | Day 2 to 3 | Self-promotion allowed, open-source projects do best. Title format reportedly `[Project] OrbTorrent – what it does`; check the sidebar. |

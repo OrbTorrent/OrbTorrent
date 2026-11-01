@@ -134,8 +134,8 @@ features after 1.0, see [ROADMAP.md](ROADMAP.md).
     Analytics Engine dataset `orbtorrent_update_checks`, without the address
     it came from. Free up to 100,000 checks a day.
   - **The disk images** are downloaded from GitHub Releases. While the repo
-    is private, they can't be downloaded by other people, so by the public
-    beta the repo must be public, or the releases must live in a separate
+    is private, they can't be downloaded by other people, so by the quiet
+    1.0 the repo must be public, or the releases must live in a separate
     public repo.
   - **Signing:** the feed and each update are signed with an EdDSA key in the
     owner's login Keychain (account `orbtorrent`), whose public half is in
@@ -232,9 +232,10 @@ features after 1.0, see [ROADMAP.md](ROADMAP.md).
   (`Connection\ResolvePeerCountries`), credited in Acknowledgements.
 - **Clean-up:**
   - Removed the Floe and bundle ID migrations and their tests.
-  - The version is 1.0. Betas are 1.0 with rising build numbers
-    (`CURRENT_PROJECT_VERSION`), called "1.0 beta N" in their release titles,
-    so Sparkle sees each as newer.
+  - The version is 1.0, released quietly before the launch (decided on 1
+    November 2026, instead of a beta). Fixes are 1.0.1 and on, each with a
+    higher build number (`CURRENT_PROJECT_VERSION`), so Sparkle sees each as
+    newer. 1.0 is build 2, one above the owner's daily app.
   - The README's three old screenshots are now one image of the app as it
     is (1 October 2026).
 
@@ -301,7 +302,7 @@ automatically.
   run about 42 times too long, because `mach_timebase_info` reports Intel's
   clock ticks while CPU times stay in Apple silicon's. It now reads the
   hardware's own (`hw.tbfrequency`), which is right on both.
-- **Updating:** install beta 1, publish beta 2, and confirm it updates
+- **Updating:** install 1.0, publish 1.0.1, and confirm it updates
   without asking for any permission or Keychain access again.
 - **Daily use:** the owner's daily app becomes the signed release build
   for a few days. (You)
@@ -331,14 +332,14 @@ automatically.
   homepage, download, switch, extensions, FAQ, privacy and press pages, and
   the docs, on Cloudflare (Workers static assets, `website/`), with
   Cloudflare Web Analytics and downloads counted, and an email sign-up for
-  1.0 (website/AGENTS.md). Deployed with the beta.
-- **Public beta:** make the repo public, so its releases' disk images can
-  be downloaded (You), then a GitHub release, posted on r/macapps, quietly.
-  Then fixes, shipped through the updater. See [LAUNCH.md](LAUNCH.md).
-- **1.0,** the big launch, at least 30 days after the beta's r/macapps
-  post, since r/macapps allows one a month. Everything about it is in
+  1.0 (website/AGENTS.md). Deployed with the quiet 1.0.
+- **Quiet 1.0:** make the repo public, so its releases' disk images can
+  be downloaded (You), then the 1.0 release, the website and the Homebrew
+  tap, told only to a few people. Then 1.0.1 through the updater. See
   [LAUNCH.md](LAUNCH.md).
-- **Homebrew.** From beta 1, our own tap, `orbtorrent/homebrew-tap`:
+- **Launch day,** the loud one, two to four weeks later. Everything about it
+  is in [LAUNCH.md](LAUNCH.md).
+- **Homebrew.** From 1.0, our own tap, `orbtorrent/homebrew-tap`:
   `brew install orbtorrent/tap/orbtorrent`. The cask comes from
   `scripts/homebrew-tap.sh`, tested on 2 October 2026 by installing,
   `livecheck` and uninstalling a local build, and
