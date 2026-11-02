@@ -321,8 +321,10 @@ Details: [LAUNCH.md, launch day](LAUNCH.md#launch-day-a-tuesday).
   and Monday 16:00. (You)
 - [ ] **Days 7 to 10** (You and Claude):
   - Product Hunt, if you want a second wave;
-  - the directories: MacUpdate, AlternativeTo, MacMenuBar.com, SaaSHub,
-    Microlaunch and Peerlist;
+  - the directories: MacUpdate, AlternativeTo, Uptodown, MacMenuBar.com,
+    SaaSHub, Microlaunch and Peerlist, with what's in
+    [LAUNCH.md, what each directory gets](LAUNCH.md#what-each-directory-gets);
+    Claude takes MacMenuBar.com's screenshots first;
   - the five GitHub lists in
     [LAUNCH.md §5](LAUNCH.md#github-lists).
 - [ ] **Days 10 to 14:** ask the writers of "best torrent app for Mac"

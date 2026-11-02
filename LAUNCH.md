@@ -341,12 +341,70 @@ years.
 
 | Where | Notes |
 |---|---|
-| [MacUpdate](https://www.macupdate.com/help/submit-app) | Free, Mac only, reviewed by people. |
+| [MacUpdate](https://www.macupdate.com/help/submit-app) | Free, Mac only, reviewed by people. It's on Google's first page for "transmission mac" and "qbittorrent mac". |
 | [AlternativeTo](https://alternativeto.net) | Free. Suggest OrbTorrent as an alternative to Transmission, qBittorrent, µTorrent, Folx, BiglyBT and Motrix. It's where "µTorrent alternative" searches end up. |
-| [MacMenuBar.com](https://macmenubar.com/submit-your-menu-bar-app/) | Menu bar apps only, which OrbTorrent is. |
+| [Uptodown](https://www.uptodown.dev) | Free, through its developer console (sign in with GitHub). It hosts its own copy, and it's on Google's first page for "transmission mac" and "qbittorrent mac". It's mostly for Android, so check the console takes Mac apps. |
+| [MacMenuBar.com](https://macmenubar.com/submit-your-menu-bar-app/) | Menu bar apps only, which OrbTorrent is, reviewed by hand. It needs at least three screenshots of the app in the real menu bar, not the panel on its own. |
 | [SaaSHub](https://www.saashub.com) | Free. "Alternative to X" pages. |
 | [Microlaunch](https://microlaunch.net) | Free. |
 | [Peerlist Launchpad](https://peerlist.io/launchpad) | Free, weekly. |
+
+### What each directory gets
+
+Written once, to paste into each form. It's in the order MacUpdate asks for
+it; the others ask for some of the same. Where a form asks whether any of
+the code was written by AI, say yes: OrbTorrent is built with coding agents.
+
+- **Name:** OrbTorrent
+- **Short description,** without the name: A free, native torrent app for
+  the Mac, on qBittorrent's engine
+- **Tagline,** for the launch sites: The torrent app made for your Mac
+- **Description,** the press kit's, with the features from the 1.0 release
+  notes. MacUpdate wants it in HTML: each paragraph in `<p>`, the name in
+  `<strong>`, and the list under `<h5>Features</h5>` in a `<ul>`.
+
+  > OrbTorrent is a native Mac app, written in Swift and SwiftUI, that runs
+  > qBittorrent's engine. It lives in the menu bar, where a small orb fills
+  > as downloads progress, and has a full library window when you want one.
+  >
+  > Features:
+  >
+  > - Magnet links and .torrent files open straight from your browser or
+  >   Finder. Choose the files, their priority and the folder before
+  >   anything downloads, or let it start right away.
+  > - Downloads only through your VPN, if you like. If the VPN drops,
+  >   downloading and sharing stop until it's back, and a port your VPN
+  >   forwards is picked up by itself.
+  > - The Fake Download Check holds a download that looks fake, such as a
+  >   film that's really a program, before any of it arrives. VirusTotal
+  >   Scan can check finished files.
+  > - Brings your downloads over from Transmission or qBittorrent in one
+  >   step.
+  > - Extensions, written in TypeScript, each run in a sandbox.
+  > - Updates itself, with signed updates.
+  >
+  > It's free and open source, under the GPL, with no ads and no account.
+
+- **Version changes:** the newest release's notes, shortened to a list.
+- **Price:** free. **Licence:** GNU GPL 3.0 or later.
+- **Requirements:** macOS 26 or later, on Apple silicon or Intel.
+- **Category:** the torrent or file-sharing one. **Tags:** torrent,
+  BitTorrent, qBittorrent, magnet links, VPN, menu bar, open source.
+- **An alternative to:** Transmission, qBittorrent, µTorrent, Folx, BiglyBT
+  and Motrix.
+- **Product page:** https://orbtorrent.com
+- **Download address:** https://orbtorrent.com/download/mac, which is always
+  the newest disk image, and `website/stats.sh` shows each download with
+  the site it came from. Where a site keeps its own copy, give it the disk
+  image from GitHub's newest release. It's notarized, so a changed copy
+  won't open, and an old copy updates itself.
+- **Source code:** https://github.com/OrbTorrent/OrbTorrent
+- **Developer:** Sanjevi Rau, help@orbtorrent.com
+- **Icon and screenshots:** from the [press kit](https://orbtorrent.com/press):
+  the icon (1024 × 1024), the library window, the menu bar panel, the
+  Extensions page and OrbTorrent on a Mac. For MacMenuBar.com, three new
+  screenshots with the real menu bar in them, taken in OrbTorrent Dev with
+  legal downloads (Claude).
 
 ### GitHub lists
 
@@ -465,6 +523,12 @@ engine, free and open source`, in their PCP template, saying you made it.
 - **Setapp and AppSumo:** they're for paid apps.
 - **Paid launch directories** (BetaList, now about US$39, and Uneed) and AI
   tool directories: a poor fit for a free Mac app.
+- **Softpedia:** its form asks you to confirm that none of the code was
+  written by AI, which isn't true of OrbTorrent.
+- **CNET's Download.com and Softonic:** both have wrapped downloads in
+  installers with extras, and CNET brings few Mac users now. If they list
+  OrbTorrent anyway, its notarization and signed updates still protect
+  people who get it there.
 
 ## Sources
 
