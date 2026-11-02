@@ -30,8 +30,7 @@ cask "orbtorrent" do
   version "$VERSION"
   sha256 "$SHA256"
 
-  url "https://github.com/$REPO/releases/download/v#{version}/$FILE",
-      verified: "github.com/$REPO/"
+  url "https://github.com/$REPO/releases/download/v#{version}/$FILE"
   name "OrbTorrent"
   desc "Torrent client for the menu bar, built on qBittorrent's engine"
   homepage "https://orbtorrent.com/"
