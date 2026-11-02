@@ -15,10 +15,11 @@
 		// addresses get the site's own not-found page.
 		"html_handling": "auto-trailing-slash",
 		"not_found_handling": "404-page",
-		// The sign-up's pages post back to these, and Safari plays the film only
-		// in byte ranges, which the files alone don't answer, so the Worker sees
-		// them first.
-		"run_worker_first": ["/subscribe", "/subscribe/confirm", "/unsubscribe", "/film/*"]
+		// The Download button's link has no file, the sign-up's pages post back
+		// to these, and Safari plays the film only in byte ranges, which the
+		// files alone don't answer, so the Worker sees them first. Without this,
+		// an address with no file gets the not-found page and never reaches it.
+		"run_worker_first": ["/download/mac", "/subscribe", "/subscribe/confirm", "/unsubscribe", "/film/*"]
 	},
 	// Downloads, counted by the Worker; stats.sh shows them.
 	"analytics_engine_datasets": [{ "binding": "DOWNLOADS", "dataset": "orbtorrent_downloads" }],
