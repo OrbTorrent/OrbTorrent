@@ -240,6 +240,14 @@ In this order:
     visits until then, is switched off. Download is counted by `stats.sh`.
   - Left for after a few days: Core Web Vitals from real visits.
   (2 Nov)
+- [x] **Ready for AI agents:** level 4 of 5, "Agent-Integrated", on
+  Cloudflare's checker (isitagentready.com), from 2. Asked for Markdown
+  (`Accept: text/markdown`), the homepage answers with `llms.txt` and each
+  docs page with its own Markdown, which Cloudflare's own Markdown for
+  Agents would charge a Pro plan for. The Agent Skill is listed at
+  `/.well-known/agent-skills/`, and the homepage's `Link` header points to
+  both. Level 5 needs an API, logins or an agent of our own, which the site
+  doesn't have. Lighthouse is unchanged. (2 Nov)
 - [x] **The sitemap in Google Search Console and Bing Webmaster Tools,**
   `https://orbtorrent.com/sitemap-index.xml`, Bing's imported from Search
   Console. (2 Nov)
