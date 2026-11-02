@@ -12,8 +12,8 @@ export const collections = {
     schema: docsSchema({
       extend: z.object({
         // Every page has its own description, for search results and link
-        // previews.
-        description: z.string(),
+        // previews, short enough for search results to show it whole.
+        description: z.string().max(160),
       }),
     }),
   }),

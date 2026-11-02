@@ -1,6 +1,6 @@
 ---
 title: Updates
-description: How OrbTorrent keeps itself up to date with signed updates it installs while you're not using it, the settings for checking and installing, and where to see what's new.
+description: How OrbTorrent keeps itself up to date with signed updates, installed while you aren't using it, the settings for checking and installing, and what's new.
 ---
 
 OrbTorrent updates itself. Each update is signed, so your Mac only installs one that came from OrbTorrent.

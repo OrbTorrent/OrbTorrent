@@ -203,9 +203,14 @@ export class OrbRenderer {
   /** Space around the orb for its glow, in diameters. */
   readonly pad: number;
 
+  /**
+   * Only with a graphics card: drawn in software, as on a Mac without one or
+   * in a headless browser, the orb would hold up the page, so its picture
+   * stands in.
+   */
   static supported(): boolean {
     try {
-      return !!document.createElement("canvas").getContext("webgl2");
+      return !!document.createElement("canvas").getContext("webgl2", { failIfMajorPerformanceCaveat: true });
     } catch {
       return false;
     }
