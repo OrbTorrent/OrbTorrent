@@ -135,10 +135,10 @@ export default {
     if (signUp) return signUp;
     const asMarkdown = await markdown(request, env);
     if (asMarkdown) return asMarkdown;
-    // Anything else is a file, or the not-found page. A page says it depends on
-    // Accept, since an agent asking for Markdown gets something else.
+    // Anything else is a file, or the not-found page. A page with Markdown
+    // says it depends on Accept, since an agent asking for Markdown gets that.
     const response = await env.ASSETS.fetch(request);
-    if (!response.headers.get("Content-Type")?.startsWith("text/html")) return response;
+    if (!markdownFor(new URL(request.url).pathname) || !response.headers.get("Content-Type")?.startsWith("text/html")) return response;
     const page = new Response(response.body, response);
     page.headers.append("Vary", "Accept");
     return page;

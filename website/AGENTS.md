@@ -25,10 +25,10 @@ Consult these guides before working on related tasks:
 
 - Every page is built ahead of time, as files (`build.format: "file"`,
   `trailingSlash: "never"`). `src/worker.ts` is the Cloudflare Worker in front
-  of them, configured in `wrangler.jsonc`. It sees every page first, but only
-  answers `/download/mac`, the email sign-up's posts, the film's byte ranges
-  and agents asking for Markdown; everything else is the file. Scripts, styles
-  and pictures skip it (`run_worker_first`, tested by `npm test`). `npm run deploy` builds the site and
+  of them, configured in `wrangler.jsonc`. It answers `/download/mac`, the
+  email sign-up's posts, the film's byte ranges, and agents asking for the
+  homepage or a docs page as Markdown; everything else goes straight to the
+  files (`run_worker_first`, tested by `npm test`). `npm run deploy` builds the site and
   publishes it with Wrangler. Not `cf deploy`: it adds Cloudflare's Astro
   adapter to the project, which this site doesn't use. Once the repo is
   public, a push to main that changes the site deploys it from CI
