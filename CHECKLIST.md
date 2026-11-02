@@ -216,21 +216,42 @@ In this order:
 - [x] **The GitHub organisation's profile:** the orb, its name, description,
   website and help@, and orbtorrent.com verified with a DNS record
   (`_gh-orbtorrent-o`, which stays). (2 Nov)
-- [ ] **Try the email sign-up live:** signing up, confirming and
-  unsubscribing work, with help@ (2 Nov). Left: mail-tester again, which
-  should score about 9.5 now the links work. (Claude)
-- [ ] **Audit the live website** (Claude):
-  - Lighthouse on mobile and desktop;
-  - the sitemap submitted to Google and Bing, the structured data
-    validated, link previews and robots;
-  - caching, compression and speed from the US and Europe;
-  - analytics loading once, and Download counted.
-
-  Details: [LAUNCH.md, the quiet 1.0](LAUNCH.md#the-quiet-10).
+- [x] **The email sign-up, live:** signing up, confirming and
+  unsubscribing work, with help@, and the confirmation email, sent by the
+  live site, scored 10/10 on mail-tester. (2 Nov)
+- [x] **The live website, audited** (details:
+  [LAUNCH.md, the quiet 1.0](LAUNCH.md#the-quiet-10)):
+  - Lighthouse 100 for accessibility, best practices and SEO on every kind
+    of page, and 96 to 100 for speed on mobile, 100 on desktop. The homepage
+    was 60 on mobile, because Lighthouse draws the live orbs in software;
+    now the orb's picture stands in wherever there's no graphics card.
+  - The structured data has no errors or warnings on validator.schema.org;
+    every page in the sitemap has its canonical address, a description of
+    160 characters or fewer (the docs' schema now checks it) and a preview
+    image, and Bluesky's link previews show them. robots.txt is right.
+  - Pages and files come from Cloudflare's cache with Brotli, in 30–100 ms
+    from the US, Europe, Brazil, Japan and Singapore, and about 300 ms from
+    India. `http://` now redirects to `https://` (Always Use HTTPS).
+  - Cloudflare was adding a second copy of the analytics script to every
+    page, including the sign-up's pages, which are never counted. That's
+    off (the Web Analytics site's automatic setup, disabled), so each page
+    loads the site's own script once. Download is counted by `stats.sh`.
+  - Left for after a few days: Core Web Vitals from real visits.
+  (2 Nov)
+- [ ] **The sitemap in Google Search Console and Bing Webmaster Tools**
+  (You, with Claude): sign in to Search Console, add orbtorrent.com as a
+  domain property, and give me the TXT record it asks for, as with GitHub.
+  Then submit `https://orbtorrent.com/sitemap-index.xml`, and import the
+  site into Bing Webmaster Tools from Search Console.
 - [ ] **Report a Problem can open a GitHub issue,** now that the repo is
   public. (Claude)
-- [ ] **The Agent Skill** through `npx skills add`, and the docs on
-  Context7. (Claude)
+- [x] **The Agent Skill:** `npx skills add orbtorrent/orbtorrent` finds
+  and installs it, references and all, and the docs' "Build with a coding
+  agent" gives that line. (2 Nov)
+- [ ] **The docs on Context7** (You): adding a library needs an account.
+  Sign in at [context7.com/add-library](https://context7.com/add-library),
+  choose GitHub, and add `https://github.com/OrbTorrent/OrbTorrent`.
+  `context7.json` keeps it to the extension docs and the SDK.
 - [ ] **Tell a few people** (You): friends, and your own social accounts.
   Not the email list or r/macapps, which get one post each on launch day,
   and not Hacker News, the press, Product Hunt or the GitHub lists.
