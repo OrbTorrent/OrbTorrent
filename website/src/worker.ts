@@ -7,6 +7,7 @@
 // (src/lib/markdown.ts).
 
 import confirmEmail from "../emails/dist/confirm.json";
+import { isCounted } from "./lib/downloads";
 import { markdownFor, wantsMarkdown } from "./lib/markdown";
 import { answer, forgetUnconfirmed, type Database, type Newsletter } from "./lib/newsletter";
 import { withRange } from "./lib/ranges";
@@ -76,12 +77,7 @@ async function newestDiskImage(): Promise<{ url: string; version: string }> {
  * from, and not robots following links.
  */
 function count(request: Request, env: Env, version: string) {
-  const agent = request.headers.get("User-Agent") ?? "";
-  const purpose = `${request.headers.get("Sec-Purpose") ?? ""} ${request.headers.get("Purpose") ?? ""}`;
-  const mode = request.headers.get("Sec-Fetch-Mode");
-  // Only a click or a typed address: not a prefetch, or a page's script fetching it.
-  if (request.method !== "GET" || purpose.includes("prefetch") || (mode && mode !== "navigate")) return;
-  if (!agent.startsWith("Mozilla/") || /bot|crawl|spider|slurp|preview|headless|lighthouse/i.test(agent)) return;
+  if (!isCounted(request)) return;
   let from = "";
   try {
     const referrer = new URL(request.headers.get("Referer") ?? "");
