@@ -213,9 +213,12 @@ In this order:
   it, or by hand. `www.orbtorrent.com` redirects to it, with a redirect
   rule. The Download button needed `/download/mac` added to the Worker's
   `run_worker_first`; a test keeps it there. (2 Nov)
-- [ ] **Try the email sign-up live:** sign up from the footer, confirm, and
-  unsubscribe, check the email's icon shows, then mail-tester again, which
-  should score about 9.5 once the links work. (Claude)
+- [x] **The GitHub organisation's profile:** the orb, its name, description,
+  website and help@, and orbtorrent.com verified with a DNS record
+  (`_gh-orbtorrent-o`, which stays). (2 Nov)
+- [ ] **Try the email sign-up live:** signing up, confirming and
+  unsubscribing work, with help@ (2 Nov). Left: mail-tester again, which
+  should score about 9.5 now the links work. (Claude)
 - [ ] **Audit the live website** (Claude):
   - Lighthouse on mobile and desktop;
   - the sitemap submitted to Google and Bing, the structured data
