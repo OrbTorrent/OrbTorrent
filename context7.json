@@ -1,0 +1,13 @@
+{
+  "$schema": "https://context7.com/schema/context7.json",
+  "projectTitle": "OrbTorrent extensions",
+  "description": "Extensions for OrbTorrent, the macOS torrent app: TypeScript hooks that check a download before it starts or act on it after it finishes, made and tested with the orb tool.",
+  "folders": ["website/src/content/docs/docs/extensions", "sdk", "extensions"],
+  "excludeFolders": ["sdk/test", "sdk/templates", "node_modules"],
+  "excludeFiles": ["AGENTS.md", "CLAUDE.md"],
+  "rules": [
+    "Make a new extension with `npm create @orbtorrent/extension@latest <name>`, then read the AGENTS.md in its folder.",
+    "Check the work with `npx orb test`, `npx orb build` and `npx orb lint` until all three pass.",
+    "Allowing development extensions, allowing a folder and confirming an install happen in OrbTorrent, by the person. Ask them; never try to get around it."
+  ]
+}
