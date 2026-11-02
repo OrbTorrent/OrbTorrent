@@ -25,8 +25,10 @@ Consult these guides before working on related tasks:
 
 - Every page is built ahead of time, as files (`build.format: "file"`,
   `trailingSlash: "never"`). `src/worker.ts` is the Cloudflare Worker in front
-  of them, which only answers `/download/mac` and the email sign-up's posts,
-  configured in `wrangler.jsonc`. `npm run deploy` builds the site and
+  of them, configured in `wrangler.jsonc`. It sees every page first, but only
+  answers `/download/mac`, the email sign-up's posts, the film's byte ranges
+  and agents asking for Markdown; everything else is the file. Scripts, styles
+  and pictures skip it (`run_worker_first`, tested by `npm test`). `npm run deploy` builds the site and
   publishes it with Wrangler. Not `cf deploy`: it adds Cloudflare's Astro
   adapter to the project, which this site doesn't use. Once the repo is
   public, a push to main that changes the site deploys it from CI
@@ -44,7 +46,13 @@ Consult these guides before working on related tasks:
   an export of `../sdk/src/index.ts`.
 - Each docs page is also served as Markdown at its address plus `.md`, and
   `llms.txt`, `llms-full.txt` and `docs/extensions/llms*.txt` are generated
-  from the docs (`src/lib/llms.ts`).
+  from the docs (`src/lib/llms.ts`). A request with `Accept: text/markdown`
+  gets a docs page's Markdown, or `llms.txt` for the homepage
+  (`src/lib/markdown.ts`); other pages stay HTML. The homepage's `Link` header
+  (`public/_headers`) points agents to `llms.txt` and the Agent Skills index.
+- The Agent Skill in `../skills/` is published at
+  `/.well-known/agent-skills/` (`src/lib/skills.ts`): an index, and the skill
+  as a `.tar.gz` with its digest, made with the site.
 - The Download buttons carry `data-download`: on a Mac they start the
   download straight away, without leaving the page, and show a note
   (`src/components/DownloadStarted.astro`); elsewhere they open `/download`.

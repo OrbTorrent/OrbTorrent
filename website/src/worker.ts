@@ -2,10 +2,12 @@
 // and served as a file; this only answers /download/mac, which goes to the
 // newest disk image in the update feed, so the download button never needs
 // editing (until a release is in the feed, it goes to the releases page on
-// GitHub), the email sign-up's posts (src/lib/newsletter.ts), and the film's
-// byte ranges (src/lib/ranges.ts).
+// GitHub), the email sign-up's posts (src/lib/newsletter.ts), the film's
+// byte ranges (src/lib/ranges.ts), and agents asking for a page as Markdown
+// (src/lib/markdown.ts).
 
 import confirmEmail from "../emails/dist/confirm.json";
+import { markdownFor, wantsMarkdown } from "./lib/markdown";
 import { answer, forgetUnconfirmed, type Database, type Newsletter } from "./lib/newsletter";
 import { withRange } from "./lib/ranges";
 import { parseFeed } from "./lib/release";
@@ -104,6 +106,18 @@ async function film(request: Request, env: Env): Promise<Response> {
   return withRange(request, response, sizes[new URL(request.url).pathname.slice("/film/".length)]);
 }
 
+/** The page's own Markdown, for an agent that asks for it, or null to answer with the page. */
+async function markdown(request: Request, env: Env): Promise<Response | null> {
+  const source = request.method === "GET" || request.method === "HEAD" ? markdownFor(new URL(request.url).pathname) : null;
+  if (!source || !wantsMarkdown(request.headers.get("Accept"))) return null;
+  const file = await env.ASSETS.fetch(new Request(new URL(source, request.url), { method: request.method }));
+  if (!file.ok) return null;
+  const response = new Response(file.body, file);
+  response.headers.set("Content-Type", "text/markdown; charset=utf-8");
+  response.headers.set("Vary", "Accept");
+  return response;
+}
+
 export default {
   async fetch(request: Request, env: Env): Promise<Response> {
     const { pathname } = new URL(request.url);
@@ -119,8 +133,15 @@ export default {
     }
     const signUp = await answer(request, newsletter(env));
     if (signUp) return signUp;
-    // Anything else that isn't a file: the not-found page.
-    return env.ASSETS.fetch(request);
+    const asMarkdown = await markdown(request, env);
+    if (asMarkdown) return asMarkdown;
+    // Anything else is a file, or the not-found page. A page says it depends on
+    // Accept, since an agent asking for Markdown gets something else.
+    const response = await env.ASSETS.fetch(request);
+    if (!response.headers.get("Content-Type")?.startsWith("text/html")) return response;
+    const page = new Response(response.body, response);
+    page.headers.append("Vary", "Accept");
+    return page;
   },
 
   /** Each day: forgets the sign-ups no one confirmed within 7 days. */

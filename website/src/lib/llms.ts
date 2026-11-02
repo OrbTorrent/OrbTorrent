@@ -44,7 +44,7 @@ export async function llmsIndex(): Promise<string> {
     "",
     welcome,
     "",
-    "Each docs page is also Markdown, at its address plus .md. All of the docs together are in [llms-full.txt](https://orbtorrent.com/llms-full.txt), and the extension docs alone in [docs/extensions/llms-full.txt](https://orbtorrent.com/docs/extensions/llms-full.txt).",
+    "Each docs page is also Markdown, at its address plus .md, or at its own address when asked for text/markdown. All of the docs together are in [llms-full.txt](https://orbtorrent.com/llms-full.txt), and the extension docs alone in [docs/extensions/llms-full.txt](https://orbtorrent.com/docs/extensions/llms-full.txt).",
     "",
     "## Website",
     "",
@@ -65,7 +65,7 @@ export async function llmsIndex(): Promise<string> {
     "",
     `- [Source code](${site.repo}): the app, the extension SDK, the official extensions and this website.`,
     "- [@orbtorrent/api on npm](https://www.npmjs.com/package/@orbtorrent/api): the extension API and the `orb` command-line tool.",
-    `- [Agent Skill](${site.repo}/tree/main/skills/build-orbtorrent-extension): for coding agents building an extension.`,
+    `- [Agent Skill](${site.url}/.well-known/agent-skills/index.json): for coding agents building an extension, also [on GitHub](${site.repo}/tree/main/skills/build-orbtorrent-extension).`,
     "",
   ].join("\n");
 }
@@ -83,7 +83,7 @@ export async function llmsExtensionsIndex(): Promise<string> {
     "## For coding agents",
     "",
     `- [AGENTS.md](${site.repo}/blob/main/sdk/templates/_shared/AGENTS.md): the whole API, the rules and the loop, in one file. Every extension made with \`orb create\` has it.`,
-    `- [Agent Skill](${site.repo}/tree/main/skills/build-orbtorrent-extension): for Claude Code, Codex, Cursor and other agents that use the Agent Skills format.`,
+    `- [Agent Skill](${site.url}/.well-known/agent-skills/index.json): for Claude Code, Codex, Cursor and other agents that use the Agent Skills format, also [on GitHub](${site.repo}/tree/main/skills/build-orbtorrent-extension).`,
     "",
   ].join("\n");
 }
