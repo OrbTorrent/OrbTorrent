@@ -4,8 +4,9 @@ name: Website
 # tests the email sign-up, builds every page, checks every link between docs
 # pages, and checks that the API reference covers every export of
 # @orbtorrent/api. Then a push to main deploys it, once the repo is public
-# (from the first release) and the secret CLOUDFLARE_WEBSITE_TOKEN is set.
-# By hand, it's `npm run deploy` in website/.
+# (from the first release) and the secret CLOUDFLARE_WEBSITE_TOKEN is set; so
+# does running it by hand on main. From a Mac, it's `npm run deploy` in
+# website/.
 
 on:
   pull_request:
@@ -19,6 +20,7 @@ on:
       - "website/**"
       - "sdk/src/index.ts"
       - "sdk/CHANGELOG.md"
+  workflow_dispatch:
 
 permissions:
   contents: read
@@ -32,7 +34,7 @@ jobs:
   build:
     runs-on: ubuntu-latest
     env:
-      DEPLOYS: ${{ github.event_name == 'push' && !github.event.repository.private && secrets.CLOUDFLARE_WEBSITE_TOKEN != '' }}
+      DEPLOYS: ${{ github.event_name != 'pull_request' && github.ref == 'refs/heads/main' && !github.event.repository.private && secrets.CLOUDFLARE_WEBSITE_TOKEN != '' }}
     defaults:
       run:
         working-directory: website
