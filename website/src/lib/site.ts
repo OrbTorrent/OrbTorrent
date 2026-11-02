@@ -24,8 +24,11 @@ export const site = {
    * Mac, the Download buttons start it straight away; see DownloadStarted.astro.
    */
   download: "/download/mac",
-  /** Cloudflare Web Analytics' public token for orbtorrent.com; see Analytics.astro. */
-  analytics: "ed0da937eec94cd9934789a93e8bfbd7",
+  /**
+   * Cloudflare Web Analytics' public token for orbtorrent.com, a site added
+   * by its hostname; see Analytics.astro and AGENTS.md.
+   */
+  analytics: "fb3080ee9c314a4a825306aec9a99229",
   engine: { qbittorrent: "5.2.3", libtorrent: "1.2.20", qt: "6.10.3", openssl: "3.6.4", boost: "1.86.0" },
   /**
    * The launch film, in the site's light colours, made in video/ and played

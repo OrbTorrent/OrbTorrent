@@ -62,7 +62,9 @@ Consult these guides before working on related tasks:
   and a new cut needs a new name, set in `site.film`.
 - Pages are counted by Cloudflare Web Analytics (`src/components/Analytics.astro`),
   only on orbtorrent.com. The privacy page says what's counted: change it when
-  that changes.
+  that changes. Its Web Analytics site is added by hostname, not through the
+  zone: a zone's site also adds Cloudflare's own copy of the script to every
+  page, including those never counted, and stops counting when that's off.
 - The app's anonymous counts (`OrbTorrent/Updates/AnonymousCounts.swift`) are
   listed value by value on the privacy page (`#counts`) and summed up in
   `guides/privacy.md`, `guides/updates.md`, the FAQ and

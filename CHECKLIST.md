@@ -233,9 +233,11 @@ In this order:
     from the US, Europe, Brazil, Japan and Singapore, and about 300 ms from
     India. `http://` now redirects to `https://` (Always Use HTTPS).
   - Cloudflare was adding a second copy of the analytics script to every
-    page, including the sign-up's pages, which are never counted. That's
-    off (the Web Analytics site's automatic setup, disabled), so each page
-    loads the site's own script once. Download is counted by `stats.sh`.
+    page, including the sign-up's pages, which are never counted: the Web
+    Analytics site came with the zone, and such a site stops counting when
+    that's off. It's now a site added by hostname, with its own token, so
+    each page loads the site's own script once. The zone's site, with the
+    visits until then, is switched off. Download is counted by `stats.sh`.
   - Left for after a few days: Core Web Vitals from real visits.
   (2 Nov)
 - [ ] **The sitemap in Google Search Console and Bing Webmaster Tools**
