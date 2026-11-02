@@ -14,12 +14,14 @@ on:
       - "website/**"
       - "sdk/src/index.ts"
       - "sdk/CHANGELOG.md"
+      - "skills/**"
   push:
     branches: [main]
     paths:
       - "website/**"
       - "sdk/src/index.ts"
       - "sdk/CHANGELOG.md"
+      - "skills/**"
   workflow_dispatch:
 
 permissions:
