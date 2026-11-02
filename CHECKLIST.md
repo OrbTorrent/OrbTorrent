@@ -240,20 +240,18 @@ In this order:
     visits until then, is switched off. Download is counted by `stats.sh`.
   - Left for after a few days: Core Web Vitals from real visits.
   (2 Nov)
-- [ ] **The sitemap in Google Search Console and Bing Webmaster Tools**
-  (You, with Claude): sign in to Search Console, add orbtorrent.com as a
-  domain property, and give me the TXT record it asks for, as with GitHub.
-  Then submit `https://orbtorrent.com/sitemap-index.xml`, and import the
-  site into Bing Webmaster Tools from Search Console.
+- [x] **The sitemap in Google Search Console,**
+  `https://orbtorrent.com/sitemap-index.xml`. (2 Nov)
+- [ ] **Bing Webmaster Tools** (You): sign in, and import the site from
+  Search Console, which brings its sitemap too.
 - [ ] **Report a Problem can open a GitHub issue,** now that the repo is
   public. (Claude)
 - [x] **The Agent Skill:** `npx skills add orbtorrent/orbtorrent` finds
   and installs it, references and all, and the docs' "Build with a coding
   agent" gives that line. (2 Nov)
-- [ ] **The docs on Context7** (You): adding a library needs an account.
-  Sign in at [context7.com/add-library](https://context7.com/add-library),
-  choose GitHub, and add `https://github.com/OrbTorrent/OrbTorrent`.
-  `context7.json` keeps it to the extension docs and the SDK.
+- [x] **The docs on Context7,** as `/orbtorrent/orbtorrent`, "OrbTorrent
+  extensions": the extension docs and the SDK, kept to them by
+  `context7.json`, with its rules first in every answer. (2 Nov)
 - [ ] **Tell a few people** (You): friends, and your own social accounts.
   Not the email list or r/macapps, which get one post each on launch day,
   and not Hacker News, the press, Product Hunt or the GitHub lists.
