@@ -7,14 +7,15 @@ happens. This is the only place with checkboxes: tick them here.
 
 **You** marks what only the owner can do, and **Claude** what Claude does,
 for you to review where it says so. Times are Malaysia time (MYT).
-Last brought up to date on 1 November 2026.
+Last brought up to date on 2 November 2026.
 
 **Where we are:** the app, the website with its docs and search pages, the
 launch film and the extension SDK are built, and the repo is ready for other
 developers and their coding agents. CI signs, notarizes and publishes
-releases. Next is a quiet 1.0 (sections 5 and 6): released without fanfare,
-then 1.0.1 to prove updates reach other people's Macs, and a loud launch a few
-weeks later. Start your own accounts now (section 3): Reddit and Hacker News
+releases. **1.0 is out, quietly, since 2 November 2026,** with the repo
+public, the website live and the Homebrew tap. Next: the rest of section 6,
+then 1.0.1 to prove updates reach other people's Macs, and a loud launch a
+few weeks later. Start your own accounts now (section 3): Reddit and Hacker News
 need weeks of history.
 
 ## 1. Done
@@ -178,37 +179,40 @@ With the first notarized build:
 
 - [x] **It opens on a fresh Mac with no warning,** checked with `spctl` and
   `stapler`. (29 Oct)
-- [ ] **A fresh user account, like a stranger.** Download it from GitHub,
-  then go through Gatekeeper, the welcome, importing from Transmission and
-  qBittorrent, a magnet link and a .torrent file, the VPN, extensions,
-  notifications, start at login, quitting and opening again, and
-  uninstalling. (You and Claude)
-- [ ] **Your daily app becomes the signed build** for a few days, since 29
-  Oct. (You)
+- [x] **Like a stranger:** 1.0's disk image, marked as downloaded, in your
+  own account with your OrbTorrent and its data moved aside and its
+  permissions reset: Gatekeeper, the welcome, a magnet link and a .torrent
+  file, the VPN, extensions, notifications and start at login. Then your own
+  OrbTorrent was put back. Importing wasn't tried. (2 Nov)
+- [x] **Your daily app became the signed build,** from 29 Oct, with no
+  problems. (2 Nov)
 - [x] **Your daily app moves to `com.orbtorrent.mac`** with it, with your
   settings and the VirusTotal key. (29 Oct)
-- [ ] **1.0's release notes:** what's in it and what's counted, linking
-  orbtorrent.com/privacy#counts. CI adds the engine's versions. Claude
-  drafts and you publish. 1.0 is build 2, so your daily app, build 1,
-  updates itself to it through the feed.
+- [x] **1.0's release notes:** what's in it and what's counted, linking
+  orbtorrent.com/privacy#counts, with the engine's versions CI adds. 1.0 is
+  build 2, so your daily app, build 1, updates itself to it through the feed.
+  (2 Nov)
 
 ## 6. The quiet 1.0
 
 In this order:
 
-- [ ] **Make the repo public.** (You)
-- [ ] **Release 1.0:** tag `v1.0`, CI builds and notarizes it into a draft
-  release, and publishing it puts it in the update feed. (You and Claude)
-- [ ] **Homebrew tap live,** before the site, which shows the `brew install`
-  line (Claude):
-  - create `orbtorrent/homebrew-tap`, public, with a README;
-  - add a deploy key that can write to it, and its private half as the
-    secret `HOMEBREW_TAP_DEPLOY_KEY`;
-  - `gh workflow run homebrew.yml -f tag=v1.0`, then
-    `brew install orbtorrent/tap/orbtorrent` on a Mac without OrbTorrent.
-- [ ] **Deploy orbtorrent.com,** and turn on deploying with each push. That
-  needs a Cloudflare token you create, which can also use the site's D1
-  database and send email. (Claude)
+- [x] **The repo is public,** history checked first: every commit by your
+  GitHub no-reply address, and no keys or personal email addresses. (2 Nov)
+- [x] **1.0 released:** tagged `v1.0`, built, signed and notarized by CI,
+  published, and in the update feed, signed. (2 Nov)
+- [x] **The Homebrew tap,** `orbtorrent/homebrew-tap`, public, written by CI
+  with a deploy key of its own (deploy keys were turned on for the GitHub
+  organisation for it). Homebrew 7 trusts a cask named in full, as
+  `brew install orbtorrent/tap/orbtorrent` does. Checked with a dry run,
+  `brew fetch`, which checks the download, and `brew livecheck`. Not
+  installed for real, since uninstalling it quits your own OrbTorrent.
+  (2 Nov)
+- [x] **orbtorrent.com live,** deployed from CI with the token "OrbTorrent CI
+  website" (`CLOUDFLARE_WEBSITE_TOKEN`), on each push to main that changes
+  it, or by hand. `www.orbtorrent.com` redirects to it, with a redirect
+  rule. The Download button needed `/download/mac` added to the Worker's
+  `run_worker_first`; a test keeps it there. (2 Nov)
 - [ ] **Try the email sign-up live:** sign up from the footer, confirm, and
   unsubscribe, check the email's icon shows, then mail-tester again, which
   should score about 9.5 once the links work. (Claude)

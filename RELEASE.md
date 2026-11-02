@@ -344,9 +344,12 @@ automatically.
   `scripts/homebrew-tap.sh`, tested on 2 October 2026 by installing,
   `livecheck` and uninstalling a local build, and
   `.github/workflows/homebrew.yml` updates it as each release is published,
-  pushing with a deploy key of the tap. The official cask, for plain `brew
-  install orbtorrent`, needs a popularity bar and a pass from Gatekeeper, so
-  it comes after launch.
+  pushing with a deploy key of the tap. Homebrew 7 loads casks only from
+  taps it trusts, and trusts a cask named in full, as `brew install
+  orbtorrent/tap/orbtorrent` does; `brew info orbtorrent` alone needs `brew
+  trust orbtorrent/tap` first. Public since 1.0, on 2 November 2026. The
+  official cask, for plain `brew install orbtorrent`, needs a popularity bar
+  and a pass from Gatekeeper, so it comes after launch.
 
 ## After 1.0
 
