@@ -240,10 +240,9 @@ In this order:
     visits until then, is switched off. Download is counted by `stats.sh`.
   - Left for after a few days: Core Web Vitals from real visits.
   (2 Nov)
-- [x] **The sitemap in Google Search Console,**
-  `https://orbtorrent.com/sitemap-index.xml`. (2 Nov)
-- [ ] **Bing Webmaster Tools** (You): sign in, and import the site from
-  Search Console, which brings its sitemap too.
+- [x] **The sitemap in Google Search Console and Bing Webmaster Tools,**
+  `https://orbtorrent.com/sitemap-index.xml`, Bing's imported from Search
+  Console. (2 Nov)
 - [ ] **Report a Problem can open a GitHub issue,** now that the repo is
   public. (Claude)
 - [x] **The Agent Skill:** `npx skills add orbtorrent/orbtorrent` finds
