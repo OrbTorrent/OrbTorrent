@@ -125,6 +125,10 @@ targets:
     postBuildScripts:
       - name: Leave links and files to OrbTorrent in OrbTorrent Dev
         basedOnDependencyAnalysis: false
+        # So it runs after the Info.plist is written, not before, which
+        # would put the links, files and feed back.
+        inputFiles:
+          - $(TARGET_BUILD_DIR)/$(INFOPLIST_PATH)
         script: |
           set -euo pipefail
           # OrbTorrent Dev never opens magnet links or .torrent files, so it
