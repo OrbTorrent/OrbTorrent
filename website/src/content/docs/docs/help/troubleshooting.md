@@ -99,7 +99,7 @@ OrbTorrent downloads with qBittorrent's engine, which runs in the background, an
 
 1. Click **Restart**, or **Restart Engine** in **Settings › Engine**.
 2. If it stops again, look at the engine's log: **Settings › Engine › Show Engine Log**.
-3. [Report the problem](/docs/help/report-a-problem), with the log included.
+3. [Report the problem](/docs/help/report-a-problem), with the log included. OrbTorrent's window says **The Download Engine Isn't Running**, with a **Report a Problem…** button below it.
 
 ### The window won't open
 
