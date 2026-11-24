@@ -68,6 +68,7 @@ final class EngineController {
         case .stopped, .failed: break
         }
         status = .starting
+        var launched: Process?
         do {
             guard let executable = EnginePaths.executable else { throw EngineError.missingExecutable }
             await terminateOrphanedEngine()
@@ -75,12 +76,19 @@ final class EngineController {
             await client.update(endpoint: credentials.endpoint)
             try EngineConfiguration.prepare(for: credentials, networkInterface: networkInterface())
             let process = try launch(executable)
+            launched = process
             try await waitUntilReady(process)
             version = try? await client.appVersion()
             buildInfo = try? await client.buildInfo()
+            // It stopped while starting: engineDidExit has dealt with it.
+            guard self.process === process else { return }
             status = .running
             await didStart?()
         } catch {
+            // An engine that quit is engineDidExit's to deal with, as when
+            // it's running: it counts it, and starts it again or says it
+            // keeps stopping.
+            if let launched, !launched.isRunning { return }
             if let process, process.isRunning { process.terminate() }
             process = nil
             status = .failed(error.localizedDescription)
