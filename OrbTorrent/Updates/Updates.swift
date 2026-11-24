@@ -56,8 +56,8 @@ final class Updates: NSObject {
     @ObservationIgnored var onReady: (() -> Void)?
     /// The anonymous counts to add to a check, the manual ones included.
     @ObservationIgnored var countsForCheck: ((_ manual: Bool) -> [AnonymousCounts.Value])?
-    /// Called once a check has reached the feed.
-    @ObservationIgnored var didCheck: (() -> Void)?
+    /// Called once a check is over, saying whether it reached the feed.
+    @ObservationIgnored var didFinishCheck: ((_ reachedFeed: Bool) -> Void)?
 
     @ObservationIgnored let history = ReleaseHistory()
     @ObservationIgnored private let defaults: UserDefaults
@@ -185,6 +185,31 @@ final class Updates: NSObject {
     func didDismissWhatsNew() {
         defaults.set(Self.build, forKey: Self.seenBuildKey)
     }
+
+    // MARK: Checks
+
+    /// Whether a check's error says it never reached the feed: the Mac is
+    /// offline, couldn't find it or connect to it securely, or timed out,
+    /// which is almost always while connecting. Sparkle wraps the network's
+    /// error in its own. Anything else came after the feed had the check,
+    /// and counted it.
+    nonisolated static func neverReachedFeed(_ error: any Error) -> Bool {
+        var error: NSError? = error as NSError
+        while let current = error {
+            if current.domain == NSURLErrorDomain {
+                return unreachable.contains(URLError.Code(rawValue: current.code))
+            }
+            error = current.userInfo[NSUnderlyingErrorKey] as? NSError
+        }
+        return false
+    }
+
+    private nonisolated static let unreachable: Set<URLError.Code> = [
+        .notConnectedToInternet, .dataNotAllowed, .internationalRoamingOff, .callIsActive,
+        .cannotFindHost, .dnsLookupFailed, .cannotConnectToHost, .timedOut,
+        .secureConnectionFailed, .serverCertificateUntrusted, .serverCertificateHasBadDate,
+        .serverCertificateHasUnknownRoot, .serverCertificateNotYetValid,
+    ]
 }
 
 extension Updates: SPUUpdaterDelegate {
@@ -204,10 +229,13 @@ extension Updates: SPUUpdaterDelegate {
     func updater(_ updater: SPUUpdater, didFinishLoading appcast: SUAppcast) {
         history.remember(appcast.items.compactMap(Release.init))
         currentRelease = history.release(build: Self.build)
-        didCheck?()
+        didFinishCheck?(true)
     }
 
+    /// Also after a check that ended before the feed was read: it failed or
+    /// was cancelled. A later error, downloading an update, changes nothing.
     func updater(_ updater: SPUUpdater, didFinishUpdateCycleFor updateCheck: SPUUpdateCheck, error: (any Error)?) {
+        didFinishCheck?(!(error.map(Self.neverReachedFeed) ?? false))
         isManualCheck = false
     }
 
