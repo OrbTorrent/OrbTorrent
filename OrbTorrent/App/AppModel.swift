@@ -79,7 +79,7 @@ final class AppModel {
         updates.onWaitingChange = { [weak self] name in self?.notifier.postUpdateAvailable(name) }
         updates.onReady = { [weak self] in self?.installUpdateWhenIdle() }
         updates.countsForCheck = { [weak self] manual in self?.countsForCheck(manual: manual) ?? [] }
-        updates.didCheck = { [weak self] in self?.counts.checkSucceeded() }
+        updates.didFinishCheck = { [weak self] reachedFeed in self?.counts.checkFinished(reachedFeed: reachedFeed) }
         engine.onUnexpectedExit = { [weak self] in self?.counts.engineStoppedUnexpectedly() }
         connectExtensions()
     }
@@ -378,7 +378,7 @@ final class AppModel {
 
     /// What the daily update check adds, as the settings allow.
     private func countsForCheck(manual: Bool) -> [AnonymousCounts.Value] {
-        settings.sendsAnonymousCounts ? counts.valuesForCheck(manual: manual) : []
+        counts.valuesForCheck(manual: manual, sending: settings.sendsAnonymousCounts)
     }
 
     /// What the counts preview shows: the next check's values.

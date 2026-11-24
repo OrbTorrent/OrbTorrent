@@ -22,8 +22,17 @@ final class AnonymousCounts {
     }
 
     private let defaults: UserDefaults
-    /// The counts in the check under way, taken off once it's done.
-    private var sent: (quits: Int, engineStops: Int)?
+    /// What the check under way has counted as sent, put back if it never
+    /// reaches the feed.
+    private var sent: Sent?
+
+    private struct Sent {
+        let checked: Bool
+        let week: String?
+        let month: String?
+        let quits: Int
+        let engineStops: Int
+    }
 
     init(defaults: UserDefaults = .standard) {
         self.defaults = defaults
@@ -53,11 +62,26 @@ final class AnonymousCounts {
 
     // MARK: The check
 
-    /// The values for an update check about to be made, which
-    /// `checkSucceeded()` then counts as sent.
-    func valuesForCheck(manual: Bool) -> [Value] {
-        sent = (defaults.integer(forKey: Keys.quits), defaults.integer(forKey: Keys.engineStops))
-        return values(manual: manual)
+    /// The values for an update check about to be made, or none if `sending`
+    /// is off. They count as sent straight away, because the feed counts a
+    /// check as it arrives, even one OrbTorrent doesn't hear back from: it
+    /// failed, was cancelled, or OrbTorrent quit first. A check that never
+    /// reaches the feed gives them back in `checkFinished(reachedFeed:)`.
+    func valuesForCheck(manual: Bool, sending: Bool = true, now: Date = .now) -> [Value] {
+        let values = sending ? values(manual: manual, now: now) : []
+        let sent = Sent(checked: defaults.bool(forKey: Keys.checked),
+                        week: defaults.string(forKey: Keys.week),
+                        month: defaults.string(forKey: Keys.month),
+                        quits: sending ? defaults.integer(forKey: Keys.quits) : 0,
+                        engineStops: sending ? defaults.integer(forKey: Keys.engineStops) : 0)
+        self.sent = sent
+        defaults.set(true, forKey: Keys.checked)
+        defaults.set(Self.week(of: now), forKey: Keys.week)
+        defaults.set(Self.month(of: now), forKey: Keys.month)
+        // Anything counted while the check is under way waits for the next.
+        decrement(Keys.quits, by: sent.quits)
+        decrement(Keys.engineStops, by: sent.engineStops)
+        return values
     }
 
     /// The values an update check would send.
@@ -78,17 +102,17 @@ final class AnonymousCounts {
         ]
     }
 
-    /// Once a check has reached the feed: what it counted starts over.
-    func checkSucceeded(now: Date = .now) {
-        defaults.set(true, forKey: Keys.checked)
-        defaults.set(Self.week(of: now), forKey: Keys.week)
-        defaults.set(Self.month(of: now), forKey: Keys.month)
-        if let sent {
-            // Anything counted while the check was under way waits for the next.
-            decrement(Keys.quits, by: sent.quits)
-            decrement(Keys.engineStops, by: sent.engineStops)
-        }
-        sent = nil
+    /// Once the check under way is over. One that never reached the feed
+    /// leaves what it would have counted for the next check.
+    func checkFinished(reachedFeed: Bool) {
+        guard let sent else { return }
+        self.sent = nil
+        guard !reachedFeed else { return }
+        defaults.set(sent.checked, forKey: Keys.checked)
+        restore(sent.week, forKey: Keys.week)
+        restore(sent.month, forKey: Keys.month)
+        increment(Keys.quits, by: sent.quits)
+        increment(Keys.engineStops, by: sent.engineStops)
     }
 
     // MARK: Values
@@ -125,12 +149,16 @@ final class AnonymousCounts {
 
     private func flag(_ isOn: Bool) -> String { isOn ? "1" : "0" }
 
-    private func increment(_ key: String) {
-        defaults.set(defaults.integer(forKey: key) + 1, forKey: key)
+    private func increment(_ key: String, by amount: Int = 1) {
+        defaults.set(defaults.integer(forKey: key) + amount, forKey: key)
     }
 
     private func decrement(_ key: String, by amount: Int) {
         defaults.set(max(0, defaults.integer(forKey: key) - amount), forKey: key)
+    }
+
+    private func restore(_ value: String?, forKey key: String) {
+        if let value { defaults.set(value, forKey: key) } else { defaults.removeObject(forKey: key) }
     }
 
     private enum Keys {
