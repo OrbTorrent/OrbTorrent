@@ -7,7 +7,7 @@ If something's wrong, tell us. Reports go to a person, who reads every one.
 
 ## From OrbTorrent
 
-Choose **Help › Report a Problem…**, or **More (…) › Report a Problem…** in the menu bar panel.
+Choose **Help › Report a Problem…**, or **More (…) › Report a Problem…** in the menu bar panel. If the download engine has stopped, OrbTorrent's window has a **Report a Problem…** button too.
 
 1. **Say what happened:** what you were doing, what you expected, and what happened instead. The first line becomes the subject.
 2. **Choose what's sent with it.** The report always includes the versions of OrbTorrent, macOS and the download engine, and your Mac's model. Tick **Include the engine's recent log** to add its last 60 lines, which often show what went wrong.

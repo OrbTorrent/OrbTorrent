@@ -4,6 +4,7 @@ import SwiftUI
 /// Covers the library while the engine starts, or explains why it can't.
 struct EngineStatusOverlay: View {
     @Environment(AppModel.self) private var model
+    @Environment(\.openWindow) private var openWindow
 
     var body: some View {
         switch model.engine.status {
@@ -32,6 +33,11 @@ struct EngineStatusOverlay: View {
                 .frame(maxHeight: 140)
                 GlassEffectContainer(spacing: 8) {
                     HStack(spacing: 8) {
+                        Button("Report a Problem…") {
+                            NSApp.activate()
+                            openWindow(id: "report")
+                        }
+                        .buttonStyle(.glass)
                         Button("Show Log") {
                             NSWorkspace.shared.open(EnginePaths.consoleLog)
                         }

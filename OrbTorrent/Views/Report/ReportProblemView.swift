@@ -1,7 +1,8 @@
 import AppKit
 import SwiftUI
 
-/// Report a Problem, from the Help menu and the menu bar's ⋯ menu: a short
+/// Report a Problem, from the Help menu, the menu bar's ⋯ menu and the
+/// window when the engine isn't running (EngineStatusOverlay): a short
 /// form, and everything that goes with it shown in full. It opens the
 /// person's mail app with the report filled in; nothing is sent on its own.
 struct ReportProblemView: View {
